@@ -7,6 +7,7 @@ import javax.swing.text.Segment
 import org.fife.ui.rsyntaxtextarea.{ Token => RstaToken, TokenImpl, TokenTypes }
 
 import org.nlogo.core.TokenType
+import org.nlogo.api.NetLogoLegacyDialect
 import org.nlogo.lex.{ LexOperations, StandardLexer }
 
 import org.scalatest.FunSuite
@@ -20,9 +21,10 @@ class NetLogoTokenMakerTest extends FunSuite {
 
   trait Helper {
     var text: String = ""
+    val offset = 0
     def seg = new Segment(text.toCharArray, 0, text.length)
-    val nlTokenMaker = new NetLogoTokenMaker()
-    def tokens: RstaToken = nlTokenMaker.getTokenList(seg, TokenTypes.NULL, 0)
+    val nlTokenMaker = new NetLogoTokenMaker(NetLogoLegacyDialect)
+    def tokens: RstaToken = nlTokenMaker.getTokenList(seg, TokenTypes.NULL, offset)
   }
 
   test("wrapped input: empty string") { new SegInputHelper {
@@ -111,6 +113,24 @@ class NetLogoTokenMakerTest extends FunSuite {
     assert(t.getLexeme == "\"")
   } }
 
+  test("NetLogoTokenMaker: non-zero offset") { new Helper {
+    override val offset = 5
+    text = "abc"
+    val t = tokens
+    assert(t.getOffset == 5)
+    assert(t.getEndOffset == 8)
+    assert(t.containsPosition(7))
+  } }
+
+  test("NetLogoTokenMaker: non-zero offset bracket") { new Helper {
+    override val offset = 5
+    text = "]"
+    val t = tokens
+    assert(t.getOffset == 5)
+    assert(t.getEndOffset == 6)
+    assert(t.containsPosition(5))
+  } }
+
   test("NetLogoTokenMaker: ident and number separated by whitespace") { new Helper {
     text = "abc 123"
     val t = tokens
@@ -122,4 +142,23 @@ class NetLogoTokenMakerTest extends FunSuite {
     assert(t3.getLexeme == "123")
     assert(t3.getNextToken == null)
   } }
+
+  test("NetLogoTokenMaker: newline separated") { new Helper {
+    pending
+  } }
+
+  def testTokenType(tokenText: String, expectedType: Int): Unit = {
+    test(s"token type of $tokenText") { new Helper {
+      text = tokenText
+      assert(tokens.getType === expectedType)
+    } }
+  }
+
+  testTokenType("to", TokenTypes.RESERVED_WORD)
+  testTokenType("false", TokenTypes.LITERAL_BOOLEAN)
+  testTokenType("true", TokenTypes.LITERAL_BOOLEAN)
+  testTokenType("ask", TokenTypes.OPERATOR)
+  testTokenType("fput", TokenTypes.FUNCTION)
+  //TODO don't know what NOBODY should be...
+  testTokenType("nobody", TokenTypes.DATA_TYPE)
 }
