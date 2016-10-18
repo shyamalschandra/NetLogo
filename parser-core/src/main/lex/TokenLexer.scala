@@ -142,7 +142,7 @@ class TokenLexer {
       case _ => false
     }
     try {
-      if (stringText.last != '"' || lastCharEscaped)
+      if (stringText.length == 1 || stringText.last != '"' || lastCharEscaped)
         Some((s"""$stringText""", TokenType.Bad, "Closing double quote is missing"))
       else {
         val unescapedText = StringEscaper.unescapeString(stringText.drop(1).dropRight(1))
