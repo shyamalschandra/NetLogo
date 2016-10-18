@@ -123,4 +123,3 @@ class NetLogoTokenMaker(dialect: Dialect) extends TokenMakerBase {
     firstToken.getOrElse(new TokenImpl(seg, seg.getIndex, seg.getIndex, offset, TokenTypes.NULL, 0))
   }
 }
-

@@ -6,7 +6,8 @@ import java.awt.Dimension
 import javax.swing.{ JEditorPane, JFrame, SwingUtilities }
 
 import org.fife.ui.rtextarea.RTextScrollPane
-import org.fife.ui.rsyntaxtextarea.{ RSyntaxTextArea, SyntaxConstants }
+import org.fife.ui.rsyntaxtextarea.{ folding, AbstractTokenMakerFactory, RSyntaxTextArea, SyntaxConstants, TokenMakerFactory },
+  folding.FoldParserManager
 
 // this is a harness for running a simple editor window
 object NetLogoEditorWindow extends App {
@@ -16,13 +17,15 @@ object NetLogoEditorWindow extends App {
       override def run(): Unit = {
         val frame = new JFrame("NetLogo IDE")
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
-        import org.fife.ui.rsyntaxtextarea.{ AbstractTokenMakerFactory, TokenMakerFactory }
-        val tmf = TokenMakerFactory.getDefaultInstance
-        tmf.asInstanceOf[AbstractTokenMakerFactory]
+        TokenMakerFactory.getDefaultInstance
+          .asInstanceOf[AbstractTokenMakerFactory]
           .putMapping("netlogo", "org.nlogo.ide.NetLogoTokenMaker")
 
-        val textArea = new RSyntaxTextArea(20, 60)
+        FoldParserManager.get.addFoldParserMapping("netlogo", new NetLogoFoldParser())
+
+        val textArea = new RSyntaxTextArea(20, 80)
         textArea.setSyntaxEditingStyle("netlogo")
+        textArea.setCodeFoldingEnabled(true)
 
         val scrollPane = new RTextScrollPane(textArea)
         frame.add(scrollPane)
