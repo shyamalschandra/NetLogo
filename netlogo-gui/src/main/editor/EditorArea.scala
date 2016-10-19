@@ -71,7 +71,6 @@ class EditorArea(configuration: EditorConfiguration)
     caret.setBlinkRate(blinkRate)
     setCaret(caret)
     setDragEnabled(false)
-    setEditorKit(new HighlightEditorKit(configuration.listener, colorizer))
     getInputMap.put(keystroke(Key.VK_ENTER), new EnterAction())
 
     getInputMap.put(charKeystroke(']'), new CloseBracketAction())
@@ -334,6 +333,10 @@ class EditorArea(configuration: EditorConfiguration)
       super.processMouseEvent(me)
   }
 
+  private def doPopup(e: MouseEvent): Unit = {
+    contextMenu.show(this, e.getX, e.getY)
+  }
+
   private class EditorContextMenu(colorizer: Colorizer) extends JPopupMenu {
 
     val copyItem  = new JMenuItem(Actions.COPY_ACTION)
@@ -372,10 +375,6 @@ class EditorArea(configuration: EditorConfiguration)
     }
   }
 
-  private def doPopup(e: MouseEvent): Unit = {
-    contextMenu.show(this, e.getX, e.getY)
-  }
-
   override def replaceSelection(s: String): Unit = {
     // we got a bug report (#917) from a guy in Denmark who was getting NullPointerExceptions
     // when he types the ^ character on Mac OS X 10.6.2.  Dunno what's that about, have not
@@ -383,7 +382,7 @@ class EditorArea(configuration: EditorConfiguration)
     if (s == null) {
       super.replaceSelection(s)
     } else {
-    var selection = s
+      var selection = s
       // on Macs we're having problems with pasted text from other
       // apps having some weird nonstandard character at the
       // beginning we need to ignore - ST 1/3/06

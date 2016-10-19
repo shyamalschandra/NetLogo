@@ -49,6 +49,8 @@ case class EditorConfiguration(
       def keystroke(key: Int, mask: Int = 0): KeyStroke =
         KeyStroke.getKeyStroke(key, mask)
 
+      editor.setEditorKit(new HighlightEditorKit(colorizer))
+
       if (highlightCurrentLine) {
         new LinePainter(editor)
       }
@@ -69,5 +71,8 @@ case class EditorConfiguration(
       val focusTraversalListener = new FocusTraversalListener(editor)
       editor.addFocusListener(focusTraversalListener)
       editor.addMouseListener(focusTraversalListener)
+
+      val editorListener = new EditorListener(e => listener.textValueChanged(null))
+      editorListener.install(editor)
     }
 }
