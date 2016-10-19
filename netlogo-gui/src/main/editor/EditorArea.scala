@@ -71,8 +71,8 @@ class EditorArea(configuration: EditorConfiguration)
     caret.setBlinkRate(blinkRate)
     setCaret(caret)
     setDragEnabled(false)
-    getInputMap.put(keystroke(Key.VK_ENTER), new EnterAction())
 
+    getInputMap.put(keystroke(Key.VK_ENTER), new EnterAction())
     getInputMap.put(charKeystroke(']'), new CloseBracketAction())
     getDocument.putProperty(PlainDocument.tabSizeAttribute, Int.box(2))
 
@@ -82,12 +82,9 @@ class EditorArea(configuration: EditorConfiguration)
 
     // add key bindings for undo and redo so they work even in modal dialogs
     val mask: Int = getToolkit.getMenuShortcutKeyMask
+
     getKeymap.addActionForKeyStroke(keystroke(Key.VK_Z, mask), UndoManager.undoAction())
     getKeymap.addActionForKeyStroke(keystroke(Key.VK_Y, mask), UndoManager.redoAction())
-
-    // add key binding, for getting quick "contexthelp", based on where
-    // the cursor is...
-    getInputMap.put(keystroke(Key.VK_F1, 0), Actions.quickHelpAction(colorizer, I18N.gui.get _))
 
     configuration.configureEditorArea(this)
   }
@@ -162,7 +159,7 @@ class EditorArea(configuration: EditorConfiguration)
     getFontMetrics(getFont).charWidth('m')
 
   private def getRowHeight: Int =
-    return getFontMetrics(getFont).getHeight
+    getFontMetrics(getFont).getHeight
 
   override def setText(text: String): Unit =
     // not sure if this really needed - ST 8/27/03
@@ -351,7 +348,6 @@ class EditorArea(configuration: EditorConfiguration)
       add(pasteItem)
       Actions.PASTE_ACTION.putValue(Action.NAME, I18N.gui.get("menu.edit.paste"))
       addSeparator()
-      add(new JMenuItem(Actions.mouseQuickHelpAction(colorizer, I18N.gui.get _)))
       for (item <- configuration.menuItems) {
         item.putValue("editor", EditorArea.this)
         add(new JMenuItem(item))
