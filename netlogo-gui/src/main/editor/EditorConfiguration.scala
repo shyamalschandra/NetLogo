@@ -30,4 +30,18 @@ case class EditorConfiguration(
   menuItems: Seq[Action],
   enableFocusTraversal: Boolean,
   highlightCurrentLine: Boolean) {
+
+    def withFont(font: Font) =
+      copy(font = font)
+    def withListener(listener: TextListener) =
+      copy(listener = listener)
+    def withFocusTraversalEnabled(isEnabled: Boolean) =
+      copy(enableFocusTraversal = isEnabled)
+    def withCurrentLineHighlighted(isHighlighted: Boolean) =
+      copy(highlightCurrentLine = isHighlighted)
+    def withMenuItems(actions: Seq[Action]) =
+      copy(menuItems = actions)
+    def withKeymap(keymap: Map[KeyStroke, TextAction]) =
+      copy(additionalActions = keymap)
 }
+  //TOOD: Can this class configure the editor without the editor needing to know about all of its values?
