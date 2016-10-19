@@ -255,22 +255,6 @@ class EditorArea(configuration: EditorConfiguration)
     }
   }
 
-  def shiftLeft(): Unit = {
-    try {
-      val (doc, currentLine, endLine) = currentSelectionProperties
-
-      for (line <- currentLine to endLine) {
-        val lineStart = lineToStartOffset(doc, line)
-        val lineEnd   = lineToEndOffset(doc, line)
-        val text      = doc.getText(lineStart, lineEnd - lineStart)
-        if (text.length > 0 && text.charAt(0) == ' ')
-          doc.remove(lineStart, 1)
-      }
-    } catch {
-      case ex: BadLocationException => throw new IllegalStateException(ex)
-    }
-  }
-
   /**
     * Centers the line containing the position in editorArea.
     * By default center the line containing the cursor

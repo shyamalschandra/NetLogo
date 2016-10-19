@@ -31,7 +31,6 @@ object Actions {
   }
 
   class TabKeyAction extends MyTextAction("tab-key", _.indentSelection() )
-  class ShiftTabKeyAction extends MyTextAction("shift-tab-key", e => { e.shiftLeft(); e.shiftLeft() })
   class CommentToggleAction extends MyTextAction("toggle-comment", _.toggleComment())
   def quickHelpAction(colorizer: Colorizer, i18n: String => String) =
     new MyTextAction(i18n("tabs.code.rightclick.quickhelp"),
@@ -83,6 +82,30 @@ object Actions {
       val (startLine, endLine) =
         document.selectionLineRange(component.getSelectionStart, component.getSelectionEnd)
       document.insertBeforeLinesInRange(startLine, endLine, " ")
+    }
+  }
+
+  class ShiftTabKeyAction extends DocumentAction("shift-tab-key") {
+    override def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit = {
+      val (startLine, endLine) =
+        document.selectionLineRange(component.getSelectionStart, component.getSelectionEnd)
+      for {
+        lineNum <- startLine to endLine
+      } {
+        val lineStart = document.lineToStartOffset(lineNum)
+        if (lineStart != -1) {
+          val text = document.getText(lineStart, 2)
+          text.length match {
+            case 0 =>
+            case 1 if text.charAt(0) == ' ' => document.remove(lineStart, 1)
+            case _ =>
+              if (text.charAt(0) == ' ' && text.charAt(1) == ' ')
+                document.remove(lineStart, 2)
+              else if (text.charAt(0) == ' ')
+                document.remove(lineStart, 1)
+          }
+        }
+      }
     }
   }
 }
