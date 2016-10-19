@@ -43,25 +43,31 @@ object EditorArea {
 
 import EditorArea._
 
-class EditorArea(
-  rows: Int,
-  columns: Int,
-  font: java.awt.Font,
-  enableFocusTraversalKeys: Boolean,
-  listener: java.awt.event.TextListener,
-  val colorizer: Colorizer,
-  enableHighlightCurrentLine: Boolean = false,
-  actionMap: Map[KeyStroke, TextAction] = EditorArea.emptyMap,
-  menuItems: Seq[Action] = Seq[Action]())
+class EditorArea(configuration: EditorConfiguration)
   extends JEditorPane
   with AbstractEditorArea
    with java.awt.event.FocusListener {
+
+   def this(
+     rows: Int,
+     columns: Int,
+     font: java.awt.Font,
+     enableFocusTraversalKeys: Boolean,
+     listener: java.awt.event.TextListener,
+     colorizer: Colorizer,
+     enableHighlightCurrentLine: Boolean = false,
+     actionMap: Map[KeyStroke, TextAction] = EditorArea.emptyMap,
+     menuItems: Seq[Action] = Seq[Action]()) = this(EditorConfiguration(rows, columns, font, listener, colorizer, actionMap, menuItems, enableFocusTraversalKeys, enableHighlightCurrentLine))
+
+  val rows = configuration.rows
+  val columns = configuration.columns
+  val colorizer = configuration.colorizer
 
   private var indenter: IndenterInterface = new DumbIndenter(this)
   private var contextMenu: JPopupMenu = new EditorContextMenu(colorizer)
   private val bracketMatcher = new BracketMatcher(colorizer)
   private val undoManager: UndoManager = new UndoManager()
-  if(enableHighlightCurrentLine) {
+  if (configuration.highlightCurrentLine) {
     new LinePainter(this)
   }
 
@@ -78,16 +84,16 @@ class EditorArea(
     caret.setBlinkRate(blinkRate)
     setCaret(caret)
     setDragEnabled(false)
-    setFocusTraversalKeysEnabled(enableFocusTraversalKeys)
-    if (enableFocusTraversalKeys) {
+    setFocusTraversalKeysEnabled(configuration.enableFocusTraversal)
+    if (configuration.enableFocusTraversal) {
       getInputMap.put(keystroke(Key.VK_TAB),           new TransferFocusAction())
       getInputMap.put(keystroke(Key.VK_TAB, ShiftKey), new TransferFocusBackwardAction())
     } else {
       getInputMap.put(keystroke(Key.VK_TAB),           Actions.tabKeyAction)
       getInputMap.put(keystroke(Key.VK_TAB, ShiftKey), Actions.shiftTabKeyAction)
     }
-    setFont(font)
-    setEditorKit(new HighlightEditorKit(listener, colorizer))
+    setFont(configuration.font)
+    setEditorKit(new HighlightEditorKit(configuration.listener, colorizer))
     getInputMap.put(keystroke(Key.VK_ENTER), new EnterAction())
 
     getInputMap.put(charKeystroke(']'), new CloseBracketAction())
@@ -105,7 +111,7 @@ class EditorArea(
     // add key binding, for getting quick "contexthelp", based on where
     // the cursor is...
     getInputMap.put(keystroke(Key.VK_F1, 0), Actions.quickHelpAction(colorizer, I18N.gui.get _))
-    actionMap.foreach {
+    configuration.additionalActions.foreach {
       case (k, v) => getInputMap.put(k, v)
     }
   }
@@ -323,7 +329,7 @@ class EditorArea(
   }
 
   def focusGained(fe: java.awt.event.FocusEvent): Unit = {
-    if (!mouseEvent && enableFocusTraversalKeys && selectionActive) {
+    if (!mouseEvent && configuration.enableFocusTraversal && selectionActive) {
       // this is like selectAll(), but it leaves the
       // caret at the beginning rather than the start;
       // this prevents the enclosing scrollpane from
@@ -345,7 +351,7 @@ class EditorArea(
     // visible.  I suppose we could make HighlightView smarter
     // about that, but instead let's just force the Mac-like
     // behavior and be done with it for now - ST 11/3/03
-    if (enableFocusTraversalKeys)
+    if (configuration.enableFocusTraversal)
       select(0, 0)
     mouseEvent = fe.isTemporary
     bracketMatcher.focusLost(this)
@@ -389,7 +395,7 @@ class EditorArea(
       Actions.PASTE_ACTION.putValue(Action.NAME, I18N.gui.get("menu.edit.paste"))
       addSeparator()
       add(new JMenuItem(Actions.mouseQuickHelpAction(colorizer, I18N.gui.get _)))
-      for(item <- menuItems) {
+      for(item <- configuration.menuItems) {
         item.putValue("editor", EditorArea.this)
         add(new JMenuItem(item))
       }
@@ -404,7 +410,7 @@ class EditorArea(
         Toolkit.getDefaultToolkit.getSystemClipboard.isDataFlavorAvailable(DataFlavor.stringFlavor))
       val point = new Point(invoker.getLocationOnScreen)
       point.translate(x, y)
-      for(item <- menuItems){
+      for(item <- configuration.menuItems){
         item.putValue("cursorLocation", mousePos)
         item.putValue("popupLocation", point)
       }
