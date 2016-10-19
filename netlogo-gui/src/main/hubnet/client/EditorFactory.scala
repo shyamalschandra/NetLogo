@@ -2,6 +2,9 @@
 
 package org.nlogo.hubnet.client
 
+import javax.swing.{ JScrollPane, ScrollPaneConstants }
+
+import org.nlogo.editor.AbstractEditorArea
 import org.nlogo.api.CompilerServices
 
 class EditorFactory(compiler: CompilerServices) extends org.nlogo.window.EditorFactory {
@@ -13,6 +16,11 @@ class EditorFactory(compiler: CompilerServices) extends org.nlogo.window.EditorF
       rows, cols,
       new java.awt.Font(org.nlogo.awt.Fonts.platformMonospacedFont, java.awt.Font.PLAIN, 12),
       enableFocusTraversal, listener,
-      new org.nlogo.window.EditorColorizer(compiler),
-      org.nlogo.core.I18N.gui.get _)
+      new org.nlogo.window.EditorColorizer(compiler))
+
+  def scrollPane(editor: AbstractEditorArea): JScrollPane =
+    new JScrollPane(
+      editor,
+      ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+      ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED)
 }

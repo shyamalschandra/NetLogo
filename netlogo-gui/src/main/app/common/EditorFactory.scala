@@ -41,7 +41,7 @@ class EditorFactory(compiler: CompilerServices) extends WindowEditorFactory {
     else {
       class MyCodeEditor
       extends CodeEditor(rows, cols, font, enableFocusTraversal,
-        listener, colorizer, I18N.gui.get _, enableHighlightCurrentLine, actionMap, actions)
+        listener, colorizer, enableHighlightCurrentLine, actionMap, actions)
         {
           override def focusGained(fe: FocusEvent) {
             super.focusGained(fe)

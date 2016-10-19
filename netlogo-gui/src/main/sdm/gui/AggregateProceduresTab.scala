@@ -2,7 +2,7 @@
 
 package org.nlogo.sdm.gui
 
-import org.nlogo.core.{ CompilerException, TokenType, I18N }
+import org.nlogo.core.{ CompilerException, TokenType}
 import org.nlogo.editor.Colorizer
 import org.nlogo.window.EditorAreaErrorLabel
 import java.awt.event.TextListener
@@ -20,8 +20,7 @@ class AggregateProceduresTab(colorizer: Colorizer) extends javax.swing.JPanel {
                       java.awt.Font.PLAIN, 12),
     false,
     // Dummy listener since the editor is not editable
-    new TextListener() { override def textValueChanged(e: TextEvent) { } },
-    colorizer, I18N.gui.get _)
+    new TextListener() { override def textValueChanged(e: TextEvent) { } }, colorizer)
 
   private val errorLabel = new EditorAreaErrorLabel(text)
 

@@ -8,6 +8,8 @@
 
 package org.nlogo.editor
 
+import org.nlogo.core.I18N
+
 import javax.swing.AbstractAction
 import javax.swing.Action
 import javax.swing.JMenuItem
@@ -48,7 +50,6 @@ class EditorArea(
   enableFocusTraversalKeys: Boolean,
   listener: java.awt.event.TextListener,
   val colorizer: Colorizer,
-  i18n: String => String,
   enableHighlightCurrentLine: Boolean = false,
   actionMap: Map[KeyStroke, TextAction] = EditorArea.emptyMap,
   menuItems: Seq[Action] = Seq[Action]())
@@ -57,7 +58,7 @@ class EditorArea(
    with java.awt.event.FocusListener {
 
   private var indenter: IndenterInterface = new DumbIndenter(this)
-  private var contextMenu: JPopupMenu = editorContextMenu(colorizer, i18n)
+  private var contextMenu: JPopupMenu = new EditorContextMenu(colorizer)
   private val bracketMatcher = new BracketMatcher(colorizer)
   private val undoManager: UndoManager = new UndoManager()
   if(enableHighlightCurrentLine) {
@@ -103,7 +104,7 @@ class EditorArea(
 
     // add key binding, for getting quick "contexthelp", based on where
     // the cursor is...
-    getInputMap.put(keystroke(Key.VK_F1, 0), Actions.quickHelpAction(colorizer, i18n))
+    getInputMap.put(keystroke(Key.VK_F1, 0), Actions.quickHelpAction(colorizer, I18N.gui.get _))
     actionMap.foreach {
       case (k, v) => getInputMap.put(k, v)
     }
@@ -155,7 +156,7 @@ class EditorArea(
       Array[Action](
         Actions.commentToggleAction,
         Actions.shiftLeftAction, Actions.shiftRightAction,
-        Actions.quickHelpAction(colorizer, i18n)))
+        Actions.quickHelpAction(colorizer, I18N.gui.get _)))
 
   override def getPreferredScrollableViewportSize: Dimension = {
     val dimension =
@@ -373,7 +374,7 @@ class EditorArea(
       super.processMouseEvent(me)
   }
 
-  private class EditorContextMenu(colorizer: Colorizer, i18n: String => String) extends JPopupMenu {
+  private class EditorContextMenu(colorizer: Colorizer) extends JPopupMenu {
 
     val copyItem  = new JMenuItem(Actions.COPY_ACTION)
     val cutItem   = new JMenuItem(Actions.CUT_ACTION)
@@ -381,13 +382,13 @@ class EditorArea(
 
     locally {
       add(copyItem)
-      Actions.COPY_ACTION.putValue(Action.NAME, i18n.apply("menu.edit.copy"))
+      Actions.COPY_ACTION.putValue(Action.NAME, I18N.gui.get("menu.edit.copy"))
       add(cutItem)
-      Actions.CUT_ACTION.putValue(Action.NAME, i18n.apply("menu.edit.cut"))
+      Actions.CUT_ACTION.putValue(Action.NAME, I18N.gui.get("menu.edit.cut"))
       add(pasteItem)
-      Actions.PASTE_ACTION.putValue(Action.NAME, i18n.apply("menu.edit.paste"))
+      Actions.PASTE_ACTION.putValue(Action.NAME, I18N.gui.get("menu.edit.paste"))
       addSeparator()
-      add(new JMenuItem(Actions.mouseQuickHelpAction(colorizer, i18n)))
+      add(new JMenuItem(Actions.mouseQuickHelpAction(colorizer, I18N.gui.get _)))
       for(item <- menuItems) {
         item.putValue("editor", EditorArea.this)
         add(new JMenuItem(item))
@@ -409,10 +410,6 @@ class EditorArea(
       }
       super.show(invoker, x, y)
     }
-  }
-
-  private def editorContextMenu(colorizer: Colorizer, i18n: String => String): JPopupMenu = {
-    new EditorContextMenu(colorizer, i18n)
   }
 
   private def doPopup(e: MouseEvent): Unit = {
