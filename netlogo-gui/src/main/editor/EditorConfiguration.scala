@@ -3,7 +3,7 @@
 package org.nlogo.editor
 
 import java.awt.Font
-import java.awt.event.{ TextEvent, TextListener }
+import java.awt.event.{ InputEvent, KeyEvent, TextEvent, TextListener }
 
 import javax.swing.{ Action, KeyStroke }
 import javax.swing.text.TextAction
@@ -43,5 +43,31 @@ case class EditorConfiguration(
       copy(menuItems = actions)
     def withKeymap(keymap: Map[KeyStroke, TextAction]) =
       copy(additionalActions = keymap)
+
+    def configureEditorArea(editor: EditorArea) = {
+      import InputEvent.{ SHIFT_MASK => ShiftKey }
+      def keystroke(key: Int, mask: Int = 0): KeyStroke =
+        KeyStroke.getKeyStroke(key, mask)
+
+      if (highlightCurrentLine) {
+        new LinePainter(editor)
+      }
+      editor.setFont(font)
+
+      additionalActions.foreach {
+        case (k, v) => editor.getInputMap.put(k, v)
+      }
+
+      editor.setFocusTraversalKeysEnabled(enableFocusTraversal)
+      if (enableFocusTraversal) {
+        editor.getInputMap.put(keystroke(KeyEvent.VK_TAB),           new TransferFocusAction())
+        editor.getInputMap.put(keystroke(KeyEvent.VK_TAB, ShiftKey), new TransferFocusBackwardAction())
+      } else {
+        editor.getInputMap.put(keystroke(KeyEvent.VK_TAB),           Actions.tabKeyAction)
+        editor.getInputMap.put(keystroke(KeyEvent.VK_TAB, ShiftKey), Actions.shiftTabKeyAction)
+      }
+      val focusTraversalListener = new FocusTraversalListener(editor)
+      editor.addFocusListener(focusTraversalListener)
+      editor.addMouseListener(focusTraversalListener)
+    }
 }
-  //TOOD: Can this class configure the editor without the editor needing to know about all of its values?

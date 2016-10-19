@@ -40,7 +40,7 @@ class EditorFactory(compiler: CompilerServices) extends WindowEditorFactory {
         .withMenuItems(actions)
         .withKeymap(actionMap)
 
-    if (rows == 100 && cols == 100)
+    if (false)// (rows == 100 && cols == 100)
       new AdvancedEditorArea(100, 100)
     else {
       class MyCodeEditor extends CodeEditor(configuration)

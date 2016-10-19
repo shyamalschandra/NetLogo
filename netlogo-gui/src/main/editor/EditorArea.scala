@@ -46,6 +46,7 @@ import EditorArea._
 class EditorArea(configuration: EditorConfiguration)
   extends JEditorPane
   with AbstractEditorArea
+  with FocusTraversable
   with java.awt.event.FocusListener {
 
   val rows = configuration.rows
@@ -56,9 +57,6 @@ class EditorArea(configuration: EditorConfiguration)
   private var contextMenu: JPopupMenu = new EditorContextMenu(colorizer)
   private val bracketMatcher = new BracketMatcher(colorizer)
   private val undoManager: UndoManager = new UndoManager()
-  if (configuration.highlightCurrentLine) {
-    new LinePainter(this)
-  }
 
   private val caret = new DoubleClickCaret(colorizer, bracketMatcher)
   locally {
@@ -73,15 +71,6 @@ class EditorArea(configuration: EditorConfiguration)
     caret.setBlinkRate(blinkRate)
     setCaret(caret)
     setDragEnabled(false)
-    setFocusTraversalKeysEnabled(configuration.enableFocusTraversal)
-    if (configuration.enableFocusTraversal) {
-      getInputMap.put(keystroke(Key.VK_TAB),           new TransferFocusAction())
-      getInputMap.put(keystroke(Key.VK_TAB, ShiftKey), new TransferFocusBackwardAction())
-    } else {
-      getInputMap.put(keystroke(Key.VK_TAB),           Actions.tabKeyAction)
-      getInputMap.put(keystroke(Key.VK_TAB, ShiftKey), Actions.shiftTabKeyAction)
-    }
-    setFont(configuration.font)
     setEditorKit(new HighlightEditorKit(configuration.listener, colorizer))
     getInputMap.put(keystroke(Key.VK_ENTER), new EnterAction())
 
@@ -100,9 +89,8 @@ class EditorArea(configuration: EditorConfiguration)
     // add key binding, for getting quick "contexthelp", based on where
     // the cursor is...
     getInputMap.put(keystroke(Key.VK_F1, 0), Actions.quickHelpAction(colorizer, I18N.gui.get _))
-    configuration.additionalActions.foreach {
-      case (k, v) => getInputMap.put(k, v)
-    }
+
+    configuration.configureEditorArea(this)
   }
 
   def charKeystroke(char: Char, mask: Int = 0): KeyStroke =
@@ -309,40 +297,20 @@ class EditorArea(configuration: EditorConfiguration)
 
   /// select-all-on-focus stuff copied from org.nlogo.swing.TextField
 
-  private var mouseEvent = false
+  private var _selectionActive = true
 
-  private var selectionActive = true
+  def selectionActive = _selectionActive
 
   def setSelection(s: Boolean): Unit = {
-    selectionActive = s
+    _selectionActive = s
   }
 
   def focusGained(fe: java.awt.event.FocusEvent): Unit = {
-    if (!mouseEvent && configuration.enableFocusTraversal && selectionActive) {
-      // this is like selectAll(), but it leaves the
-      // caret at the beginning rather than the start;
-      // this prevents the enclosing scrollpane from
-      // scrolling to the end to make the caret
-      // visible; it's nicer to keep the scroll at the
-      // start - ST 12/20/04
-      setCaretPosition(getText().length)
-      moveCaretPosition(0)
-    }
     Actions.setEnabled(true)
     UndoManager.setCurrentManager(undoManager)
   }
 
   def focusLost(fe: java.awt.event.FocusEvent): Unit = {
-    // On Windows (and perhaps Linux? not sure), putting
-    // the focus elsewhere leaves the text selected in the
-    // now-unfocused field.  This causes the text to be drawn
-    // in different colors even though the selection isn't
-    // visible.  I suppose we could make HighlightView smarter
-    // about that, but instead let's just force the Mac-like
-    // behavior and be done with it for now - ST 11/3/03
-    if (configuration.enableFocusTraversal)
-      select(0, 0)
-    mouseEvent = fe.isTemporary
     bracketMatcher.focusLost(this)
     colorizer.reset()
     if (!fe.isTemporary) {
@@ -359,9 +327,6 @@ class EditorArea(configuration: EditorConfiguration)
   def getMousePos: Int = mousePos
 
   override def processMouseEvent(me: java.awt.event.MouseEvent): Unit = {
-    if (me.getID == java.awt.event.MouseEvent.MOUSE_PRESSED) {
-      mouseEvent = true
-    }
     if (me.isPopupTrigger() && ! contextMenu.isShowing()) {
       mousePos = caret.getMousePosition(me)
       doPopup(me)
@@ -384,7 +349,7 @@ class EditorArea(configuration: EditorConfiguration)
       Actions.PASTE_ACTION.putValue(Action.NAME, I18N.gui.get("menu.edit.paste"))
       addSeparator()
       add(new JMenuItem(Actions.mouseQuickHelpAction(colorizer, I18N.gui.get _)))
-      for(item <- configuration.menuItems) {
+      for (item <- configuration.menuItems) {
         item.putValue("editor", EditorArea.this)
         add(new JMenuItem(item))
       }
@@ -399,7 +364,7 @@ class EditorArea(configuration: EditorConfiguration)
         Toolkit.getDefaultToolkit.getSystemClipboard.isDataFlavorAvailable(DataFlavor.stringFlavor))
       val point = new Point(invoker.getLocationOnScreen)
       point.translate(x, y)
-      for(item <- configuration.menuItems){
+      for (item <- configuration.menuItems) {
         item.putValue("cursorLocation", mousePos)
         item.putValue("popupLocation", point)
       }
@@ -457,63 +422,4 @@ class EditorArea(configuration: EditorConfiguration)
       case ex: BadLocationException => throw new IllegalStateException(ex)
     }
   }
-
-  ///
-
-  protected class TransferFocusAction extends AbstractAction {
-    def actionPerformed(e: java.awt.event.ActionEvent): Unit = {
-      transferFocus()
-    }
-  }
-
-  protected class TransferFocusBackwardAction extends AbstractAction {
-    def actionPerformed(e: java.awt.event.ActionEvent): Unit = {
-      transferFocusBackward()
-    }
-  }
-
-  class LinePainter(private var component: JTextComponent) extends Highlighter.HighlightPainter with CaretListener {
-
-    private var lastView: Rectangle = new Rectangle(0, 0, 0, 0)
-    private val color = new Color(255, 249, 228, 100)
-    component.addCaretListener(this)
-    try {
-      component.getHighlighter.addHighlight(0, 0, this)
-    } catch {
-      case ble: BadLocationException =>
-    }
-
-    def paint(g: Graphics,
-              p0: Int,
-              p1: Int,
-              bounds: Shape,
-              c: JTextComponent) {
-      try {
-        val r = c.modelToView(c.getCaretPosition)
-        g.setColor(color)
-        g.fillRect(0, r.y, c.getWidth, r.height)
-        if (lastView == null) lastView = r
-      } catch {
-        case ble: BadLocationException => println(ble)
-      }
-    }
-
-    private def resetHighlight() {
-      try {
-        val offset = component.getCaretPosition
-        val currentView = component.modelToView(offset)
-        if (currentView != null && lastView.y != currentView.y) {
-          component.repaint(0, lastView.y, component.getWidth, lastView.height)
-          lastView = currentView
-        }
-      } catch {
-        case ble: BadLocationException =>
-      }
-    }
-
-    def caretUpdate(e: CaretEvent) {
-      resetHighlight()
-    }
-  }
-
 }
