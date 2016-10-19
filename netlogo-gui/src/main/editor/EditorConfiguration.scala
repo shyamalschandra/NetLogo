@@ -17,7 +17,7 @@ object EditorConfiguration {
     new TextListener() { override def textValueChanged(e: TextEvent) { } }
 
   def default(rows: Int, columns: Int, colorizer: Colorizer) =
-    EditorConfiguration(rows, columns, defaultFont, emptyListener, colorizer, Map(), Seq(), false, true)
+    EditorConfiguration(rows, columns, defaultFont, emptyListener, colorizer, Map(), Seq(), false, false)
 }
 
 case class EditorConfiguration(

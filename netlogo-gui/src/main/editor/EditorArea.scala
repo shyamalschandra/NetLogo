@@ -46,18 +46,7 @@ import EditorArea._
 class EditorArea(configuration: EditorConfiguration)
   extends JEditorPane
   with AbstractEditorArea
-   with java.awt.event.FocusListener {
-
-   def this(
-     rows: Int,
-     columns: Int,
-     font: java.awt.Font,
-     enableFocusTraversalKeys: Boolean,
-     listener: java.awt.event.TextListener,
-     colorizer: Colorizer,
-     enableHighlightCurrentLine: Boolean = false,
-     actionMap: Map[KeyStroke, TextAction] = EditorArea.emptyMap,
-     menuItems: Seq[Action] = Seq[Action]()) = this(EditorConfiguration(rows, columns, font, listener, colorizer, actionMap, menuItems, enableFocusTraversalKeys, enableHighlightCurrentLine))
+  with java.awt.event.FocusListener {
 
   val rows = configuration.rows
   val columns = configuration.columns

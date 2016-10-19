@@ -13,7 +13,13 @@ class EditorField(
   enableFocusTraversalKeys: Boolean,
   colorizer: Colorizer,
   actionMap: Map[KeyStroke, TextAction] = EditorArea.emptyMap,
-  menuItems: Seq[Action] = Seq[Action]()) extends EditorArea(1, columns, font, enableFocusTraversalKeys, null, colorizer, false, actionMap, menuItems) {
+  menuItems: Seq[Action] = Seq[Action]())
+  extends EditorArea(
+    EditorConfiguration.default(1, columns, colorizer)
+    .withFont(font)
+    .withFocusTraversalEnabled(enableFocusTraversalKeys)
+    .withKeymap(actionMap)
+    .withMenuItems(menuItems)) {
 
   // shut off the default actions for some keystrokes... let
   // someone add a KeyListener if they want - ST 7/30/03
