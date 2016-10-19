@@ -273,33 +273,6 @@ abstract class InputBox(textArea:AbstractEditorArea, editDialogTextArea:Abstract
     true
   }
 
-  def typeOptions(typeOptions: org.nlogo.api.Options[InputType]) {
-    this.typeOptions = typeOptions
-    if (inputType.displayName != typeOptions.chosenValue.displayName) {
-      inputType = typeOptions.chosenValue
-      constraint.setType(inputType.baseName, inputType.defaultValue)
-      // if the current value doesn't comply with the new constraint
-      // set it to a default value ev 12/14/06
-      try constraint.assertConstraint(toAnyRef(value))
-      catch {
-        case v: ValueConstraint.Violation => valueObject(inputType.defaultValue, true)
-      }
-      textArea.setEditorKit(inputType.getEditorKit)
-      textArea.setFont(inputType.getFont)
-      textArea.enableBracketMatcher(inputType.enableBracketMatcher)
-      changeButton.setVisible(inputType.changeVisible)
-      inputType.colorPanel(colorSwatch)
-    }
-    scroller.setHorizontalScrollBarPolicy(
-      if (inputType.multiline) ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
-      else ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER)
-    multiline(inputType.multiline)
-    if (dialog != null) {
-      dialog.dispose()
-      dialog = null
-    }
-  }
-
   override def getMinimumSize = new Dimension(MinWidth, MinHeight)
   override def getPreferredSize(font: Font) = {
     val result = super.getPreferredSize(font)
