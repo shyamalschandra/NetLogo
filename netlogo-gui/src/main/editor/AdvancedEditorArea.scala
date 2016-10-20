@@ -36,8 +36,10 @@ class AdvancedEditorArea(rows: Int, columns: Int) extends RSyntaxTextArea(rows, 
   def lineToEndOffset(doc: Document,line: Int): Int = ???
   def lineToStartOffset(doc: Document,line: Int): Int = ???
   def offsetToLine(doc: Document,line: Int): Int = ???
-  def setIndenter(i: org.nlogo.editor.IndenterInterface): Unit = {
-    println("indenter set but not needed!")
+  def setIndenter(indenter: Indenter): Unit = {
+    indenter.addActions(getInputMap)
+    // TODO: EditorArea also uses indenter in replaceSelection, although I don't know
+    // whether we need to do that or not
   }
   def setSelection(s: Boolean): Unit = {
     println(s"selection set to $s")

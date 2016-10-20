@@ -53,7 +53,7 @@ class EditorArea(configuration: EditorConfiguration)
   val columns = configuration.columns
   val colorizer = configuration.colorizer
 
-  private var indenter: IndenterInterface = new DumbIndenter(this)
+  private var indenter: Indenter = new DumbIndenter(this)
   private var contextMenu: JPopupMenu = new EditorContextMenu(colorizer)
   private val bracketMatcher = new BracketMatcher(colorizer)
   private val undoManager: UndoManager = new UndoManager()
@@ -72,8 +72,6 @@ class EditorArea(configuration: EditorConfiguration)
     setCaret(caret)
     setDragEnabled(false)
 
-    getInputMap.put(keystroke(Key.VK_ENTER), new EnterAction())
-    getInputMap.put(charKeystroke(']'), new CloseBracketAction())
     getDocument.putProperty(PlainDocument.tabSizeAttribute, Int.box(2))
 
     // on Windows, prevent save() from outputting ^M characters - ST 2/23/04
@@ -86,11 +84,11 @@ class EditorArea(configuration: EditorConfiguration)
     getKeymap.addActionForKeyStroke(keystroke(Key.VK_Z, mask), UndoManager.undoAction())
     getKeymap.addActionForKeyStroke(keystroke(Key.VK_Y, mask), UndoManager.redoAction())
 
+    indenter.addActions(getInputMap)
+
     configuration.configureEditorArea(this)
   }
 
-  def charKeystroke(char: Char, mask: Int = 0): KeyStroke =
-    KeyStroke.getKeyStroke(Character.valueOf(char), mask)
 
   def keystroke(key: Int, mask: Int = 0): KeyStroke =
     KeyStroke.getKeyStroke(key, mask)
@@ -113,21 +111,9 @@ class EditorArea(configuration: EditorConfiguration)
     }
   }
 
-  def setIndenter(newIndenter: IndenterInterface): Unit = {
+  def setIndenter(newIndenter: Indenter): Unit = {
     indenter = newIndenter
-  }
-
-  class EnterAction extends TextAction("enter") {
-    def actionPerformed(e: ActionEvent): Unit = {
-      indenter.handleEnter()
-    }
-  }
-
-  class CloseBracketAction extends TextAction("close-bracket") {
-    def actionPerformed(e: ActionEvent): Unit = {
-      replaceSelection("]")
-      indenter.handleCloseBracket()
-    }
+    indenter.addActions(getInputMap)
   }
 
   override def getActions: Array[Action] =
