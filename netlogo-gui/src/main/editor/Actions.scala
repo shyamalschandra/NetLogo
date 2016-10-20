@@ -31,7 +31,6 @@ object Actions {
   }
 
   class TabKeyAction extends MyTextAction("tab-key", _.indentSelection() )
-  class CommentToggleAction extends MyTextAction("toggle-comment", _.toggleComment())
   def quickHelpAction(colorizer: Colorizer, i18n: String => String) =
     new MyTextAction(i18n("tabs.code.rightclick.quickhelp"),
       e => e.getHelpTarget(e.getSelectionStart).foreach(t => colorizer.doHelp(e, t)))
@@ -104,6 +103,39 @@ object Actions {
               else if (text.charAt(0) == ' ')
                 document.remove(lineStart, 1)
           }
+        }
+      }
+    }
+  }
+
+  class CommentToggleAction extends DocumentAction("toggle-comment") {
+    override def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit = {
+      val (startLine, endLine) =
+        document.selectionLineRange(component.getSelectionStart, component.getSelectionEnd)
+
+      for(currentLine <- startLine to endLine) {
+        val lineStart = document.lineToStartOffset(currentLine)
+        val lineEnd = document.lineToEndOffset(currentLine)
+        val text = document.getText(lineStart, lineEnd - lineStart)
+        val semicolonPos = text.indexOf(';')
+        val allSpaces = (0 until semicolonPos)
+          .forall(i => Character.isWhitespace(text.charAt(i)))
+        if (!allSpaces || semicolonPos == -1) {
+          document.insertBeforeLinesInRange(startLine, endLine, ";")
+          return
+        }
+      }
+      // Logic to uncomment the selected section
+      for (line <- startLine to endLine) {
+        val lineStart = document.lineToStartOffset(line)
+        val lineEnd   = document.lineToEndOffset(line)
+        val text      = document.getText(lineStart, lineEnd - lineStart)
+        val semicolonPos = text.indexOf(';')
+        if (semicolonPos != -1) {
+          val allSpaces = (0 until semicolonPos)
+            .forall(i => Character.isWhitespace(text.charAt(i)))
+          if (allSpaces)
+            document.remove(lineStart + semicolonPos, 1)
         }
       }
     }
