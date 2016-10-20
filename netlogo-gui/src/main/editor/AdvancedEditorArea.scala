@@ -2,10 +2,12 @@
 
 package org.nlogo.editor
 
+import java.awt.Font
+
 import javax.swing.text.Document
 
 import org.fife.ui.rtextarea.RTextScrollPane
-import org.fife.ui.rsyntaxtextarea.{ folding, AbstractTokenMakerFactory, RSyntaxTextArea, SyntaxConstants, TokenMakerFactory },
+import org.fife.ui.rsyntaxtextarea.{ folding, AbstractTokenMakerFactory, RSyntaxTextArea, SyntaxConstants, Theme, TokenMakerFactory },
   folding.FoldParserManager
 
 import org.nlogo.ide.NetLogoFoldParser
@@ -19,6 +21,10 @@ class AdvancedEditorArea(rows: Int, columns: Int) extends RSyntaxTextArea(rows, 
 
   setSyntaxEditingStyle("netlogo")
   setCodeFoldingEnabled(true)
+
+  val theme =
+    Theme.load(getClass.getResourceAsStream("/system/netlogo-editor-style.xml"))
+  theme.apply(this)
 
   def enableBracketMatcher(enable: Boolean): Unit = {
     setBracketMatchingEnabled(enable)

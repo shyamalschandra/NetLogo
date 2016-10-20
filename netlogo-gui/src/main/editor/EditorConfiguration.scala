@@ -3,10 +3,11 @@
 package org.nlogo.editor
 
 import java.awt.{ Font, GraphicsEnvironment }
-import java.awt.event.{ InputEvent, KeyEvent, TextEvent, TextListener }
+import java.awt.event.{ InputEvent, KeyEvent, TextEvent, TextListener },
+  InputEvent.{ SHIFT_MASK => ShiftKey }
 
 import javax.swing.{ Action, KeyStroke }
-import javax.swing.text.TextAction
+import javax.swing.text.{ JTextComponent, TextAction }
 
 import org.nlogo.core.I18N
 
@@ -58,9 +59,6 @@ case class EditorConfiguration(
       copy(additionalActions = keymap)
 
     def configureEditorArea(editor: EditorArea) = {
-      import InputEvent.{ SHIFT_MASK => ShiftKey }
-      def keystroke(key: Int, mask: Int = 0): KeyStroke =
-        KeyStroke.getKeyStroke(key, mask)
 
       editor.setEditorKit(new HighlightEditorKit(colorizer))
 
@@ -92,4 +90,17 @@ case class EditorConfiguration(
       val editorListener = new EditorListener(e => listener.textValueChanged(null))
       editorListener.install(editor)
     }
+
+  def configureAdvancedEditorArea(editor: JTextComponent) = {
+    // editor.setFont(font)
+
+    editor.getInputMap.put(keystroke(KeyEvent.VK_TAB),           Actions.tabKeyAction)
+    editor.getInputMap.put(keystroke(KeyEvent.VK_TAB, ShiftKey), Actions.shiftTabKeyAction)
+
+    val editorListener = new EditorListener(e => listener.textValueChanged(null))
+    editorListener.install(editor)
+  }
+
+  private def keystroke(key: Int, mask: Int = 0): KeyStroke =
+    KeyStroke.getKeyStroke(key, mask)
 }

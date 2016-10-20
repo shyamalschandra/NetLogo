@@ -40,9 +40,11 @@ class EditorFactory(compiler: CompilerServices) extends WindowEditorFactory {
         .withMenuItems(actions)
         .withKeymap(actionMap)
 
-    if (false)// (rows == 100 && cols == 100)
-      new AdvancedEditorArea(100, 100)
-    else {
+    if (rows == 100 && cols == 100) {
+      val editor = new AdvancedEditorArea(100, 100)
+      configuration.configureAdvancedEditorArea(editor)
+      editor
+    } else {
       class MyCodeEditor extends CodeEditor(configuration)
         {
           override def focusGained(fe: FocusEvent) {
