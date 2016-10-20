@@ -99,6 +99,10 @@ case class EditorConfiguration(
 
     val editorListener = new EditorListener(e => listener.textValueChanged(null))
     editorListener.install(editor)
+
+    additionalActions.foreach {
+      case (k, v) => editor.getInputMap.put(k, v)
+    }
   }
 
   private def keystroke(key: Int, mask: Int = 0): KeyStroke =
