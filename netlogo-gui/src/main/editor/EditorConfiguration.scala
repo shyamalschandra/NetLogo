@@ -10,6 +10,7 @@ import javax.swing.{ Action, KeyStroke }
 import javax.swing.text.{ JTextComponent, TextAction }
 
 import org.nlogo.core.I18N
+import KeyBinding._
 
 object EditorConfiguration {
   private def os(s: String) =
@@ -95,9 +96,6 @@ case class EditorConfiguration(
     }
 
   def configureAdvancedEditorArea(editor: AbstractEditorArea) = {
-    // editor.setFont(font)
-
-
     val editorListener = new EditorListener(e => listener.textValueChanged(null))
     editorListener.install(editor)
 
@@ -110,7 +108,4 @@ case class EditorConfiguration(
       case (k, v) => editor.getInputMap.put(k, v)
     }
   }
-
-  private def keystroke(key: Int, mask: Int = 0): KeyStroke =
-    KeyStroke.getKeyStroke(key, mask)
 }

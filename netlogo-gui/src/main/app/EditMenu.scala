@@ -7,7 +7,7 @@ package org.nlogo.app
 
 import java.awt.event.ActionEvent
 import java.util.prefs.Preferences
-import javax.swing.{ AbstractAction, JCheckBoxMenuItem }
+import javax.swing.{ AbstractAction, JCheckBoxMenuItem, JMenuItem }
 
 import org.nlogo.api.ModelSettings
 import org.nlogo.app.common.{ Events => AppEvents }
@@ -50,12 +50,14 @@ with org.nlogo.window.Events.AboutToQuitEvent.Handler
   private val lineNumbersItem = addCheckBoxMenuItem(I18N.gui("showLineNumbers"),
     prefs.get(lineNumbersKey, "false").toBoolean, lineNumbersAction)
   addSeparator()
-  addMenuItem(I18N.gui("shiftLeft"), '[', org.nlogo.editor.Actions.shiftLeftAction)
-  addMenuItem(I18N.gui("shiftRight"), ']', org.nlogo.editor.Actions.shiftRightAction)
+  val contextualMenuStart = getComponentCount - 1
+  add(new JMenuItem(org.nlogo.editor.Actions.shiftLeftAction))
+  add(new JMenuItem(org.nlogo.editor.Actions.shiftRightAction))
   addMenuItem(I18N.gui("format"), (java.awt.event.KeyEvent.VK_TAB).toChar, org.nlogo.editor.Actions.tabKeyAction, false)
   addSeparator()
-  addMenuItem(I18N.gui("comment") + " / " + I18N.gui("uncomment"), ';', org.nlogo.editor.Actions.commentToggleAction)
+  add(new JMenuItem(org.nlogo.editor.Actions.commentToggleAction))
   addSeparator()
+
   private val snapper = addCheckBoxMenuItem(I18N.gui("snapToGrid"), app.workspace.snapOn, snapAction)
 
   lineNumbersAction.setEnabled(false)

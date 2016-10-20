@@ -2,11 +2,14 @@
 
 package org.nlogo.editor
 
-import java.awt.event._
-import javax.swing.Action
+import org.nlogo.core.I18N
+
+import java.awt.event.{ ActionEvent, KeyEvent }
+import javax.swing.Action, Action.ACCELERATOR_KEY
 import javax.swing.text._
 import javax.swing.text.DefaultEditorKit.{CutAction, CopyAction, PasteAction, InsertContentAction}
 
+import KeyBinding._
 import RichDocument._
 
 object Actions {
@@ -19,7 +22,7 @@ object Actions {
   val CUT_ACTION = new CutAction()
   val COPY_ACTION = new CopyAction()
   val PASTE_ACTION = new PasteAction()
-  val DELETE_ACTION = new InsertContentAction(){ putValue(Action.ACTION_COMMAND_KEY, "")  }
+  val DELETE_ACTION = new InsertContentAction() { putValue(Action.ACTION_COMMAND_KEY, "")  }
 
   /// default editor kit actions
   private val actionMap = new DefaultEditorKit().getActions.map{ a => (a.getValue(Action.NAME), a) }.toMap
@@ -57,7 +60,9 @@ object Actions {
     def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit
   }
 
-  class ShiftLeftAction extends DocumentAction("shift-line-left") {
+  class ShiftLeftAction extends DocumentAction(I18N.gui.get("menu.edit.shiftLeft")) {
+    putValue(ACCELERATOR_KEY, keystroke(KeyEvent.VK_OPEN_BRACKET.toChar, menuShortcutMask))
+
     override def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit = {
       val (startLine, endLine) =
         document.selectionLineRange(component.getSelectionStart, component.getSelectionEnd)
@@ -76,7 +81,9 @@ object Actions {
     }
   }
 
-  class ShiftRightAction extends DocumentAction("shift-line-right") {
+  class ShiftRightAction extends DocumentAction(I18N.gui.get("menu.edit.shiftRight")) {
+    putValue(ACCELERATOR_KEY, keystroke(KeyEvent.VK_CLOSE_BRACKET, menuShortcutMask))
+
     override def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit = {
       val (startLine, endLine) =
         document.selectionLineRange(component.getSelectionStart, component.getSelectionEnd)
@@ -108,7 +115,9 @@ object Actions {
     }
   }
 
-  class CommentToggleAction extends DocumentAction("toggle-comment") {
+  class CommentToggleAction extends DocumentAction(I18N.gui.get("menu.edit.comment") + " / " + I18N.gui.get("menu.edit.uncomment")) {
+    putValue(ACCELERATOR_KEY, charKeystroke(';', menuShortcutMask))
+
     override def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit = {
       val (startLine, endLine) =
         document.selectionLineRange(component.getSelectionStart, component.getSelectionEnd)

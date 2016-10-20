@@ -34,6 +34,7 @@ import java.awt.event.MouseEvent
 import java.awt._
 import javax.swing.event.{CaretEvent, CaretListener}
 
+import KeyBinding._
 
 object EditorArea {
   def emptyMap = Map[KeyStroke, TextAction]()
@@ -72,10 +73,10 @@ class EditorArea(configuration: EditorConfiguration)
     setCaret(caret)
     setDragEnabled(false)
 
-    getDocument.putProperty(PlainDocument.tabSizeAttribute, Int.box(2))
-
     // on Windows, prevent save() from outputting ^M characters - ST 2/23/04
     getDocument.putProperty(DefaultEditorKit.EndOfLineStringProperty, "\n")
+
+    getDocument.putProperty(PlainDocument.tabSizeAttribute, Int.box(2))
     getDocument.addUndoableEditListener(undoManager)
 
     // add key bindings for undo and redo so they work even in modal dialogs
@@ -86,10 +87,6 @@ class EditorArea(configuration: EditorConfiguration)
 
     configuration.configureEditorArea(this)
   }
-
-
-  def keystroke(key: Int, mask: Int = 0): KeyStroke =
-    KeyStroke.getKeyStroke(key, mask)
 
   override def paintComponent(g: Graphics): Unit = {
     val g2d = g.asInstanceOf[Graphics2D]
