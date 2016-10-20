@@ -116,7 +116,7 @@ object Actions {
   }
 
   class CommentToggleAction extends DocumentAction(I18N.gui.get("menu.edit.comment") + " / " + I18N.gui.get("menu.edit.uncomment")) {
-    putValue(ACCELERATOR_KEY, charKeystroke(';', menuShortcutMask))
+    putValue(ACCELERATOR_KEY, keystroke(KeyEvent.VK_SEMICOLON, menuShortcutMask))
 
     override def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit = {
       val (startLine, endLine) =
