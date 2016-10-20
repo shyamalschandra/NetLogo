@@ -41,7 +41,7 @@ class EditorFactory(compiler: CompilerServices) extends WindowEditorFactory {
         .withKeymap(actionMap)
 
     if (rows == 100 && cols == 100) {
-      val editor = new AdvancedEditorArea(100, 100)
+      val editor = new AdvancedEditorArea(configuration, 100, 100)
       configuration.configureAdvancedEditorArea(editor)
       editor
     } else {

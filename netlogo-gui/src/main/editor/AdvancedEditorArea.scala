@@ -12,7 +12,9 @@ import org.fife.ui.rsyntaxtextarea.{ folding, AbstractTokenMakerFactory, RSyntax
 
 import org.nlogo.ide.NetLogoFoldParser
 
-class AdvancedEditorArea(rows: Int, columns: Int) extends RSyntaxTextArea(rows, columns) with AbstractEditorArea {
+class AdvancedEditorArea(configuration: EditorConfiguration, rows: Int, columns: Int)
+  extends RSyntaxTextArea(rows, columns) with AbstractEditorArea {
+
   TokenMakerFactory.getDefaultInstance
     .asInstanceOf[AbstractTokenMakerFactory]
     .putMapping("netlogo", "org.nlogo.ide.NetLogoTokenMaker")
@@ -37,7 +39,7 @@ class AdvancedEditorArea(rows: Int, columns: Int) extends RSyntaxTextArea(rows, 
   def lineToStartOffset(doc: Document,line: Int): Int = ???
   def offsetToLine(doc: Document,line: Int): Int = ???
   def setIndenter(indenter: Indenter): Unit = {
-    indenter.addActions(getInputMap)
+    indenter.addActions(configuration, getInputMap)
     // TODO: EditorArea also uses indenter in replaceSelection, although I don't know
     // whether we need to do that or not
   }

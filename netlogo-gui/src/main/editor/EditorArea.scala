@@ -53,7 +53,7 @@ class EditorArea(configuration: EditorConfiguration)
   val columns = configuration.columns
   val colorizer = configuration.colorizer
 
-  private var indenter: Indenter = new DumbIndenter(this)
+  private var indenter: Option[Indenter] = None
   private var contextMenu: JPopupMenu = new EditorContextMenu(colorizer)
   private val bracketMatcher = new BracketMatcher(colorizer)
   private val undoManager: UndoManager = new UndoManager()
@@ -84,8 +84,6 @@ class EditorArea(configuration: EditorConfiguration)
     getKeymap.addActionForKeyStroke(keystroke(Key.VK_Z, mask), UndoManager.undoAction())
     getKeymap.addActionForKeyStroke(keystroke(Key.VK_Y, mask), UndoManager.redoAction())
 
-    indenter.addActions(getInputMap)
-
     configuration.configureEditorArea(this)
   }
 
@@ -112,8 +110,8 @@ class EditorArea(configuration: EditorConfiguration)
   }
 
   def setIndenter(newIndenter: Indenter): Unit = {
-    indenter = newIndenter
-    indenter.addActions(getInputMap)
+    indenter = Some(newIndenter)
+    newIndenter.addActions(configuration, getInputMap)
   }
 
   override def getActions: Array[Action] =
@@ -164,7 +162,7 @@ class EditorArea(configuration: EditorConfiguration)
   }
 
   def indentSelection(): Unit = {
-    indenter.handleTab()
+    indenter.foreach(_.handleTab())
   }
 
   def lineToStartOffset(doc: Document, line: Int): Int =
@@ -292,7 +290,7 @@ class EditorArea(configuration: EditorConfiguration)
       // and smartTabbing isn't happy with them. ~Forrest (10/4/2006)
       selection = selection.replaceAllLiterally("\t", "  ")
       super.replaceSelection(selection)
-      indenter.handleInsertion(selection)
+      indenter.foreach(_.handleInsertion(selection))
     }
   }
 

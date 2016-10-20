@@ -72,6 +72,7 @@ case class EditorConfiguration(
       }
 
       editor.setFocusTraversalKeysEnabled(enableFocusTraversal)
+
       if (enableFocusTraversal) {
         val focusTraversalListener = new FocusTraversalListener(editor)
         editor.addFocusListener(focusTraversalListener)
@@ -79,9 +80,11 @@ case class EditorConfiguration(
         editor.getInputMap.put(keystroke(KeyEvent.VK_TAB),           new TransferFocusAction())
         editor.getInputMap.put(keystroke(KeyEvent.VK_TAB, ShiftKey), new TransferFocusBackwardAction())
       } else {
-        editor.getInputMap.put(keystroke(KeyEvent.VK_TAB),           Actions.tabKeyAction)
         editor.getInputMap.put(keystroke(KeyEvent.VK_TAB, ShiftKey), Actions.shiftTabKeyAction)
       }
+
+      val indenter = new DumbIndenter(editor)
+      editor.setIndenter(indenter)
 
       // add key binding, for getting quick "contexthelp", based on where
       // the cursor is...
@@ -91,14 +94,17 @@ case class EditorConfiguration(
       editorListener.install(editor)
     }
 
-  def configureAdvancedEditorArea(editor: JTextComponent) = {
+  def configureAdvancedEditorArea(editor: AbstractEditorArea) = {
     // editor.setFont(font)
 
-    editor.getInputMap.put(keystroke(KeyEvent.VK_TAB),           Actions.tabKeyAction)
-    editor.getInputMap.put(keystroke(KeyEvent.VK_TAB, ShiftKey), Actions.shiftTabKeyAction)
 
     val editorListener = new EditorListener(e => listener.textValueChanged(null))
     editorListener.install(editor)
+
+    editor.getInputMap.put(keystroke(KeyEvent.VK_TAB, ShiftKey), Actions.shiftTabKeyAction)
+
+    val indenter = new DumbIndenter(editor)
+    editor.setIndenter(indenter)
 
     additionalActions.foreach {
       case (k, v) => editor.getInputMap.put(k, v)

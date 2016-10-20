@@ -23,6 +23,13 @@ trait Indenter {
       }
     }
 
+  def indentAction: TextAction =
+    new TextAction("indent") {
+      def actionPerformed(e: ActionEvent): Unit = {
+        handleTab()
+      }
+    }
+
   def closeBracketAction: TextAction =
     new TextAction("close-bracket") {
       def actionPerformed(e: ActionEvent): Unit = {
@@ -31,9 +38,12 @@ trait Indenter {
       }
     }
 
-  def addActions(inputMap: InputMap): Unit = {
+  def addActions(configuration: EditorConfiguration, inputMap: InputMap): Unit = {
     inputMap.put(keystroke(KeyEvent.VK_ENTER), enterAction)
     inputMap.put(charKeystroke(']'), closeBracketAction)
+    if (! configuration.enableFocusTraversal) {
+      inputMap.put(keystroke(KeyEvent.VK_TAB), indentAction)
+    }
   }
 
 
