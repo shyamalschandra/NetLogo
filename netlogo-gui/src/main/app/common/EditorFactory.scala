@@ -10,7 +10,7 @@ import scala.collection.JavaConversions._
 import org.nlogo.api.CompilerServices
 import org.nlogo.core.I18N
 import org.nlogo.ide._
-import org.nlogo.editor.{ AbstractEditorArea, AdvancedEditorArea, EditorConfiguration }
+import org.nlogo.editor.{ AbstractEditorArea, AdvancedEditorArea, EditorConfiguration, EditorScrollPane, LineNumberScrollPane }
 import org.nlogo.window.{CodeEditor, EditorColorizer, EditorFactory => WindowEditorFactory}
 
 import org.fife.ui.rtextarea.RTextScrollPane
@@ -62,12 +62,13 @@ class EditorFactory(compiler: CompilerServices) extends WindowEditorFactory {
     }
   }
 
-  def scrollPane(editor: AbstractEditorArea): JScrollPane =
+  def scrollPane(editor: AbstractEditorArea): EditorScrollPane =
     editor match {
-      case aea: AdvancedEditorArea => new RTextScrollPane(aea)
+      case aea: AdvancedEditorArea => new RTextScrollPane(aea) with EditorScrollPane {
+        def lineNumbersEnabled = getLineNumbersEnabled
+      }
       case _ =>
-        new JScrollPane(
-          editor,
+        new LineNumberScrollPane(editor,
           ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
           ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED)
     }

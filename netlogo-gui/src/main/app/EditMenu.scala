@@ -47,8 +47,12 @@ with org.nlogo.window.Events.AboutToQuitEvent.Handler
   addMenuItem(I18N.gui("find"), 'F', org.nlogo.app.common.FindDialog.FIND_ACTION)
   addMenuItem(I18N.gui("findNext"), 'G', org.nlogo.app.common.FindDialog.FIND_NEXT_ACTION)
   addSeparator()
-  private val lineNumbersItem = addCheckBoxMenuItem(I18N.gui("showLineNumbers"),
-    prefs.get(lineNumbersKey, "false").toBoolean, lineNumbersAction)
+
+  //TODO: Move this out of the menu
+  val lineNumberPreference = prefs.get(lineNumbersKey, "false").toBoolean
+  app.tabs.lineNumbersVisible = lineNumberPreference
+
+  private val lineNumbersItem = addCheckBoxMenuItem(I18N.gui("showLineNumbers"), lineNumberPreference, lineNumbersAction)
   addSeparator()
   val contextualMenuStart = getComponentCount - 1
   add(new JMenuItem(org.nlogo.editor.Actions.shiftLeftAction))
