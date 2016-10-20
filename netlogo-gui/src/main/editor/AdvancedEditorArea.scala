@@ -3,7 +3,9 @@
 package org.nlogo.editor
 
 import java.awt.Font
+import java.awt.event.KeyEvent
 
+import javax.swing.Action
 import javax.swing.text.Document
 
 import org.fife.ui.rtextarea.RTextScrollPane
@@ -11,6 +13,7 @@ import org.fife.ui.rsyntaxtextarea.{ folding, AbstractTokenMakerFactory, RSyntax
   folding.FoldParserManager
 
 import org.nlogo.ide.NetLogoFoldParser
+import KeyBinding._
 
 class AdvancedEditorArea(configuration: EditorConfiguration, rows: Int, columns: Int)
   extends RSyntaxTextArea(rows, columns) with AbstractEditorArea {
@@ -32,6 +35,9 @@ class AdvancedEditorArea(configuration: EditorConfiguration, rows: Int, columns:
     setBracketMatchingEnabled(enable)
   }
 
+  override def getActions(): Array[Action] =
+    super.getActions.filter(_.getValue(Action.NAME) != "RSTA.GoToMatchingBracketAction").toArray[Action]
+
   def getEditorKit(): javax.swing.text.EditorKit = ???
   def getEditorKitForContentType(contentType: String): javax.swing.text.EditorKit = ???
   def setEditorKit(kit: javax.swing.text.EditorKit): Unit = ???
@@ -43,7 +49,8 @@ class AdvancedEditorArea(configuration: EditorConfiguration, rows: Int, columns:
     // TODO: EditorArea also uses indenter in replaceSelection, although I don't know
     // whether we need to do that or not
   }
+  // this needs to be implemented if we ever allow tab-based focus traversal
+  // with this editor area
   def setSelection(s: Boolean): Unit = {
-    println(s"selection set to $s")
   }
 }

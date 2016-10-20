@@ -6,6 +6,7 @@ package org.nlogo.app
  have their own menu bar and menus ev 8/25/05 */
 
 import java.awt.event.ActionEvent
+import java.beans.{ PropertyChangeEvent, PropertyChangeListener }
 import java.util.prefs.Preferences
 import javax.swing.{ AbstractAction, JCheckBoxMenuItem, JMenuItem }
 
@@ -18,6 +19,7 @@ class EditMenu(app: App) extends org.nlogo.swing.Menu(I18N.gui.get("menu.edit"))
 with AppEvents.SwitchedTabsEvent.Handler
 with org.nlogo.window.Events.LoadModelEvent.Handler
 with org.nlogo.window.Events.AboutToQuitEvent.Handler
+with PropertyChangeListener
 {
 
   implicit val i18nName = I18N.Prefix("menu.edit")
@@ -98,4 +100,18 @@ with org.nlogo.window.Events.AboutToQuitEvent.Handler
 
   def handle(e: org.nlogo.window.Events.AboutToQuitEvent) =
     prefs.put(lineNumbersKey, lineNumbersItem.isSelected.toString)
+
+  def propertyChange(evt: PropertyChangeEvent): Unit = {
+    if (evt.getPropertyName == "editMenuItems") {
+      /*
+      evt.getNewValue match {
+        case s: Seq[_] => s match {
+          case a: Action =>
+          case _ =>
+        }
+        case _ =>
+      }
+      */
+    }
+  }
 }
