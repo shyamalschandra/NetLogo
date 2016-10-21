@@ -510,18 +510,23 @@ class App extends
   // This is for other windows to get their own copy of the menu
   // bar.  It's needed especially for OS X since the screen menu bar
   // doesn't get shared across windows.  -- AZS 6/17/2005
-  private class MenuBarFactory extends org.nlogo.window.MenuBarFactory{
+  private class MenuBarFactory extends org.nlogo.window.MenuBarFactory {
+    import org.nlogo.swing.UserAction, UserAction.{ ActionCategoryKey, ToolsCategory }
     def createFileMenu:  JMenu = pico.getComponent(classOf[FileMenu])
     def createEditMenu:  JMenu = new EditMenu(App.this)
-    def createToolsMenu: JMenu = new ToolsMenu(App.this, pico.getComponent(classOf[ModelSaver]))
+    def createToolsMenu: JMenu = {
+      val toolsMenu = new ToolsMenu
+      allActions.filter(_.getValue(ActionCategoryKey) == ToolsCategory).foreach(toolsMenu.offerAction)
+      toolsMenu
+    }
     def createZoomMenu:  JMenu = new ZoomMenu
     override def addHelpMenu(menuBar:JMenuBar) = {
       val newMenu = new HelpMenu(App.this)
       menuBar.add(newMenu)
       try if(AbstractWorkspace.isApp) menuBar.setHelpMenu(newMenu)
       catch{
-        // if not implemented in this VM (e.g. 1.4 on Mac as of right now),
-        // then oh well - ST 6/23/03, 8/6/03
+        // if not implemented in this VM (e.g. 1.8 on Mac as of right now),
+        // then oh well - ST 6/23/03, 8/6/03 - RG 10/21/16
         case e: Error => org.nlogo.api.Exceptions.ignore(e)
       }
       newMenu
@@ -609,7 +614,7 @@ class App extends
   lazy val openPreferencesDialog = new ShowPreferencesDialog(new PreferencesDialog(frame, Preference.Language))
   lazy val openColorDialog       = new OpenColorDialog(frame)
 
-  lazy val allActions = {
+  lazy val allActions: Seq[javax.swing.Action] = {
     val osSpecificActions = if (! isMac) Seq(openPreferencesDialog) else Seq()
 
     val workspaceActions = org.nlogo.window.WorkspaceActions(workspace)

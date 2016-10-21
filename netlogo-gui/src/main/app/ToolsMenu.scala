@@ -11,7 +11,7 @@ import org.nlogo.core.{ AgentKind, I18N }
 import org.nlogo.swing.UserAction
 import org.nlogo.window.GUIWorkspace
 
-class ToolsMenu(app: App, modelSaver: ModelSaver)
+class ToolsMenu
   extends org.nlogo.swing.Menu(I18N.gui.get("menu.tools"))
   with UserAction.Menu {
   implicit val i18nName = I18N.Prefix("menu.tools")

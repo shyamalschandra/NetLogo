@@ -81,7 +81,7 @@ class AggregateModelEditor(
     val isOSX = System.getProperty("os.name").startsWith("Mac");
 
     if (isOSX) {
-      menuBar.add(menuBarFactory.createFileMenu());
+      menuBar.add(menuBarFactory.createFileMenu);
     }
 
     val editMenu: CommandMenu = new CommandMenu(I18N.gui.get("menu.edit"))
@@ -91,9 +91,9 @@ class AggregateModelEditor(
     menuBar.add(editMenu)
 
     if (isOSX) {
-      menuBar.add(menuBarFactory.createToolsMenu())
+      menuBar.add(menuBarFactory.createToolsMenu)
       val zoomMenu: JMenuItem =
-        menuBar.add(menuBarFactory.createZoomMenu())
+        menuBar.add(menuBarFactory.createZoomMenu)
       zoomMenu.setEnabled(false)
       menuBar.add(zoomMenu)
     }
