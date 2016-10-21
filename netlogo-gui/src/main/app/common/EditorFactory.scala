@@ -20,12 +20,11 @@ class EditorFactory(compiler: CompilerServices) extends DefaultEditorFactory(com
     val codeCompletionPopup = new CodeCompletionPopup
     val showUsageBox = new ShowUsageBox
     val actions = Seq[Action](new ShowUsageBoxAction(showUsageBox), new JumpToDeclarationAction())
-    val actionMap = Map(
-      KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.CTRL_DOWN_MASK) ->
-        new AutoSuggestAction("auto-suggest", codeCompletionPopup))
     super.defaultConfiguration(cols, rows)
       .withContextActions(actions)
-      .withKeymap(actionMap)
+      .addKeymap(
+        KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.CTRL_DOWN_MASK),
+        new AutoSuggestAction("auto-suggest", codeCompletionPopup))
   }
 
   def newEditor(cols: Int, rows: Int, enableFocusTraversal: Boolean, enableHighlightCurrentLine: Boolean = false): AbstractEditorArea =

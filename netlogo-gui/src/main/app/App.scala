@@ -511,7 +511,7 @@ class App extends
     def createToolsMenu: JMenu = new ToolsMenu(App.this, pico.getComponent(classOf[ModelSaver]))
     def createZoomMenu:  JMenu = new ZoomMenu
     override def addHelpMenu(menuBar:JMenuBar) = {
-      val newMenu = new HelpMenu (App.this, new EditorColorizer(workspace))
+      val newMenu = new HelpMenu(App.this)
       menuBar.add(newMenu)
       try if(AbstractWorkspace.isApp) menuBar.setHelpMenu(newMenu)
       catch{

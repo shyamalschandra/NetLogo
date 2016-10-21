@@ -67,6 +67,8 @@ case class EditorConfiguration(
       copy(highlightCurrentLine = isHighlighted)
     def withContextActions(actions: Seq[Action]) =
       copy(contextActions = contextActions ++ actions)
+    def addKeymap(key: KeyStroke, action: TextAction) =
+      copy(additionalActions = additionalActions + (key -> action))
     def withKeymap(keymap: Map[KeyStroke, TextAction]) =
       copy(additionalActions = keymap)
     def withMenu(menu: EditorMenu) =
@@ -120,5 +122,9 @@ case class EditorConfiguration(
     additionalActions.foreach {
       case (k, v) => editor.getInputMap.put(k, v)
     }
+
+    val helpActions =
+      additionalActions.values.filter(_.getValue(Actions.MenuCategory) == Actions.HelpMenu).toSeq
+    menu.helpActions(helpActions)
   }
 }

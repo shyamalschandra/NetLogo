@@ -14,6 +14,10 @@ import KeyBinding._
 import RichDocument._
 
 object Actions {
+  val MenuCategory = "org.nloog.editor.Actions.MenuCategory"
+  val HelpMenu = "org.nloog.editor.Actions.HelpMenu"
+  val EditMenu = "org.nloog.editor.Actions.EditMenu"
+
 
   val commentToggleAction = new CommentToggleAction()
   val shiftLeftAction = new ShiftLeftAction()
@@ -156,12 +160,15 @@ object Actions {
   }
 }
 
+import Actions._
+
 // QuickHelpAction tracks the position of the caret and opens help when needed
 class QuickHelpAction(colorizer: Colorizer)
 extends Actions.DocumentAction(I18N.gui.get("tabs.code.rightclick.quickhelp"))
 with ChangeListener {
   putValue(ACCELERATOR_KEY, keystroke(KeyEvent.VK_F1))
   putValue(ACTION_COMMAND_KEY, "org.nlogo.editor.quickHelp")
+  putValue(MenuCategory, HelpMenu)
 
   private var currentOffset = -1
 

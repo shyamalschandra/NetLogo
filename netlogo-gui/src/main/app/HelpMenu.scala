@@ -2,6 +2,7 @@
 
 package org.nlogo.app
 
+import javax.swing.{ Action, JMenuItem }
 import org.nlogo.editor.{ Actions, Colorizer }
 import org.nlogo.swing.BrowserLauncher
 import org.nlogo.api.Version
@@ -10,7 +11,7 @@ import org.nlogo.core.I18N
 // note that multiple instances of this class may exist as there are now multiple frames that each
 // have their own menu bar and menus - ev 8/25/05
 
-class HelpMenu(app: App, colorizer: Colorizer)
+class HelpMenu(app: App)
         extends org.nlogo.swing.Menu(I18N.gui.get("menu.help"))
 {
   implicit val i18nName = I18N.Prefix("menu.help")
@@ -27,11 +28,6 @@ class HelpMenu(app: App, colorizer: Colorizer)
   def docPath(docName: String): String =
     System.getProperty("netlogo.docs.dir", "docs") + "/" + docName
 
-  /*
-  addMenuItem(
-    I18N.gui("lookUpInDictionary(F1)"),
-    Actions.quickHelpAction(colorizer))
-  */
   addSeparator()
   addMenuItem(
     launch(I18N.gui("netLogoUserManual"), true,
@@ -58,4 +54,11 @@ class HelpMenu(app: App, colorizer: Colorizer)
     addMenuItem(
       action("About " + Version.versionDropZeroPatch + "...",
              app.showAboutWindow _))
+
+  def addEditorActions(actions: Seq[Action]): Unit = {
+    // add the last item first, so that items get "pushed" to the appropriate spot
+    actions.reverse.foreach { action =>
+      add(new JMenuItem(action), 0)
+    }
+  }
 }
