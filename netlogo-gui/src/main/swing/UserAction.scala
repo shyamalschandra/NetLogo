@@ -17,10 +17,30 @@ object UserAction {
   val ToolsCategory = "org.nlogo.swing.ToolsCategory"
   val HelpCategory  = "org.nlogo.swing.HelpCategory"
 
-  val ToolsVisualsGroup = "org.nlogo.swing.ToolsVisualsGroup"
+  val ToolsDialogsGroup = "org.nlogo.swing.ToolsDialogsGroup"
+  val ToolsHubNetGroup  = "org.nlogo.swing.ToolsHubNetGroup"
 
   trait Menu {
     def offerAction(action: javax.swing.Action): Unit
+  }
+
+  // convenience methods
+  object KeyBindings {
+    import java.awt.Toolkit
+    import java.awt.event.{ ActionEvent, InputEvent }
+    import javax.swing.KeyStroke
+
+    def keystrokeChar(key: Char, withMenu: Boolean = false, withShift: Boolean = false): KeyStroke = {
+      val mask: Int =
+        (if (withMenu) Toolkit.getDefaultToolkit.getMenuShortcutKeyMask else 0) | (if (withShift) InputEvent.SHIFT_MASK else 0)
+      KeyStroke.getKeyStroke(Character.valueOf(key), mask)
+    }
+
+    def keystroke(key: Int, withMenu: Boolean = false, withShift: Boolean = false): KeyStroke = {
+      val mask: Int =
+        (if (withMenu) Toolkit.getDefaultToolkit.getMenuShortcutKeyMask else 0) | (if (withShift) InputEvent.SHIFT_MASK else 0)
+      KeyStroke.getKeyStroke(key, mask)
+    }
   }
 }
 

@@ -1131,19 +1131,14 @@ public abstract strictfp class GUIWorkspace // can't be both abstract and strict
     hubNetControlCenterAction.setEnabled(hubNetRunning());
   }
 
-  public final javax.swing.Action hubNetControlCenterAction =
-      new javax.swing.AbstractAction(I18N.guiJ().get("menu.tools.hubNetControlCenter")) {
-        public void actionPerformed(java.awt.event.ActionEvent e) {
-          hubNetManager().get().showControlCenter();
-        }
-      };
+  public final javax.swing.Action hubNetControlCenterAction = new HubNetControlCenterAction(this);
 
   public final javax.swing.Action switchTo3DViewAction =
-      new javax.swing.AbstractAction(I18N.guiJ().get("menu.tools.3DView.switch")) {
-        public void actionPerformed(java.awt.event.ActionEvent e) {
-          open3DView();
-        }
-      };
+    new javax.swing.AbstractAction(I18N.guiJ().get("menu.tools.3DView.switch")) {
+      public void actionPerformed(java.awt.event.ActionEvent e) {
+        open3DView();
+      }
+    };
 
   /// preview commands & aggregate
 

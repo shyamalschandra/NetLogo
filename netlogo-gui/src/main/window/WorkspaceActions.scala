@@ -45,9 +45,10 @@ object WorkspaceActions {
     }
   }
 
+  // this should be unified with switchTo3DViewAction in GUIWorkspace at some point...
   class Open3DViewAction(workspace: GUIWorkspace) extends GUIWorkspaceAction(I18N.gui.get("menu.tools.3DView.switch"), workspace) {
     putValue(ActionCategoryKey,      ToolsCategory)
-    putValue(ActionGroupKey,         ToolsVisualsGroup)
+    putValue(ActionGroupKey,         ToolsDialogsGroup)
     putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_T, Toolkit.getDefaultToolkit.getMenuShortcutKeyMask | InputEvent.SHIFT_MASK))
 
     override def performAction(workspace: GUIWorkspace): Unit = {
@@ -61,4 +62,15 @@ object WorkspaceActions {
       }
     }
   }
+}
+
+class HubNetControlCenterAction(workspace: GUIWorkspace) extends AbstractAction(I18N.gui.get("menu.tools.hubNetControlCenter")) {
+    putValue(ActionCategoryKey,      ToolsCategory)
+    putValue(ActionGroupKey,         ToolsHubNetGroup)
+    putValue(Action.ACCELERATOR_KEY,
+      KeyStroke.getKeyStroke(Character.valueOf('H'), Toolkit.getDefaultToolkit.getMenuShortcutKeyMask | InputEvent.SHIFT_MASK))
+
+    override def actionPerformed(e: ActionEvent): Unit = {
+      workspace.hubNetManager.get.showControlCenter
+    }
 }

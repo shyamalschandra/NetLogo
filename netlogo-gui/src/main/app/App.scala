@@ -4,7 +4,7 @@ package org.nlogo.app
 
 import org.nlogo.app.common.{ CodeToHtml, EditorFactory, Events => AppEvents }
 import org.nlogo.app.interfacetab.{ InterfaceToolBar, WidgetPanel }
-import org.nlogo.app.tools.{ AgentMonitorManager, GraphicsPreview, Preference, PreferencesDialog }
+import org.nlogo.app.tools.{ AgentMonitorManager, GraphicsPreview, Preference, PreferencesDialog, PreviewCommandsEditor }
 import org.nlogo.core.{ AgentKind, CompilerException, Dialect, I18N, LogoList, Model, Nobody,
   Shape, Token, Widget => CoreWidget }, Shape.{ LinkShape, VectorShape }
 import org.nlogo.core.model.WidgetReader
@@ -32,6 +32,7 @@ import org.picocontainer.Parameter
 
 import javax.swing._
 import java.awt.{Toolkit, Dimension, Frame}
+import java.awt.event.ActionEvent
 
 import scala.language.postfixOps
 /**
@@ -294,8 +295,8 @@ class App extends
   lazy val owner = new SimpleJobOwner("App", workspace.world.mainRNG, AgentKind.Observer)
   private var _tabs: Tabs = null
   def tabs = _tabs
-  lazy val preferencesDialog = new PreferencesDialog(frame, Preference.Language)
-  var helpMenu:HelpMenu = null
+  var menuBar: MenuBar = null
+  var helpMenu: HelpMenu = null
   var fileMenu: FileMenu = null
   var monitorManager:AgentMonitorManager = null
   var aggregateManager: AggregateManagerInterface = null
@@ -303,9 +304,10 @@ class App extends
   var labManager:LabManagerInterface = null
   private val listenerManager = new NetLogoListenerManager
   lazy val modelingCommons = pico.getComponent(classOf[ModelingCommonsInterface])
-  lazy val previewCommandsEditor = pico.getComponent(classOf[PreviewCommandsEditorInterface])
   private val ImportWorldURLProp = "netlogo.world_state_url"
   private val ImportRawWorldURLProp = "netlogo.raw_world_state_url"
+
+  val isMac = System.getProperty("os.name").startsWith("Mac")
 
   /**
    * Quits NetLogo by exiting the JVM.  Asks user for confirmation first
@@ -456,8 +458,7 @@ class App extends
     // a little ugly we have to typecast here, but oh well - ST 10/11/05
     helpMenu = new MenuBarFactory().addHelpMenu(menuBar).asInstanceOf[HelpMenu]
 
-    val workspaceActions = org.nlogo.window.WorkspaceActions(workspace)
-    workspaceActions.foreach(menuBar.offerAction)
+    app.setMenuBar(menuBar)
 
     frame.setJMenuBar(menuBar)
 
@@ -479,13 +480,13 @@ class App extends
     tabs.interfaceTab.commandCenter.setSize(tabs.interfaceTab.commandCenter.getPreferredSize)
     smartPack(frame.getPreferredSize, true)
 
-    if(! System.getProperty("os.name").startsWith("Mac")){ org.nlogo.awt.Positioning.center(frame, null) }
+    if (! isMac) { org.nlogo.awt.Positioning.center(frame, null) }
 
     org.nlogo.app.common.FindDialog.init(frame)
 
     Splash.endSplash()
     frame.setVisible(true)
-    if(System.getProperty("os.name").startsWith("Mac")){
+    if(isMac){
       appHandler.getClass.getDeclaredMethod("ready", classOf[AnyRef]).invoke(appHandler, this)
     }
   }
@@ -603,6 +604,38 @@ class App extends
 
   def resetZoom() {
     new ZoomedEvent(0).raise(this)
+  }
+
+  lazy val openPreferencesDialog = new ShowPreferencesDialog(new PreferencesDialog(frame, Preference.Language))
+  lazy val openColorDialog       = new OpenColorDialog(frame)
+
+  lazy val allActions = {
+    val osSpecificActions = if (! isMac) Seq(openPreferencesDialog) else Seq()
+
+    val workspaceActions = org.nlogo.window.WorkspaceActions(workspace)
+
+    val generalActions    = Seq(
+      openColorDialog,
+      tabs.interfaceTab.commandCenterAction,
+      new ShowShapeManager("turtleShapesEditor", turtleShapesManager),
+      new ShowShapeManager("linkShapesEditor",   linkShapesManager),
+      new ShowLabManager(labManager),
+      new ShowSystemDynamicsModeler(aggregateManager),
+      new OpenHubNetClientEditor(workspace, frame),
+      workspace.hubNetControlCenterAction,
+      new PreviewCommandsEditor.EditPreviewCommands(
+        pico.getComponent(classOf[PreviewCommandsEditorInterface]),
+        workspace,
+        () => pico.getComponent(classOf[ModelSaver]).asInstanceOf[ModelSaver].currentModel)
+    )
+    osSpecificActions ++ generalActions ++ workspaceActions
+  }
+
+  def setMenuBar(menuBar: MenuBar): Unit = {
+    if (menuBar != this.menuBar) {
+      this.menuBar = menuBar
+      allActions.foreach(menuBar.offerAction)
+    }
   }
 
   // AppEvent stuff (kludgy)
@@ -1066,7 +1099,7 @@ class App extends
    * Internal use only.
    */
   def showPreferencesDialog(): Unit = {
-    preferencesDialog.setVisible(true)
+    openPreferencesDialog.actionPerformed(new ActionEvent(frame, ActionEvent.ACTION_PERFORMED, null))
   }
 
   /**
