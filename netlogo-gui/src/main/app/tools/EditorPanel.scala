@@ -9,10 +9,10 @@ import org.nlogo.core.I18N
 import org.nlogo.api.PreviewCommands
 import org.nlogo.api.PreviewCommands.{ Compilable, Custom, Default, Manual }
 import org.nlogo.awt.Fonts.platformMonospacedFont
-import org.nlogo.editor.EditorConfiguration
+import org.nlogo.editor.{ EditorArea, EditorConfiguration }
 import org.nlogo.swing.HasPropertyChangeSupport
 import org.nlogo.util.Implicits.RichString
-import org.nlogo.window.{ CodeEditor, EditorAreaErrorLabel, EditorColorizer }
+import org.nlogo.window.{ EditorAreaErrorLabel, EditorColorizer }
 
 class EditorPanel(colorizer: EditorColorizer) extends JPanel {
 
@@ -36,7 +36,7 @@ class EditorPanel(colorizer: EditorColorizer) extends JPanel {
     EditorConfiguration.default(0, 0, colorizer)
       .withFocusTraversalEnabled(true)
       .withListener(textListener)
-  val editor = new CodeEditor(configuration) {
+  val editor = new EditorArea(configuration) {
     override def getPreferredSize = new Dimension(350, 100)
     override def setText(text: String) = super.setText(text.stripTrailingWhiteSpace + "\n")
     override def getText = super.getText().stripTrailingWhiteSpace + "\n"
