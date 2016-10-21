@@ -42,19 +42,20 @@ object EditorConfiguration {
     }
 
   def default(rows: Int, columns: Int, colorizer: Colorizer) =
-    EditorConfiguration(rows, columns, defaultFont, emptyListener, colorizer, Map(), defaultMenuItems(colorizer), false, false)
+    EditorConfiguration(rows, columns, defaultFont, emptyListener, colorizer, defaultActions(colorizer), defaultMenuItems(colorizer), false, false, emptyMenu)
 }
 
 case class EditorConfiguration(
-  rows: Int,
-  columns: Int,
-  font: Font,
-  listener: TextListener,
-  colorizer: Colorizer,
-  additionalActions: Map[KeyStroke, TextAction],
-  menuItems: Seq[Action],
+  rows:                 Int,
+  columns:              Int,
+  font:                 Font,
+  listener:             TextListener,
+  colorizer:            Colorizer,
+  additionalActions:    Map[KeyStroke, TextAction],
+  contextActions:       Seq[Action],
   enableFocusTraversal: Boolean,
-  highlightCurrentLine: Boolean) {
+  highlightCurrentLine: Boolean,
+  menu:                 EditorMenu) {
 
     def withFont(font: Font) =
       copy(font = font)
@@ -64,10 +65,12 @@ case class EditorConfiguration(
       copy(enableFocusTraversal = isEnabled)
     def withCurrentLineHighlighted(isHighlighted: Boolean) =
       copy(highlightCurrentLine = isHighlighted)
-    def withMenuItems(actions: Seq[Action]) =
-      copy(menuItems = menuItems ++ actions)
+    def withContextActions(actions: Seq[Action]) =
+      copy(contextActions = contextActions ++ actions)
     def withKeymap(keymap: Map[KeyStroke, TextAction]) =
       copy(additionalActions = keymap)
+    def withMenu(menu: EditorMenu) =
+      copy(menu = menu)
 
     def configureEditorArea(editor: EditorArea) = {
 

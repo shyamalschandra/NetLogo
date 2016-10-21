@@ -245,7 +245,7 @@ class EditorArea(configuration: EditorConfiguration)
       add(pasteItem)
       Actions.PASTE_ACTION.putValue(Action.NAME, I18N.gui.get("menu.edit.paste"))
       addSeparator()
-      for (item <- configuration.menuItems) {
+      for (item <- configuration.contextActions) {
         item.putValue("editor", EditorArea.this)
         add(new JMenuItem(item))
       }
@@ -260,7 +260,7 @@ class EditorArea(configuration: EditorConfiguration)
         Toolkit.getDefaultToolkit.getSystemClipboard.isDataFlavorAvailable(DataFlavor.stringFlavor))
       val point = new Point(invoker.getLocationOnScreen)
       point.translate(x, y)
-      for (item <- configuration.menuItems) {
+      for (item <- configuration.contextActions) {
         item.putValue("cursorLocation", mousePos)
         item.putValue("popupLocation", point)
       }

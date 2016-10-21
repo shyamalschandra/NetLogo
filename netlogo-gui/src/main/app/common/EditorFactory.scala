@@ -18,6 +18,7 @@ import org.fife.ui.rtextarea.RTextScrollPane
 class EditorFactory(compiler: CompilerServices) extends WindowEditorFactory {
   def newEditor(cols: Int, rows: Int, enableFocusTraversal: Boolean, enableHighlightCurrentLine: Boolean = false): AbstractEditorArea =
     newEditor(cols, rows, enableFocusTraversal, enableHighlightCurrentLine, null, false)
+
   def newEditor(cols: Int,
                 rows: Int,
                 enableFocusTraversal: Boolean,
@@ -37,7 +38,7 @@ class EditorFactory(compiler: CompilerServices) extends WindowEditorFactory {
         .withFocusTraversalEnabled(enableFocusTraversal)
         .withCurrentLineHighlighted(enableHighlightCurrentLine)
         .withListener(listener)
-        .withMenuItems(actions)
+        .withContextActions(actions)
         .withKeymap(actionMap)
 
     if (rows == 100 && cols == 100) {
