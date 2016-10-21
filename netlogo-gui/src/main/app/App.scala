@@ -455,6 +455,10 @@ class App extends
 
     // a little ugly we have to typecast here, but oh well - ST 10/11/05
     helpMenu = new MenuBarFactory().addHelpMenu(menuBar).asInstanceOf[HelpMenu]
+
+    val workspaceActions = org.nlogo.window.WorkspaceActions(workspace)
+    workspaceActions.foreach(menuBar.offerAction)
+
     frame.setJMenuBar(menuBar)
 
     org.nlogo.window.RuntimeErrorDialog.init(frame)

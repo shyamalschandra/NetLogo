@@ -5,11 +5,15 @@ package org.nlogo.app
 /** note that multiple instances of this class may exist as there are now multiple frames that
  each have their own menu bar and menus ev 8/25/05 */
 
-import org.nlogo.core.AgentKind
-import org.nlogo.core.I18N
+import javax.swing.{ Action, JMenuItem }
+
+import org.nlogo.core.{ AgentKind, I18N }
+import org.nlogo.swing.UserAction
 import org.nlogo.window.GUIWorkspace
 
-class ToolsMenu(app: App, modelSaver: ModelSaver) extends org.nlogo.swing.Menu(I18N.gui.get("menu.tools")) {
+class ToolsMenu(app: App, modelSaver: ModelSaver)
+  extends org.nlogo.swing.Menu(I18N.gui.get("menu.tools"))
+  with UserAction.Menu {
   implicit val i18nName = I18N.Prefix("menu.tools")
 
   setMnemonic('T')
@@ -17,18 +21,8 @@ class ToolsMenu(app: App, modelSaver: ModelSaver) extends org.nlogo.swing.Menu(I
     addMenuItem(I18N.gui("preferences"), app.showPreferencesDialog _)
     addSeparator()
   }
-  addMenuItem(new SimpleGUIWorkspaceAction(I18N.gui("halt"), app.workspace, _.halt))
-  addSeparator()
-  addMenuItem(new SimpleGUIWorkspaceAction(I18N.gui("globalsMonitor"), app.workspace, _.inspectAgent(AgentKind.Observer)))
-  addMenuItem(new SimpleGUIWorkspaceAction(I18N.gui("turtleMonitor"), app.workspace, _.inspectAgent(AgentKind.Turtle)))
-  addMenuItem(new SimpleGUIWorkspaceAction(I18N.gui("patchMonitor"), app.workspace, _.inspectAgent(AgentKind.Patch)))
-  addMenuItem(new SimpleGUIWorkspaceAction(I18N.gui("linkMonitor"), app.workspace, _.inspectAgent(AgentKind.Link)))
-  addMenuItem(new SimpleGUIWorkspaceAction(I18N.gui("closeAllAgentMonitors"), app.workspace, _.closeAgentMonitors))
-  addMenuItem(new SimpleGUIWorkspaceAction(I18N.gui("closeDeadAgentMonitors"), app.workspace, _.stopInspectingDeadAgents))
-  addSeparator()
   addMenuItem('/', app.tabs.interfaceTab.commandCenterAction)
   addSeparator()
-  addMenuItem('T', new Open3DViewAction(app.workspace))
   addMenuItem(I18N.gui("colorSwatches"), openColorDialog _)
   addMenuItem(I18N.gui("turtleShapesEditor"),
               () => app.turtleShapesManager.init(I18N.gui("turtleShapesEditor")))
@@ -62,34 +56,9 @@ class ToolsMenu(app: App, modelSaver: ModelSaver) extends org.nlogo.swing.Menu(I
       app.frame.addLinkComponent(mgr.clientEditor)
     }
   }
-}
 
-import java.awt.event.ActionEvent
-import javax.swing.AbstractAction
-
-class GUIWorkspaceAction(name: String, workspace: GUIWorkspace) extends AbstractAction(name) {
-  def performAction(workspace: GUIWorkspace): Unit = {}
-
-  override def actionPerformed(e: ActionEvent): Unit = {
-    performAction(workspace)
-  }
-}
-
-class Open3DViewAction(workspace: GUIWorkspace) extends GUIWorkspaceAction(I18N.gui.get("menu.tools.3DView.switch"), workspace) {
-  override def performAction(workspace: GUIWorkspace): Unit = {
-    try {
-      workspace.glView.open()
-      workspace.set2DViewEnabled(false)
-    }
-    catch {
-      case ex: org.nlogo.window.JOGLLoadingException =>
-        org.nlogo.swing.Utils.alert("3d", ex.getMessage, "" + ex.getCause, I18N.gui.get("common.buttons.continue") )
-    }
-  }
-}
-
-class SimpleGUIWorkspaceAction(name: String, workspace: GUIWorkspace, action: GUIWorkspace => Unit) extends GUIWorkspaceAction(name, workspace) {
-  override def performAction(workspace: GUIWorkspace): Unit = {
-    action(workspace)
+  // this will need to be refined to take groups into account
+  def offerAction(action: Action): Unit = {
+    add(new JMenuItem(action), 0)
   }
 }

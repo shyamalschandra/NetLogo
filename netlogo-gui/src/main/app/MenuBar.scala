@@ -5,10 +5,12 @@ package org.nlogo.app
 import javax.swing.{ Action, JMenuBar }
 
 import org.nlogo.editor.EditorMenu
+import org.nlogo.swing.UserAction, UserAction.{ ActionCategoryKey, ToolsCategory }
 
 class MenuBar(fileMenu: FileMenu, editMenu: EditMenu, toolsMenu: ToolsMenu, tabs: Tabs)
   extends JMenuBar
-  with EditorMenu {
+  with EditorMenu
+  with UserAction.Menu {
 
   add(fileMenu)
   add(editMenu)
@@ -29,5 +31,10 @@ class MenuBar(fileMenu: FileMenu, editMenu: EditMenu, toolsMenu: ToolsMenu, tabs
     helpMenu.foreach(_.addEditorActions(actions))
   }
 
+  def offerAction(action: javax.swing.Action): Unit = {
+    if (action.getValue(ActionCategoryKey) == ToolsCategory) {
+      toolsMenu.offerAction(action)
+    }
+  }
 }
 
