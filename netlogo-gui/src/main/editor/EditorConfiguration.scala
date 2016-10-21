@@ -26,10 +26,20 @@ object EditorConfiguration {
 
   val defaultFont = new Font(platformMonospacedFont, Font.PLAIN, 12)
 
-  protected val emptyListener =
+  private val emptyListener =
     new TextListener() { override def textValueChanged(e: TextEvent) { } }
 
-  def defaultMenuItems(colorizer: Colorizer): Seq[Action] = Seq(Actions.mouseQuickHelpAction(colorizer, I18N.gui.get _))
+  def defaultMenuItems(colorizer: Colorizer): Seq[Action] =
+    Seq(Actions.mouseQuickHelpAction(colorizer, I18N.gui.get _))
+
+  def defaultActions(colorizer: Colorizer): Map[KeyStroke, TextAction] =
+    Map(keystroke(KeyEvent.VK_F1) -> new QuickHelpAction(colorizer))
+
+  private val emptyMenu =
+    new EditorMenu {
+      def editActions(actionGroups: Seq[Seq[Action]]): Unit = {}
+      def helpActions(actionGroups: Seq[Action]): Unit = {}
+    }
 
   def default(rows: Int, columns: Int, colorizer: Colorizer) =
     EditorConfiguration(rows, columns, defaultFont, emptyListener, colorizer, Map(), defaultMenuItems(colorizer), false, false)
@@ -89,7 +99,7 @@ case class EditorConfiguration(
 
       // add key binding, for getting quick "contexthelp", based on where
       // the cursor is...
-      editor.getInputMap.put(keystroke(KeyEvent.VK_F1, 0), Actions.quickHelpAction(colorizer, I18N.gui.get _))
+      editor.getInputMap.put(keystroke(KeyEvent.VK_F1, 0), Actions.quickHelpAction(colorizer))
 
       val editorListener = new EditorListener(e => listener.textValueChanged(null))
       editorListener.install(editor)

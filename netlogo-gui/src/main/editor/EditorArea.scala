@@ -116,7 +116,7 @@ class EditorArea(configuration: EditorConfiguration)
       Array[Action](
         Actions.commentToggleAction,
         Actions.shiftLeftAction, Actions.shiftRightAction,
-        Actions.quickHelpAction(colorizer, I18N.gui.get _)))
+        Actions.quickHelpAction(colorizer)))
 
   override def getPreferredScrollableViewportSize: Dimension = {
     val dimension =

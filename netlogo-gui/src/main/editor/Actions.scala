@@ -5,7 +5,8 @@ package org.nlogo.editor
 import org.nlogo.core.I18N
 
 import java.awt.event.{ ActionEvent, KeyEvent }
-import javax.swing.Action, Action.ACCELERATOR_KEY
+import javax.swing.Action, Action.{ ACCELERATOR_KEY, ACTION_COMMAND_KEY }
+import javax.swing.event.{ ChangeEvent, ChangeListener }
 import javax.swing.text._
 import javax.swing.text.DefaultEditorKit.{CutAction, CopyAction, PasteAction, InsertContentAction}
 
@@ -34,9 +35,12 @@ object Actions {
   }
 
   class TabKeyAction extends MyTextAction("tab-key", _.indentSelection() )
-  def quickHelpAction(colorizer: Colorizer, i18n: String => String) =
+  def quickHelpAction(colorizer: Colorizer) =
+    new QuickHelpAction(colorizer)
+    /*
     new MyTextAction(i18n("tabs.code.rightclick.quickhelp"),
       e => e.getHelpTarget(e.getSelectionStart).foreach(t => colorizer.doHelp(e, t)))
+    */
   def mouseQuickHelpAction(colorizer: Colorizer, i18n: String => String) =
     new MyTextAction(i18n("tabs.code.rightclick.quickhelp"),
       e => e.getHelpTarget(e.getMousePos).foreach(t => colorizer.doHelp(e, t)))
@@ -46,6 +50,7 @@ object Actions {
       if(component.isInstanceOf[EditorArea]) f(component.asInstanceOf[EditorArea])
     }
   }
+
 
   abstract class DocumentAction(name: String) extends TextAction(name) {
     override def actionPerformed(e: ActionEvent): Unit = {
@@ -61,7 +66,7 @@ object Actions {
   }
 
   class ShiftLeftAction extends DocumentAction(I18N.gui.get("menu.edit.shiftLeft")) {
-    putValue(ACCELERATOR_KEY, keystroke(KeyEvent.VK_OPEN_BRACKET.toChar, menuShortcutMask))
+    putValue(ACCELERATOR_KEY, keystroke(KeyEvent.VK_OPEN_BRACKET, menuShortcutMask))
 
     override def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit = {
       val (startLine, endLine) =
@@ -147,6 +152,34 @@ object Actions {
             document.remove(lineStart + semicolonPos, 1)
         }
       }
+    }
+  }
+}
+
+// QuickHelpAction tracks the position of the caret and opens help when needed
+class QuickHelpAction(colorizer: Colorizer)
+extends Actions.DocumentAction(I18N.gui.get("tabs.code.rightclick.quickhelp"))
+with ChangeListener {
+  putValue(ACCELERATOR_KEY, keystroke(KeyEvent.VK_F1))
+  putValue(ACTION_COMMAND_KEY, "org.nlogo.editor.quickHelp")
+
+  private var currentOffset = -1
+
+  override def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit = {
+    if (currentOffset != -1) {
+      for {
+        lineText <- document.getLineText(currentOffset)
+        tokenString <- colorizer.getTokenAtPosition(lineText, currentOffset)
+        } {
+          colorizer.doHelp(component, tokenString)
+        }
+    }
+  }
+
+  override def stateChanged(e: ChangeEvent): Unit = {
+    e.getSource match {
+      case caret: Caret => currentOffset = caret.getDot
+      case _ =>
     }
   }
 }
