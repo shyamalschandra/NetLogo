@@ -442,13 +442,17 @@ class App extends
     frame.addLinkComponent(viewManager)
 
     fileMenu = pico.getComponent(classOf[FileMenu])
-    val menuBar = new JMenuBar(){
-      add(fileMenu)
-      add(new EditMenu(App.this))
-      add(pico.getComponent(classOf[ToolsMenu]))
-      add(new ZoomMenu)
-      add(tabs.tabsMenu)
-    }
+
+    pico.addComponent(classOf[EditMenu])
+    pico.add(classOf[MenuBar],
+      "org.nlogo.app.MenuBar",
+      new ConstantParameter(fileMenu),
+      new ComponentParameter(),
+      new ComponentParameter(),
+      new ComponentParameter())
+
+    val menuBar = pico.getComponent(classOf[MenuBar])
+
     // a little ugly we have to typecast here, but oh well - ST 10/11/05
     helpMenu = new MenuBarFactory().addHelpMenu(menuBar).asInstanceOf[HelpMenu]
     frame.setJMenuBar(menuBar)

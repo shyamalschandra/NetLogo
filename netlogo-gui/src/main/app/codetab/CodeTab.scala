@@ -25,20 +25,26 @@ class CodeTab(val workspace: AbstractWorkspace) extends JPanel
   with Zoomable
   with NlogoPrintable {
 
-  private val listener = new TextListener {
+  private lazy val listener = new TextListener {
     override def textValueChanged(e: TextEvent) {
       needsCompile()
       dirty()
     }
   }
-  val editorFactory = new EditorFactory(workspace)
-  val text = {
-    val config = editorFactory.defaultConfiguration(100, 100)
+
+  lazy val editorFactory = new EditorFactory(workspace)
+
+  def editorConfiguration =
+    editorFactory.defaultConfiguration(100, 100)
       .withCurrentLineHighlighted(true)
       .withListener(listener)
-    editorFactory.newEditor(config, true)
+
+  val text = {
+    val editor = editorFactory.newEditor(editorConfiguration, true)
+    editor.setBorder(BorderFactory.createEmptyBorder(4, 7, 4, 7))
+    editor
   }
-  text.setBorder(BorderFactory.createEmptyBorder(4, 7, 4, 7))
+
   override def zoomTarget = text
 
   val errorLabel = new EditorAreaErrorLabel(text)
