@@ -139,7 +139,6 @@ object App{
     pico.addComponent(classOf[App])
     pico.as(NO_CACHE).addComponent(classOf[FileMenu])
     pico.addComponent(classOf[ModelSaver])
-    pico.addComponent(classOf[ToolsMenu])
     pico.add("org.nlogo.gl.view.ViewManager")
     // Anything that needs a parent Frame, we need to use ComponentParameter
     // and specify classOf[AppFrame], otherwise PicoContainer won't know which
@@ -449,7 +448,6 @@ class App extends
     pico.add(classOf[MenuBar],
       "org.nlogo.app.MenuBar",
       new ConstantParameter(fileMenu),
-      new ComponentParameter(),
       new ComponentParameter(),
       new ConstantParameter(AbstractWorkspace.isApp))
 

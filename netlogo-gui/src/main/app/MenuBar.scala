@@ -10,14 +10,15 @@ import org.nlogo.swing.{ TabsMenu, UserAction },
   UserAction.{ ActionCategoryKey, HelpCategory, TabsCategory, ToolsCategory }
 
 class MenuBar(fileMenu: FileMenu,
-  editMenu: EditMenu,
-  toolsMenu: ToolsMenu,
-  isApplicationWide: Boolean)
+  editMenu:             EditMenu,
+  isApplicationWide:    Boolean)
   extends JMenuBar
   with EditorMenu
   with UserAction.Menu {
 
   val tabsMenu = new TabsMenu(I18N.gui.get("menu.tabs"))
+  val toolsMenu = new ToolsMenu
+
   add(fileMenu)
   add(editMenu)
   add(toolsMenu)
