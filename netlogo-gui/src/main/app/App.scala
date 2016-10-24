@@ -451,7 +451,8 @@ class App extends
       new ConstantParameter(fileMenu),
       new ComponentParameter(),
       new ComponentParameter(),
-      new ComponentParameter())
+      new ComponentParameter(),
+      new ConstantParameter(AbstractWorkspace.isApp))
 
     val menuBar = pico.getComponent(classOf[MenuBar])
 
@@ -521,13 +522,16 @@ class App extends
     }
     def createZoomMenu:  JMenu = new ZoomMenu
     override def addHelpMenu(menuBar:JMenuBar) = {
-      val newMenu = new HelpMenu(App.this)
+      val newMenu = new HelpMenu()
       menuBar.add(newMenu)
-      try if(AbstractWorkspace.isApp) menuBar.setHelpMenu(newMenu)
-      catch{
-        // if not implemented in this VM (e.g. 1.8 on Mac as of right now),
-        // then oh well - ST 6/23/03, 8/6/03 - RG 10/21/16
-        case e: Error => org.nlogo.api.Exceptions.ignore(e)
+      if (AbstractWorkspace.isApp) {
+        try
+        menuBar.setHelpMenu(newMenu)
+        catch{
+          // if not implemented in this VM (e.g. 1.8 on Mac as of right now),
+          // then oh well - ST 6/23/03, 8/6/03 - RG 10/21/16
+          case e: Error => org.nlogo.api.Exceptions.ignore(e)
+        }
       }
       newMenu
     }
@@ -611,11 +615,14 @@ class App extends
     new ZoomedEvent(0).raise(this)
   }
 
-  lazy val openPreferencesDialog = new ShowPreferencesDialog(new PreferencesDialog(frame, Preference.Language))
+  lazy val openPreferencesDialog =
+    new ShowPreferencesDialog(new PreferencesDialog(frame, Preference.Language))
+  lazy val openAboutDialog =
+    new ShowAboutWindow(frame)
   lazy val openColorDialog       = new OpenColorDialog(frame)
 
   lazy val allActions: Seq[javax.swing.Action] = {
-    val osSpecificActions = if (! isMac) Seq(openPreferencesDialog) else Seq()
+    val osSpecificActions = if (isMac) Seq() else Seq(openPreferencesDialog, openAboutDialog)
 
     val workspaceActions = org.nlogo.window.WorkspaceActions(workspace)
 
@@ -633,7 +640,7 @@ class App extends
         workspace,
         () => pico.getComponent(classOf[ModelSaver]).asInstanceOf[ModelSaver].currentModel)
     )
-    osSpecificActions ++ generalActions ++ workspaceActions
+    osSpecificActions ++ generalActions ++ workspaceActions ++ HelpActions.apply
   }
 
   def setMenuBar(menuBar: MenuBar): Unit = {
@@ -1097,14 +1104,16 @@ class App extends
    */
   // used both from HelpMenu and MacHandlers - ST 2/2/09
   def showAboutWindow(): Unit = {
-    new AboutWindow(frame).setVisible(true)
+    openAboutDialog.actionPerformed(
+      new ActionEvent(frame, ActionEvent.ACTION_PERFORMED, null))
   }
 
   /**
    * Internal use only.
    */
   def showPreferencesDialog(): Unit = {
-    openPreferencesDialog.actionPerformed(new ActionEvent(frame, ActionEvent.ACTION_PERFORMED, null))
+    openPreferencesDialog.actionPerformed(
+      new ActionEvent(frame, ActionEvent.ACTION_PERFORMED, null))
   }
 
   /**

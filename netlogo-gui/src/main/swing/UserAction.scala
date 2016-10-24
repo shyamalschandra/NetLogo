@@ -20,6 +20,9 @@ object UserAction {
   val ToolsDialogsGroup = "org.nlogo.swing.ToolsDialogsGroup"
   val ToolsHubNetGroup  = "org.nlogo.swing.ToolsHubNetGroup"
 
+  val HelpWebGroup   = "org.nlogo.swing.HelpWebGroup"
+  val HelpAboutGroup = "org.nlogo.swing.HelpAboutGroup"
+
   trait Menu {
     def offerAction(action: javax.swing.Action): Unit
   }

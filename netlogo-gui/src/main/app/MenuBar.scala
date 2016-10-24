@@ -2,12 +2,12 @@
 
 package org.nlogo.app
 
-import javax.swing.{ Action, JMenuBar }
+import javax.swing.{ Action, JMenu, JMenuBar }
 
 import org.nlogo.editor.EditorMenu
-import org.nlogo.swing.UserAction, UserAction.{ ActionCategoryKey, ToolsCategory }
+import org.nlogo.swing.UserAction, UserAction.{ ActionCategoryKey, HelpCategory, ToolsCategory }
 
-class MenuBar(fileMenu: FileMenu, editMenu: EditMenu, toolsMenu: ToolsMenu, tabs: Tabs)
+class MenuBar(fileMenu: FileMenu, editMenu: EditMenu, toolsMenu: ToolsMenu, tabs: Tabs, isApplicationWide: Boolean)
   extends JMenuBar
   with EditorMenu
   with UserAction.Menu {
@@ -20,8 +20,19 @@ class MenuBar(fileMenu: FileMenu, editMenu: EditMenu, toolsMenu: ToolsMenu, tabs
 
   private var helpMenu = Option.empty[HelpMenu]
 
-  def addHelpMenu(newHelpMenu: HelpMenu): Unit = {
-    helpMenu = Some(newHelpMenu)
+  override def setHelpMenu(newHelpMenu: JMenu): Unit = {
+    newHelpMenu match {
+      case hm: HelpMenu => helpMenu = Some(hm)
+      case _ =>
+    }
+    if (isApplicationWide) {
+      try super.setHelpMenu(newHelpMenu)
+      catch{
+        // if not implemented in this VM (e.g. 1.8 on Mac as of right now),
+        // then oh well - ST 6/23/03, 8/6/03 - RG 10/21/16
+        case e: Error => org.nlogo.api.Exceptions.ignore(e)
+      }
+    }
   }
 
   def editActions(actionGroups: Seq[Seq[Action]]): Unit = {
@@ -32,8 +43,10 @@ class MenuBar(fileMenu: FileMenu, editMenu: EditMenu, toolsMenu: ToolsMenu, tabs
   }
 
   def offerAction(action: javax.swing.Action): Unit = {
-    if (action.getValue(ActionCategoryKey) == ToolsCategory) {
-      toolsMenu.offerAction(action)
+    action.getValue(ActionCategoryKey) match {
+      case ToolsCategory => toolsMenu.offerAction(action)
+      case HelpCategory  => helpMenu.foreach(_.offerAction(action))
+      case _ =>
     }
   }
 }

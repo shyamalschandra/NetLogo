@@ -2,7 +2,9 @@
 
 package org.nlogo.swing
 
-class Menu(text: String) extends javax.swing.JMenu(text) {
+import javax.swing.{ Action, JMenuItem }
+
+class Menu(text: String) extends javax.swing.JMenu(text) with UserAction.Menu {
   def addMenuItem(name: String, fn: () => Unit): javax.swing.JMenuItem =
     addMenuItem(RichAction(name) { _ => fn() })
   def addMenuItem(name: String, c: Char, shifted: Boolean, fn: () => Unit): javax.swing.JMenuItem =
@@ -62,5 +64,31 @@ class Menu(text: String) extends javax.swing.JMenu(text) {
     item.setIcon(null) // unwanted visual clutter - ST 7/31/03
     add(item)
     item
+  }
+
+  protected var groups: Map[String, Range] = Map()
+
+  def offerAction(action: Action): Unit = {
+    val actionGroup = action.getValue(UserAction.ActionGroupKey) match {
+      case s: String => s
+      case _         => "UndefinedGroup"
+    }
+    if (groups.isEmpty) {
+      add(new JMenuItem(action), 0)
+      groups = groups + (actionGroup -> (0 to 0))
+    } else if (! groups.isDefinedAt(actionGroup)) {
+      addSeparator()
+      val index = getMenuComponentCount
+      add(new JMenuItem(action), index)
+      groups = groups + (actionGroup -> (index to index))
+    } else {
+      val range = groups(actionGroup)
+      add(new JMenuItem(action), range.end)
+      groups = groups.map {
+        case (k, v) if k == actionGroup      => k -> (range.start to range.end + 1)
+        case (k, v) if v.start > range.start => k -> ((v.start + 1) to (v.end + 1))
+        case kv                              => kv
+      }
+    }
   }
 }
