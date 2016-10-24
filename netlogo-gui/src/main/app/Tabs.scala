@@ -3,7 +3,8 @@
 package org.nlogo.app
 
 import java.awt.Graphics
-import javax.swing.{ JTabbedPane, UIManager }
+import java.awt.event.ActionEvent
+import javax.swing.{ AbstractAction, Action, JTabbedPane, UIManager }
 import javax.swing.plaf.ComponentUI
 
 import org.nlogo.app.codetab.{ CodeTab, MainCodeTab, TemporaryCodeTab }
@@ -12,7 +13,7 @@ import org.nlogo.app.infotab.InfoTab
 import org.nlogo.app.interfacetab.InterfaceTab
 import org.nlogo.app.tools.AgentMonitorManager
 import org.nlogo.core.I18N
-import org.nlogo.swing.RichAction
+import org.nlogo.swing.{ RichAction, UserAction, TabsMenu }, UserAction.{ ActionCategoryKey, ActionRankKey , TabsCategory }
 import org.nlogo.swing.Implicits._
 import org.nlogo.window.{EditDialogFactoryInterface, GUIWorkspace}
 import org.nlogo.window.Events._
@@ -39,7 +40,9 @@ class Tabs(val workspace: GUIWorkspace,
   }
 
 
-  var tabsMenu: org.nlogo.swing.TabsMenu = null
+  var tabsMenu: TabsMenu = null
+
+  def tabActions: Seq[Action] = TabsMenu.tabActions(this)
 
   val interfaceTab = new InterfaceTab(workspace, monitorManager, dialogFactory)
   val infoTab = new InfoTab(workspace.attachModelDir(_))
@@ -54,7 +57,7 @@ class Tabs(val workspace: GUIWorkspace,
     addTab(I18N.gui.get("tabs.code"), codeTab)
     for((name, tab) <- moreTabs)
       addTab(name, tab)
-    tabsMenu = new org.nlogo.swing.TabsMenu(I18N.gui.get("menu.tabs"), this)
+    // tabsMenu = new org.nlogo.swing.TabsMenu(I18N.gui.get("menu.tabs"), this)
   }
 
   def stateChanged(e: javax.swing.event.ChangeEvent) {

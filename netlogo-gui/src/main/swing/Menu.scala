@@ -3,6 +3,7 @@
 package org.nlogo.swing
 
 import javax.swing.{ Action, JMenuItem }
+import UserAction.ActionRankKey
 
 class Menu(text: String) extends javax.swing.JMenu(text) with UserAction.Menu {
   def addMenuItem(name: String, fn: () => Unit): javax.swing.JMenuItem =
@@ -83,12 +84,33 @@ class Menu(text: String) extends javax.swing.JMenu(text) with UserAction.Menu {
       groups = groups + (actionGroup -> (index to index))
     } else {
       val range = groups(actionGroup)
-      add(new JMenuItem(action), range.end)
+      add(new JMenuItem(action), insertionIndex(action, range))
       groups = groups.map {
         case (k, v) if k == actionGroup      => k -> (range.start to range.end + 1)
         case (k, v) if v.start > range.start => k -> ((v.start + 1) to (v.end + 1))
         case kv                              => kv
       }
     }
+  }
+
+  private def insertionIndex(action: Action, range: Range): Int = {
+    if (action.getValue(ActionRankKey) != null) {
+      val defaultRank = Double.box(Double.MaxValue)
+      def toRank(a: AnyRef) = a match {
+        case d: java.lang.Double => d
+        case _                   => defaultRank
+      }
+      val actionRank = toRank(action.getValue(ActionRankKey))
+      val groupRanks: Seq[java.lang.Double] = getMenuComponents
+        .slice(range.start, range.end)
+        .map {
+          case menuItem: JMenuItem => toRank(menuItem.getAction.getValue(ActionRankKey))
+          case _                   => defaultRank
+        }
+        val index = groupRanks.indexWhere((d: java.lang.Double) => d.doubleValue > actionRank)
+        range.start + index
+    } else
+      range.end
+
   }
 }

@@ -4,19 +4,25 @@ package org.nlogo.app
 
 import javax.swing.{ Action, JMenu, JMenuBar }
 
+import org.nlogo.core.I18N
 import org.nlogo.editor.EditorMenu
-import org.nlogo.swing.UserAction, UserAction.{ ActionCategoryKey, HelpCategory, ToolsCategory }
+import org.nlogo.swing.{ TabsMenu, UserAction },
+  UserAction.{ ActionCategoryKey, HelpCategory, TabsCategory, ToolsCategory }
 
-class MenuBar(fileMenu: FileMenu, editMenu: EditMenu, toolsMenu: ToolsMenu, tabs: Tabs, isApplicationWide: Boolean)
+class MenuBar(fileMenu: FileMenu,
+  editMenu: EditMenu,
+  toolsMenu: ToolsMenu,
+  isApplicationWide: Boolean)
   extends JMenuBar
   with EditorMenu
   with UserAction.Menu {
 
+  val tabsMenu = new TabsMenu(I18N.gui.get("menu.tabs"))
   add(fileMenu)
   add(editMenu)
   add(toolsMenu)
   add(new ZoomMenu)
-  add(tabs.tabsMenu)
+  add(tabsMenu)
 
   private var helpMenu = Option.empty[HelpMenu]
 
@@ -46,6 +52,7 @@ class MenuBar(fileMenu: FileMenu, editMenu: EditMenu, toolsMenu: ToolsMenu, tabs
     action.getValue(ActionCategoryKey) match {
       case ToolsCategory => toolsMenu.offerAction(action)
       case HelpCategory  => helpMenu.foreach(_.offerAction(action))
+      case TabsCategory  => tabsMenu.offerAction(action)
       case _ =>
     }
   }

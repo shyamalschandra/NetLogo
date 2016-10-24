@@ -451,7 +451,6 @@ class App extends
       new ConstantParameter(fileMenu),
       new ComponentParameter(),
       new ComponentParameter(),
-      new ComponentParameter(),
       new ConstantParameter(AbstractWorkspace.isApp))
 
     val menuBar = pico.getComponent(classOf[MenuBar])
@@ -640,7 +639,7 @@ class App extends
         workspace,
         () => pico.getComponent(classOf[ModelSaver]).asInstanceOf[ModelSaver].currentModel)
     )
-    osSpecificActions ++ generalActions ++ workspaceActions ++ HelpActions.apply
+    osSpecificActions ++ generalActions ++ workspaceActions ++ HelpActions.apply ++ tabs.tabActions
   }
 
   def setMenuBar(menuBar: MenuBar): Unit = {

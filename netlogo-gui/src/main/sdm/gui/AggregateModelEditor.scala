@@ -13,6 +13,7 @@ import org.nlogo.core.{ CompilerException, I18N, LiteralParser, TokenType }
 import org.nlogo.api.{ CompilerServices, Editable, SourceOwner }
 import org.nlogo.editor.Colorizer
 import org.nlogo.sdm.{ Model, Translator }
+import org.nlogo.swing.TabsMenu
 import org.nlogo.window.{ EditDialogFactoryInterface, MenuBarFactory }
 import org.nlogo.window.Event.LinkChild
 
@@ -98,7 +99,7 @@ class AggregateModelEditor(
       menuBar.add(zoomMenu)
     }
 
-    menuBar.add(new org.nlogo.swing.TabsMenu(I18N.gui.get("menu.tabs"), tabs))
+    menuBar.add(new TabsMenu(I18N.gui.get("menu.tabs"), tabs))
 
     if (isOSX) {
       menuBarFactory.addHelpMenu(menuBar)
