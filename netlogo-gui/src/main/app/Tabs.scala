@@ -23,7 +23,11 @@ class Tabs(val workspace:  GUIWorkspace,
            dialogFactory:  EditDialogFactoryInterface) extends JTabbedPane(javax.swing.SwingConstants.TOP)
   with TabsInterface with javax.swing.event.ChangeListener with org.nlogo.window.Event.LinkParent
   with org.nlogo.window.LinkRoot
-  with LoadBeginEvent.Handler with RuntimeErrorEvent.Handler with CompiledEvent.Handler {
+  with LoadBeginEvent.Handler
+  with RuntimeErrorEvent.Handler
+  with CompiledEvent.Handler
+  with ModelSavedEvent.Handler
+  with AfterLoadEvent.Handler {
 
   locally{
     setOpaque(false)
@@ -241,5 +245,13 @@ class Tabs(val workspace:  GUIWorkspace,
     // components on windows and linux (but not Mac) in java 6 it never did this before and I don't
     // see any reason why it needs to. It's causing flickering in the info tabs on the affected
     // platforms ev 2/2/09
+  }
+
+  def handle(e: ModelSavedEvent) {
+    saveExternalFiles()
+  }
+
+  def handle(e: AfterLoadEvent) {
+    requestFocus()
   }
 }

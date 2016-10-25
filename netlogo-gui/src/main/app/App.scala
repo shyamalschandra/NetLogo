@@ -2,7 +2,7 @@
 
 package org.nlogo.app
 
-import org.nlogo.app.common.{ CodeToHtml, EditorFactory, FileActions, Events => AppEvents }
+import org.nlogo.app.common.{ CodeToHtml, EditorFactory, FileActions, Events => AppEvents, SaveModelingCommonsAction }
 import org.nlogo.app.interfacetab.{ InterfaceToolBar, WidgetPanel }
 import org.nlogo.app.tools.{ AgentMonitorManager, GraphicsPreview, Preference, PreferencesDialog, PreviewCommandsEditor }
 import org.nlogo.core.{ AgentKind, CompilerException, Dialect, I18N, LogoList, Model, Nobody,
@@ -296,7 +296,7 @@ class App extends
   def tabs = _tabs
   var menuBar: MenuBar = null
   var helpMenu: HelpMenu = null
-  var fileMenu: FileMenu = null
+  var fileManager: FileManager = null
   var monitorManager:AgentMonitorManager = null
   var aggregateManager: AggregateManagerInterface = null
   var colorDialog: ColorDialog = null
@@ -315,7 +315,7 @@ class App extends
   // part of controlling API; used by e.g. the Mathematica-NetLogo link
   // - ST 8/21/07
   @throws(classOf[UserCancelException])
-  def quit(){ fileMenu.quit() }
+  def quit(){ fileManager.quit() }
 
   locally {
     frame.addLinkComponent(this)
@@ -436,19 +436,28 @@ class App extends
     labManager = pico.getComponent(classOf[LabManagerInterface])
     frame.addLinkComponent(labManager)
 
-    fileMenu = pico.getComponent(classOf[FileMenu])
 
     pico.addComponent(classOf[EditMenu])
     pico.add(classOf[MenuBar],
       "org.nlogo.app.MenuBar",
-      new ConstantParameter(fileMenu),
+      new ComponentParameter(),
       new ComponentParameter(),
       new ConstantParameter(AbstractWorkspace.isApp))
 
     val menuBar = pico.getComponent(classOf[MenuBar])
 
     tabs.menu = menuBar
-    tabs.init(Plugins.load(pico): _*)
+
+    pico.addComponent(classOf[DirtyMonitor])
+    val dirtyMonitor = pico.getComponent(classOf[DirtyMonitor])
+    frame.addLinkComponent(dirtyMonitor)
+
+    pico.add(classOf[FileManager],
+      "org.nlogo.app.FileManager",
+      new ComponentParameter(), new ComponentParameter(), new ComponentParameter(),
+      new ComponentParameter(), new ComponentParameter(),
+      new ConstantParameter(menuBar.fileMenu), new ConstantParameter(menuBar.fileMenu))
+    fileManager = pico.getComponent(classOf[FileManager])
 
     val viewManager = pico.getComponent(classOf[GLViewManagerInterface])
     workspace.init(viewManager)
@@ -456,6 +465,8 @@ class App extends
 
     // a little ugly we have to typecast here, but oh well - ST 10/11/05
     helpMenu = new MenuBarFactory().addHelpMenu(menuBar).asInstanceOf[HelpMenu]
+
+    tabs.init(Plugins.load(pico): _*)
 
     app.setMenuBar(menuBar)
 
@@ -542,7 +553,7 @@ class App extends
         // open up the blank model first so in case
         // the magic open fails for some reason
         // there's still a model loaded ev 3/7/06
-        fileMenu.newModel()
+        fileManager.newModel()
         open(commandLineModel)
       }
       else libraryOpen(commandLineModel) // --open from command line
@@ -553,7 +564,7 @@ class App extends
 
       try {
 
-        fileMenu.openFromURI(new java.net.URI(commandLineURL), ModelType.Library)
+        fileManager.openFromURI(new java.net.URI(commandLineURL), ModelType.Library)
 
         import org.nlogo.awt.EventQueue, org.nlogo.swing.Implicits.thunk2runnable
 
@@ -593,14 +604,14 @@ class App extends
       }
       catch {
         case ex: java.net.ConnectException =>
-          fileMenu.newModel()
+          fileManager.newModel()
           JOptionPane.showConfirmDialog(null,
             "Could not obtain NetLogo model from URL '%s'.\nNetLogo will instead start without any model loaded.".format(commandLineURL),
             "Connection Failed", JOptionPane.DEFAULT_OPTION)
       }
 
     }
-    else fileMenu.newModel()
+    else fileManager.newModel()
   }
 
   /// zooming
@@ -637,11 +648,13 @@ class App extends
       new PreviewCommandsEditor.EditPreviewCommands(
         pico.getComponent(classOf[PreviewCommandsEditorInterface]),
         workspace,
-        () => pico.getComponent(classOf[ModelSaver]).asInstanceOf[ModelSaver].currentModel)
+        () => pico.getComponent(classOf[ModelSaver]).asInstanceOf[ModelSaver].currentModel),
+      new SaveModelingCommonsAction(modelingCommons, menuBar.fileMenu)
     ) ++
     HelpActions.apply ++
     FileActions(workspace, menuBar.fileMenu) ++
-    workspaceActions
+    workspaceActions ++
+    fileManager.actions
 
     osSpecificActions ++ generalActions ++ tabs.menuActions
   }
@@ -855,7 +868,7 @@ class App extends
    */
   @throws(classOf[java.io.IOException])
   def open(path: String) {
-    dispatchThreadOrBust(fileMenu.openFromPath(path, ModelType.Normal))
+    dispatchThreadOrBust(fileManager.openFromPath(path, ModelType.Normal))
   }
 
   /**
@@ -864,7 +877,7 @@ class App extends
    */
   @throws(classOf[java.io.IOException])
   private[nlogo] def saveOpenModel(): Unit = {
-    dispatchThreadOrBust(fileMenu.save(false))
+    dispatchThreadOrBust(fileManager.save(false))
   }
 
   /**
@@ -875,7 +888,7 @@ class App extends
   def handleOpenPath(path: String) = {
     try {
       dispatchThreadOrBust {
-        fileMenu.offerSave()
+        fileManager.offerSave()
         open(path)
       }
     } catch {
@@ -891,7 +904,7 @@ class App extends
    * This is called reflectively by the mac app wrapper.
    */
   def handleQuit(): Unit = {
-    fileMenu.quit()
+    fileManager.quit()
   }
 
   /**
@@ -910,7 +923,7 @@ class App extends
 
   @throws(classOf[java.io.IOException])
   def libraryOpen(path: String) {
-    dispatchThreadOrBust(fileMenu.openFromPath(path, ModelType.Library))
+    dispatchThreadOrBust(fileManager.openFromPath(path, ModelType.Library))
   }
 
   /**
@@ -927,7 +940,7 @@ class App extends
   def openFromSource(source:String, path:String, modelType:ModelType){
     import java.nio.file.Paths
     dispatchThreadOrBust(
-      try fileMenu.openFromURI(Paths.get(path).toUri, modelType)
+      try fileManager.openFromURI(Paths.get(path).toUri, modelType)
       catch { case ex:UserCancelException => org.nlogo.api.Exceptions.ignore(ex) })
   }
 

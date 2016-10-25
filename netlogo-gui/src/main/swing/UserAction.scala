@@ -10,7 +10,7 @@ object UserAction {
   /* Key denoting in which menu an action ought to be included */
   val ActionCategoryKey    = "org.nlogo.swing.ActionCategoryKey"
   /* Key for an action to denote what actions it should be grouped with. Allows like actions to be grouped together. */
-  val ActionGroupKey       = "org.nlogo.swing.ActionSubcategoryKey"
+  val ActionGroupKey       = "org.nlogo.swing.ActionGroupKey"
   /* Key for an action to share a submenu with */
   val ActionSubcategoryKey = "org.nlogo.swing.ActionSubcategoryKey"
   /* Key for an action to indicate it's rank within the group, expressed as a java.lang.Double.
@@ -24,7 +24,10 @@ object UserAction {
   val ToolsCategory = "org.nlogo.swing.ToolsCategory"
   val HelpCategory  = "org.nlogo.swing.HelpCategory"
 
+  val FileOperationsSubcategory = "org.nlogo.swing.FileOperationsSubcategory"
   val FileExportSubcategory = "org.nlogo.swing.FileExportSubcategory"
+  val FileImportSubcategory = "org.nlogo.swing.FileImportSubcategory"
+  val FileShareGroup        = "org.nlogo.swing.FileShareGroup"
 
   val ToolsDialogsGroup = "org.nlogo.swing.ToolsDialogsGroup"
   val ToolsHubNetGroup  = "org.nlogo.swing.ToolsHubNetGroup"
@@ -69,6 +72,12 @@ object UserAction {
       action.getValue(ActionRankKey) match {
         case d: java.lang.Double => d.doubleValue
         case _                   => Double.MaxValue
+      }
+
+    def subcategory: Option[String] =
+      action.getValue(ActionSubcategoryKey) match {
+        case s: String => Some(s)
+        case _         => None
       }
   }
 }

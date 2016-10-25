@@ -68,6 +68,7 @@ class Menu(text: String) extends JMenu(text) with UserAction.Menu {
   }
 
   protected var groups: Map[String, Range] = Map()
+  protected var subcategories: Map[String, Menu] = Map()
 
   def revokeAction(action: Action): Unit = {
     getMenuComponents.zipWithIndex.collect {
@@ -87,6 +88,31 @@ class Menu(text: String) extends JMenu(text) with UserAction.Menu {
   }
 
   def offerAction(action: Action): Unit = {
+    subcategoryItem(action) match {
+      case Some(subcategoryItem) =>
+        subcategoryItem.insertAction(action)
+      case None                  => insertAction(action)
+    }
+  }
+
+  def subcategoryItem(action: Action): Option[Menu] = {
+    action.subcategory match {
+      case Some(subcatName) if subcategories.isDefinedAt(subcatName) =>
+        Some(subcategories(subcatName))
+      case Some(subcatName) =>
+        val subcat = createSubcategory(subcatName)
+        add(subcat)
+        subcategories = subcategories + (subcatName -> subcat)
+        Some(subcat)
+      case None => None
+    }
+  }
+
+  protected def createSubcategory(key: String): Menu = {
+    new Menu(key)
+  }
+
+  private def insertAction(action: Action): Unit = {
     if (groups.isEmpty) {
       add(new JMenuItem(action), 0)
       groups = groups + (action.group -> (0 to 0))

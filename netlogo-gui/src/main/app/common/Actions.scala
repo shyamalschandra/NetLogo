@@ -10,7 +10,7 @@ import javax.swing.{ AbstractAction => SwingAbstractAction, JDialog, JOptionPane
 import org.nlogo.core.I18N
 import org.nlogo.api.Exceptions
 import org.nlogo.awt.{ EventQueue, Hierarchy => NLogoHierarchy, UserCancelException }
-import org.nlogo.swing.{ FileDialog, Implicits, ModalProgressTask }, Implicits.thunk2runnable
+import org.nlogo.swing.{ FileDialog, Implicits, ModalProgressTask, UserAction }, Implicits.thunk2runnable
 import org.nlogo.window.{ ExportControls, GUIWorkspace, SwingUnlockedExecutionContext }
 import org.nlogo.workspace.{ OpenModel, SaveModel, SaveModelAs }
 
@@ -72,20 +72,7 @@ extends SwingAbstractAction(I18N.gui.get("menu.file.export." + taskName) + Ellip
 }
 
 abstract class ExportAction(taskName: String, suggestedFileName: String, parent: Component, performExport: String => Unit = {(s) => })
-  extends SwingAbstractAction(I18N.gui.get("menu.file.export." + taskName) + Actions.Ellipsis) {
-
-  def frame = NLogoHierarchy.getFrame(parent)
-
-  def actionPerformed(e: ActionEvent): Unit = {
-    try {
-      action()
-    } catch {
-      case ex: UserCancelException => Exceptions.ignore(ex)
-      case ex: IOException => JOptionPane.showMessageDialog(
-        parent, ex.getMessage,
-        I18N.gui.get("common.messages.error"), JOptionPane.ERROR_MESSAGE)
-    }
-  }
+  extends ExceptionCatchingAction(I18N.gui.get("menu.file.export." + taskName) + Actions.Ellipsis, parent) {
 
   def exportTask(path: String): Runnable = new Runnable() {
     override def run(): Unit = {
@@ -113,5 +100,67 @@ abstract class ExportAction(taskName: String, suggestedFileName: String, parent:
       I18N.gui.get("dialog.interface.export.task"), exportTask(exportPath))
 
     exception.foreach(throw _)
+  }
+}
+
+abstract class ExceptionCatchingAction(name: String, parent: Component) extends SwingAbstractAction(name) {
+  def frame = NLogoHierarchy.getFrame(parent)
+
+  @throws(classOf[UserCancelException])
+  @throws(classOf[IOException])
+  def action(): Unit
+
+  def actionPerformed(e: ActionEvent): Unit = {
+    try {
+      action()
+    } catch {
+      case ex: UserCancelException => Exceptions.ignore(ex)
+      case ex: IOException => JOptionPane.showMessageDialog(
+        parent, ex.getMessage,
+        I18N.gui.get("common.messages.error"), JOptionPane.ERROR_MESSAGE)
+    }
+  }
+}
+
+abstract class ImportAction(taskName: String, parent: Component, performImport: String => Unit = { s => })
+  extends ExceptionCatchingAction(I18N.gui.get(s"menu.file.import.$taskName") + Ellipsis, parent) {
+  var exception = Option.empty[IOException]
+
+  def importTask(path: String): Runnable = new Runnable() {
+    override def run(): Unit = {
+      try {
+        performImport(path)
+      }
+      catch {
+        case ex: IOException => exception = Some(ex)
+      }
+    }
+  }
+
+  @throws(classOf[UserCancelException])
+  @throws(classOf[IOException])
+  override def action(): Unit = {
+    exception = None
+    val importPath = FileDialog.show(
+        parent, I18N.gui.get(s"menu.file.import.$taskName"), AWTFileDialog.LOAD, null)
+
+    ModalProgressTask.onUIThread(frame,
+      I18N.gui.get("dialog.interface.import.task"),
+      importTask(importPath))
+    exception.foreach(throw _)
+  }
+}
+
+import org.nlogo.api.ModelingCommonsInterface
+
+class SaveModelingCommonsAction(modelingCommons: ModelingCommonsInterface, parent: Component)
+  extends ExceptionCatchingAction(I18N.gui.get("menu.file.uploadMc"), parent) {
+
+  putValue(UserAction.ActionCategoryKey, UserAction.FileCategory)
+  putValue(UserAction.ActionGroupKey,    UserAction.FileShareGroup)
+
+  @throws(classOf[UserCancelException])
+  override def action(): Unit = {
+    modelingCommons.saveToModelingCommons()
   }
 }

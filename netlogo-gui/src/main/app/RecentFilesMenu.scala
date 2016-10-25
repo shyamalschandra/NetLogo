@@ -2,17 +2,16 @@
 
 package org.nlogo.app
 
+import java.awt.Component
+import java.awt.event.ActionEvent
 import java.util.prefs.Preferences
-import org.nlogo.window.Events._
+import javax.swing.{ AbstractAction, JMenuItem, JOptionPane }
 
+import org.nlogo.window.Events._
 import org.nlogo.core.I18N
 import org.nlogo.api
 import org.nlogo.window
 
-import java.awt.event.ActionEvent
-import javax.swing.AbstractAction
-import javax.swing.JMenuItem
-import javax.swing.JOptionPane
 
 case class ModelEntry(path: String, modelType: api.ModelType) {
   def this(line: String) {
@@ -44,21 +43,21 @@ object OpenRecentFileAction {
 
 import OpenRecentFileAction.trimForDisplay
 
-class OpenRecentFileAction(modelEntry: ModelEntry, fileMenu: FileMenu) extends AbstractAction(trimForDisplay(modelEntry.path)) {
+class OpenRecentFileAction(modelEntry: ModelEntry, fileManager: FileManager, parent: Component) extends AbstractAction(trimForDisplay(modelEntry.path)) {
   override def actionPerformed(e: ActionEvent): Unit = {
     open(modelEntry)
   }
 
   def open(modelEntry: ModelEntry): Unit = {
     try {
-      fileMenu.offerSave()
-      fileMenu.openFromPath(modelEntry.path, modelEntry.modelType)
+      fileManager.offerSave()
+      fileManager.openFromPath(modelEntry.path, modelEntry.modelType)
     } catch {
       case ex: org.nlogo.awt.UserCancelException =>
         org.nlogo.api.Exceptions.ignore(ex)
       case ex: java.io.IOException => {
         JOptionPane.showMessageDialog(
-          fileMenu,
+          parent,
           ex.getMessage,
           I18N.gui.get("common.messages.error"),
           JOptionPane.ERROR_MESSAGE)
@@ -106,7 +105,7 @@ class RecentFiles {
   }
 }
 
-class RecentFilesMenu(frame: AppFrame, fileMenu: FileMenu)
+class RecentFilesMenu(frame: AppFrame, fileManager: FileManager, parent: Component)
   extends org.nlogo.swing.Menu("Recent Files")
   with ModelSavedEvent.Handler
   with BeforeLoadEvent.Handler {
@@ -146,7 +145,7 @@ class RecentFilesMenu(frame: AppFrame, fileMenu: FileMenu)
       addMenuItem("<empty>").setEnabled(false)
     else {
       for (modelEntry <- recentFiles.models)
-        addMenuItem(new OpenRecentFileAction(modelEntry, fileMenu))
+        addMenuItem(new OpenRecentFileAction(modelEntry, fileManager, parent))
       addSeparator()
       addMenuItem("Clear Items", () => {
         recentFiles.clear
