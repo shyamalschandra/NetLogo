@@ -24,10 +24,11 @@ object UserAction {
   val ToolsCategory = "org.nlogo.swing.ToolsCategory"
   val HelpCategory  = "org.nlogo.swing.HelpCategory"
 
-  val FileOperationsSubcategory = "org.nlogo.swing.FileOperationsSubcategory"
   val FileExportSubcategory = "org.nlogo.swing.FileExportSubcategory"
   val FileImportSubcategory = "org.nlogo.swing.FileImportSubcategory"
   val FileRecentSubcategory = "org.nlogo.swing.FileRecentSubcategory"
+  val FileOpenGroup         = "org.nlogo.swing.FileOpenGroup"
+  val FileSaveGroup         = "org.nlogo.swing.FileSaveGroup"
   val FileShareGroup        = "org.nlogo.swing.FileShareGroup"
 
   val ToolsDialogsGroup = "org.nlogo.swing.ToolsDialogsGroup"
@@ -36,7 +37,8 @@ object UserAction {
   val HelpWebGroup   = "org.nlogo.swing.HelpWebGroup"
   val HelpAboutGroup = "org.nlogo.swing.HelpAboutGroup"
 
-  val DefaultRank = Double.MaxValue
+  val DefaultGroup = "UndefinedGroup"
+  val DefaultRank  = Double.MaxValue
 
   trait Menu {
     def offerAction(action: javax.swing.Action): Unit
@@ -66,7 +68,7 @@ object UserAction {
     def group: String =
       action.getValue(ActionGroupKey) match {
         case s: String => s
-        case _         => "UndefinedGroup"
+        case _         => DefaultGroup
       }
 
     def rank: Double =

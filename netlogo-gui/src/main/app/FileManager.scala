@@ -25,7 +25,8 @@ object FileManager {
   class NewAction(manager: FileManager, parent: Container)
   extends ExceptionCatchingAction(I18N.gui.get("menu.file.new"), parent) {
     putValue(UserAction.ActionCategoryKey, UserAction.FileCategory)
-    putValue(UserAction.ActionGroupKey,    UserAction.FileOperationsSubcategory)
+    putValue(UserAction.ActionGroupKey,    UserAction.FileOpenGroup)
+    putValue(UserAction.ActionRankKey,     Double.box(1))
     putValue(ACCELERATOR_KEY,              UserAction.KeyBindings.keystroke('N', withMenu = true))
 
     @throws(classOf[UserCancelException])
@@ -39,7 +40,8 @@ object FileManager {
   class OpenAction(manager: FileManager, parent: Component)
     extends ExceptionCatchingAction(I18N.gui.get("menu.file.open") + Ellipsis, parent) {
     putValue(UserAction.ActionCategoryKey, UserAction.FileCategory)
-    putValue(UserAction.ActionGroupKey,    UserAction.FileOperationsSubcategory)
+    putValue(UserAction.ActionGroupKey,    UserAction.FileOpenGroup)
+    putValue(UserAction.ActionRankKey,     Double.box(2))
     putValue(ACCELERATOR_KEY,              UserAction.KeyBindings.keystroke('O', withMenu = true))
 
     @throws(classOf[UserCancelException])
@@ -53,7 +55,7 @@ object FileManager {
   class SaveAction(manager: FileManager, parent: Component)
     extends ExceptionCatchingAction(I18N.gui.get("menu.file.save"), parent) {
     putValue(UserAction.ActionCategoryKey, UserAction.FileCategory)
-    putValue(UserAction.ActionGroupKey,    UserAction.FileOperationsSubcategory)
+    putValue(UserAction.ActionGroupKey,    UserAction.FileSaveGroup)
     putValue(ACCELERATOR_KEY,              UserAction.KeyBindings.keystroke('S', withMenu = true))
 
     @throws(classOf[UserCancelException])
@@ -65,7 +67,7 @@ object FileManager {
   class SaveAsAction(manager: FileManager, parent: Component)
     extends ExceptionCatchingAction(I18N.gui.get("menu.file.saveAs") + Ellipsis, parent) {
     putValue(UserAction.ActionCategoryKey, UserAction.FileCategory)
-    putValue(UserAction.ActionGroupKey,    UserAction.FileOperationsSubcategory)
+    putValue(UserAction.ActionGroupKey,    UserAction.FileSaveGroup)
     putValue(ACCELERATOR_KEY,              UserAction.KeyBindings.keystroke('S', withMenu = true, withShift = true))
 
     @throws(classOf[UserCancelException])
@@ -78,7 +80,7 @@ object FileManager {
   class QuitAction(manager: FileManager, parent: Component)
     extends ExceptionCatchingAction(I18N.gui.get("menu.file.quit"), parent) {
     putValue(UserAction.ActionCategoryKey, UserAction.FileCategory)
-    putValue(UserAction.ActionGroupKey,    UserAction.FileOperationsSubcategory)
+    putValue(UserAction.ActionGroupKey,    "Quit")
     putValue(ACCELERATOR_KEY,              UserAction.KeyBindings.keystroke('Q', withMenu = true))
 
     override def action(): Unit = {
@@ -93,7 +95,8 @@ object FileManager {
   class ModelsLibraryAction(manager: FileManager, parent: Component)
     extends ExceptionCatchingAction(I18N.gui.get("menu.file.modelsLibrary"), parent) {
     putValue(UserAction.ActionCategoryKey, UserAction.FileCategory)
-    putValue(UserAction.ActionGroupKey,    UserAction.FileOperationsSubcategory)
+    putValue(UserAction.ActionGroupKey,    UserAction.FileOpenGroup)
+    putValue(UserAction.ActionRankKey,     Double.box(3))
     putValue(ACCELERATOR_KEY,              UserAction.KeyBindings.keystroke('M', withMenu = true))
 
     @throws(classOf[UserCancelException])
