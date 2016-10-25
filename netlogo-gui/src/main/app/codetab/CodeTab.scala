@@ -10,7 +10,7 @@ import java.net.MalformedURLException
 import javax.swing.{ JButton, ImageIcon, AbstractAction, Action, BorderFactory, JPanel }
 
 import org.nlogo.agent.Observer
-import org.nlogo.app.common.{ EditorFactory, Events => AppEvents, FindDialog }
+import org.nlogo.app.common.{ CodeToHtml, EditorFactory, Events => AppEvents, FindDialog }
 import org.nlogo.core.{ AgentKind, I18N }
 import org.nlogo.editor.{ DumbIndenter, LineNumbersBar }
 import org.nlogo.swing.{ Printable => NlogoPrintable, PrinterManager, ToolBar, ToolBarActionButton }
@@ -85,6 +85,9 @@ class CodeTab(val workspace: AbstractWorkspace) extends JPanel
   }
 
   def dirty() { new WindowEvents.DirtyEvent().raise(this) }
+
+  def menuActions =
+    Seq(new CodeToHtml.Action(workspace, this, () => getText))
 
   private def needsCompile() {
     _needsCompile = true

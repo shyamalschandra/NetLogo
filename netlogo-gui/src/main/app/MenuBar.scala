@@ -7,9 +7,9 @@ import javax.swing.{ Action, JMenu, JMenuBar }
 import org.nlogo.core.I18N
 import org.nlogo.editor.EditorMenu
 import org.nlogo.swing.{ TabsMenu, UserAction },
-  UserAction.{ ActionCategoryKey, HelpCategory, TabsCategory, ToolsCategory }
+  UserAction.{ ActionCategoryKey, FileCategory, HelpCategory, TabsCategory, ToolsCategory }
 
-class MenuBar(fileMenu: FileMenu,
+class MenuBar(val fileMenu: FileMenu,
   editMenu:             EditMenu,
   isApplicationWide:    Boolean)
   extends JMenuBar
@@ -27,9 +27,17 @@ class MenuBar(fileMenu: FileMenu,
 
   private var helpMenu = Option.empty[HelpMenu]
 
+  private var categoryMenus: Map[String, UserAction.Menu] = Map(
+    FileCategory  -> fileMenu,
+    ToolsCategory -> toolsMenu,
+    TabsCategory  -> tabsMenu
+  )
+
   override def setHelpMenu(newHelpMenu: JMenu): Unit = {
     newHelpMenu match {
-      case hm: HelpMenu => helpMenu = Some(hm)
+      case hm: HelpMenu =>
+        helpMenu = Some(hm)
+        categoryMenus = categoryMenus + (HelpCategory -> hm)
       case _ =>
     }
     if (isApplicationWide) {
@@ -51,22 +59,21 @@ class MenuBar(fileMenu: FileMenu,
     helpMenu.foreach(_.addEditorActions(actions))
   }
 
+
   def offerAction(action: javax.swing.Action): Unit = {
-    action.getValue(ActionCategoryKey) match {
-      case ToolsCategory => toolsMenu.offerAction(action)
-      case HelpCategory  => helpMenu.foreach(_.offerAction(action))
-      case TabsCategory  => tabsMenu.offerAction(action)
-      case _ =>
+    val categoryKey = action.getValue(ActionCategoryKey) match {
+      case s: String => s
+      case _ => ""
     }
+    categoryMenus.get(categoryKey).foreach(_.offerAction(action))
   }
 
   def revokeAction(action: Action): Unit = {
-    action.getValue(ActionCategoryKey) match {
-      case ToolsCategory => toolsMenu.revokeAction(action)
-      case HelpCategory  => helpMenu.foreach(_.revokeAction(action))
-      case TabsCategory  => tabsMenu.revokeAction(action)
-      case _ =>
+    val categoryKey = action.getValue(ActionCategoryKey) match {
+      case s: String => s
+      case _ => ""
     }
+    categoryMenus.get(categoryKey).foreach(_.revokeAction(action))
   }
 }
 

@@ -14,7 +14,7 @@ import org.nlogo.swing.{ FileDialog, ModalProgressTask, OptionDialog }
 import org.nlogo.api.{ Exceptions, FileIO, LocalFile, ModelingCommonsInterface, ModelLoader, ModelReader,
   ModelSection, ModelSectionJ, ModelType, ModelTypeJ, Version },
     ModelReader.{ modelSuffix, emptyModelPath }
-import org.nlogo.app.common.{ CodeToHtml, ExportBackgroundAction, ExportInterfaceAction }
+import org.nlogo.app.common.{ CodeToHtml, ExportBackgroundAction, ExportAction }
 import org.nlogo.app.tools.{ ModelsLibraryDialog, NetLogoWebSaver }
 import org.nlogo.core.{ I18N, Model }
 import org.nlogo.awt.{ Hierarchy => NLogoHierarchy, UserCancelException }
@@ -65,16 +65,7 @@ class FileMenu(app: App,
   addSeparator()
   addMenuItem(new SaveAsNetLogoWebAction)
   addSeparator()
-  addMenuItem(I18N.gui("print"), 'P', tabs.printAction)
-  addSeparator()
   val exportMenu = new SwingMenu(I18N.gui("export"))
-  exportMenu.addMenuItem(new ExportWorldAction)
-  exportMenu.addMenuItem(new ExportPlotAction)
-  exportMenu.addMenuItem(new ExportAllPlotsAction)
-  exportMenu.addMenuItem(new ExportGraphicsAction)
-  exportMenu.addMenuItem(new ExportInterfaceAction(this, workspace))
-  exportMenu.addMenuItem(new ExportOutputAction)
-  exportMenu.addMenuItem(new ExportCodeAction)
   add(exportMenu)
   addSeparator()
   val importMenu = new SwingMenu(I18N.gui("import"))
@@ -222,92 +213,6 @@ class FileMenu(app: App,
       modelSaver.priorModel != modelSaver.currentModel
     }
   }
-
-  abstract class ExportAction(taskName: String, suggestedFileName: String, performExport: String => Unit = {(s) => })
-    extends FileMenuAction(I18N.gui("export." + taskName) + ellipsis) {
-
-    def exportTask(path: String): Runnable = new Runnable() {
-      override def run(): Unit = {
-        try {
-          performExport(path)
-        }
-        catch {
-          case ex: IOException => exception = Some(ex)
-        }
-      }
-    }
-
-    var exception = Option.empty[IOException]
-
-    @throws(classOf[UserCancelException])
-    @throws(classOf[IOException])
-    override def action(): Unit = {
-      val exportPath = FileDialog.show(
-        FileMenu.this,
-        I18N.gui(s"export.$taskName"),
-        AWTFileDialog.SAVE, workspace.guessExportName(suggestedFileName))
-      exception = None
-
-      ModalProgressTask.onUIThread(
-          NLogoHierarchy.getFrame(FileMenu.this),
-          I18N.gui.get("dialog.interface.export.task"), exportTask(exportPath))
-
-      exception.foreach(throw _)
-    }
-  }
-
-  private class ExportWorldAction extends ExportAction("world", "world.csv", workspace.exportWorld _)
-
-  private class ExportGraphicsAction
-    extends ExportBackgroundAction[String](this, "view", workspace.guessExportName("view.png")) {
-      def beforeModalDialog(): String = promptForFilePath()
-
-      def inModalDialog(filename: String, closeDialog: () => Unit): Unit = {
-        workspace.exportViewFromUIThread(filename, "png", closeDialog)
-      }
-  }
-
-
-  private class ExportOutputAction extends ExportAction("output", "output.txt", { exportPath =>
-    workspace.exportOutput(exportPath)
-  })
-
-  private class ExportPlotAction
-    extends ExportBackgroundAction[(String, Plot)](this, "plot", workspace.guessExportName("plot.csv")) {
-
-    def beforeModalDialog(): (String, Plot) = {
-      val plot = workspace.plotExportControls.choosePlot(frame)
-        .getOrElse(throw new UserCancelException())
-      val filepath = promptForFilePath()
-      (filepath, plot)
-    }
-
-    def inModalDialog(filenameAndPlot: (String, Plot), closeDialog: () => Unit): Unit = {
-      new ExportPlotEvent(PlotWidgetExport.ExportSinglePlot(filenameAndPlot._2), filenameAndPlot._1, closeDialog)
-        .raise(FileMenu.this)
-    }
-  }
-
-  private class ExportAllPlotsAction
-    extends ExportBackgroundAction[String](this, "allPlots", workspace.guessExportName("plots.csv")) {
-    def beforeModalDialog(): String = {
-      if (workspace.plotExportControls.plotNames.isEmpty) {
-        workspace.plotExportControls.sorryNoPlots(frame)
-        throw new UserCancelException()
-      } else
-        promptForFilePath()
-    }
-
-    def inModalDialog(filename: String, closeDialog: () => Unit): Unit = {
-      new ExportPlotEvent(PlotWidgetExport.ExportAllPlots, filename, closeDialog)
-        .raise(FileMenu.this)
-    }
-  }
-
-  private class ExportCodeAction extends ExportAction("code", "code.html", { exportPath =>
-    FileIO.writeFile(exportPath,
-      new CodeToHtml(workspace.compiler).convert(app.tabs.codeTab.getText))
-  })
 
   abstract class ImportAction(taskName: String, performImport: String => Unit = { s => })
     extends FileMenuAction(I18N.gui(s"import.$taskName") + ellipsis) {

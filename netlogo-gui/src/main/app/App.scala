@@ -2,7 +2,7 @@
 
 package org.nlogo.app
 
-import org.nlogo.app.common.{ CodeToHtml, EditorFactory, Events => AppEvents }
+import org.nlogo.app.common.{ CodeToHtml, EditorFactory, FileActions, Events => AppEvents }
 import org.nlogo.app.interfacetab.{ InterfaceToolBar, WidgetPanel }
 import org.nlogo.app.tools.{ AgentMonitorManager, GraphicsPreview, Preference, PreferencesDialog, PreviewCommandsEditor }
 import org.nlogo.core.{ AgentKind, CompilerException, Dialect, I18N, LogoList, Model, Nobody,
@@ -624,9 +624,10 @@ class App extends
 
     val workspaceActions = org.nlogo.window.WorkspaceActions(workspace)
 
-    val generalActions    = Seq(
+    val generalActions    = Seq[javax.swing.Action](
       openColorDialog,
       tabs.interfaceTab.commandCenterAction,
+      tabs.printAction,
       new ShowShapeManager("turtleShapesEditor", turtleShapesManager),
       new ShowShapeManager("linkShapesEditor",   linkShapesManager),
       new ShowLabManager(labManager),
@@ -637,8 +638,12 @@ class App extends
         pico.getComponent(classOf[PreviewCommandsEditorInterface]),
         workspace,
         () => pico.getComponent(classOf[ModelSaver]).asInstanceOf[ModelSaver].currentModel)
-    )
-    osSpecificActions ++ generalActions ++ workspaceActions ++ HelpActions.apply ++ tabs.tabActions
+    ) ++
+    HelpActions.apply ++
+    FileActions(workspace, menuBar.fileMenu) ++
+    workspaceActions
+
+    osSpecificActions ++ generalActions ++ tabs.menuActions
   }
 
   def setMenuBar(menuBar: MenuBar): Unit = {

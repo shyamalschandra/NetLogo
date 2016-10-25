@@ -13,7 +13,7 @@ object TabsMenu {
     new AbstractAction(tabs.getTitleAt(index)) {
       putValue(ActionCategoryKey, TabsCategory)
       putValue(ActionRankKey,     Double.box(index))
-      putValue(Action.ACCELERATOR_KEY, KeyBindings.keystrokeChar(('1' + index).toChar, withMenu = true))
+      putValue(Action.ACCELERATOR_KEY, KeyBindings.keystroke(('1' + index).toChar, withMenu = true))
       override def actionPerformed(e: ActionEvent) {
         tabs.setSelectedIndex(index)
       }

@@ -22,6 +22,8 @@ object UserAction {
   val ToolsCategory = "org.nlogo.swing.ToolsCategory"
   val HelpCategory  = "org.nlogo.swing.HelpCategory"
 
+  val FileExportSubcategory = "org.nlogo.swing.FileExportSubcategory"
+
   val ToolsDialogsGroup = "org.nlogo.swing.ToolsDialogsGroup"
   val ToolsHubNetGroup  = "org.nlogo.swing.ToolsHubNetGroup"
 
@@ -42,7 +44,7 @@ object UserAction {
     def keystrokeChar(key: Char, withMenu: Boolean = false, withShift: Boolean = false): KeyStroke = {
       val mask: Int =
         (if (withMenu) Toolkit.getDefaultToolkit.getMenuShortcutKeyMask else 0) | (if (withShift) InputEvent.SHIFT_MASK else 0)
-      KeyStroke.getKeyStroke(Character.valueOf(key), mask)
+      KeyStroke.getKeyStroke(Character.toUpperCase(key), mask)
     }
 
     def keystroke(key: Int, withMenu: Boolean = false, withShift: Boolean = false): KeyStroke = {

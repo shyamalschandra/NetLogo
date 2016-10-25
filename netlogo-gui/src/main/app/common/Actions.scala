@@ -24,6 +24,7 @@ import Actions._
 
 abstract class ExportBackgroundAction[A](parent: Component, taskName: String, suggestedFileName: String)
 extends SwingAbstractAction(I18N.gui.get("menu.file.export." + taskName) + Ellipsis) {
+  def frame = NLogoHierarchy.getFrame(parent)
 
   def beforeModalDialog(): A
 
@@ -70,12 +71,47 @@ extends SwingAbstractAction(I18N.gui.get("menu.file.export." + taskName) + Ellip
   }
 }
 
-class ExportInterfaceAction(parent: Component, workspace: GUIWorkspace)
-    extends ExportBackgroundAction[String](parent, "interface", workspace.guessExportName("interface.png")) {
-    def beforeModalDialog(): String = promptForFilePath()
+abstract class ExportAction(taskName: String, suggestedFileName: String, parent: Component, performExport: String => Unit = {(s) => })
+  extends SwingAbstractAction(I18N.gui.get("menu.file.export." + taskName) + Actions.Ellipsis) {
 
-    def inModalDialog(filename: String, closeDialog: () => Unit): Unit = {
-      workspace.exportInterfaceFromUIThread(filename, closeDialog)
+  def frame = NLogoHierarchy.getFrame(parent)
+
+  def actionPerformed(e: ActionEvent): Unit = {
+    try {
+      action()
+    } catch {
+      case ex: UserCancelException => Exceptions.ignore(ex)
+      case ex: IOException => JOptionPane.showMessageDialog(
+        parent, ex.getMessage,
+        I18N.gui.get("common.messages.error"), JOptionPane.ERROR_MESSAGE)
     }
   }
 
+  def exportTask(path: String): Runnable = new Runnable() {
+    override def run(): Unit = {
+      try {
+        performExport(path)
+      }
+      catch {
+        case ex: IOException => exception = Some(ex)
+      }
+    }
+  }
+
+  var exception = Option.empty[IOException]
+
+  @throws(classOf[UserCancelException])
+  @throws(classOf[IOException])
+  def action(): Unit = {
+    val exportPath = FileDialog.show(
+      parent,
+      I18N.gui.get(s"menu.file.export.$taskName"),
+      AWTFileDialog.SAVE, suggestedFileName)
+    exception = None
+
+    ModalProgressTask.onUIThread(frame,
+      I18N.gui.get("dialog.interface.export.task"), exportTask(exportPath))
+
+    exception.foreach(throw _)
+  }
+}

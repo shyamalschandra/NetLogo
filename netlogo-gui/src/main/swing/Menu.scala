@@ -2,10 +2,10 @@
 
 package org.nlogo.swing
 
-import javax.swing.{ Action, JMenuItem }
+import javax.swing.{ Action, JMenu, JMenuItem }
 import UserAction.ActionRankKey
 
-class Menu(text: String) extends javax.swing.JMenu(text) with UserAction.Menu {
+class Menu(text: String) extends JMenu(text) with UserAction.Menu {
   def addMenuItem(name: String, fn: () => Unit): javax.swing.JMenuItem =
     addMenuItem(RichAction(name) { _ => fn() })
   def addMenuItem(name: String, c: Char, shifted: Boolean, fn: () => Unit): javax.swing.JMenuItem =

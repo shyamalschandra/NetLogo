@@ -45,6 +45,8 @@ class Tabs(val workspace:  GUIWorkspace,
 
   var tabActions: Seq[Action] = TabsMenu.tabActions(this)
 
+  def menuActions = tabActions ++ codeTab.menuActions
+
   val interfaceTab = new InterfaceTab(workspace, monitorManager, dialogFactory)
   val infoTab = new InfoTab(workspace.attachModelDir(_))
   val codeTab = new MainCodeTab(workspace, this)
@@ -215,14 +217,23 @@ class Tabs(val workspace:  GUIWorkspace,
   private def stripPath(filename: String): String =
     filename.substring(filename.lastIndexOf(System.getProperty("file.separator")) + 1, filename.length)
 
-  val printAction = RichAction("print-current-tab") { _ =>
-    currentTab match {
-      case printable: org.nlogo.swing.Printable =>
-        try org.nlogo.swing.PrinterManager.print(printable, workspace.modelNameForDisplay)
-        catch {
-          case abortEx: java.awt.print.PrinterAbortException => org.nlogo.api.Exceptions.ignore(abortEx)
-        }
+  val printAction = {
+    val action = RichAction("print-current-tab") { _ =>
+      println("print action invoked")
+      currentTab match {
+        case printable: org.nlogo.swing.Printable =>
+          try org.nlogo.swing.PrinterManager.print(printable, workspace.modelNameForDisplay)
+          catch {
+            case abortEx: java.awt.print.PrinterAbortException => org.nlogo.api.Exceptions.ignore(abortEx)
+          }
+      }
     }
+
+    action.putValue(Action.NAME,                  I18N.gui.get("menu.file.print"))
+    action.putValue(UserAction.ActionCategoryKey, UserAction.FileCategory)
+    action.putValue(UserAction.ActionGroupKey,    "org.nlogo.app.Tabs.Print")
+    action.putValue(Action.ACCELERATOR_KEY,       UserAction.KeyBindings.keystroke('P', withMenu = true))
+    action
   }
 
   override def processMouseMotionEvent(e: java.awt.event.MouseEvent) {
