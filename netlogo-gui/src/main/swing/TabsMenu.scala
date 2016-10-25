@@ -9,16 +9,18 @@ import javax.swing.{ Action, AbstractAction, JTabbedPane }
 import UserAction._
 
 object TabsMenu {
-  def tabActions(tabs: JTabbedPane): Seq[Action] =
-    for (i <- 0 until tabs.getTabCount)
-      yield new AbstractAction(tabs.getTitleAt(i)) {
-        putValue(ActionCategoryKey, TabsCategory)
-        putValue(ActionRankKey,     Double.box(i))
-        putValue(Action.ACCELERATOR_KEY, KeyBindings.keystrokeChar(('1' + i).toChar, withMenu = true))
-        override def actionPerformed(e: ActionEvent) {
-          tabs.setSelectedIndex(i)
-        }
+  def tabAction(tabs: JTabbedPane, index: Int): Action =
+    new AbstractAction(tabs.getTitleAt(index)) {
+      putValue(ActionCategoryKey, TabsCategory)
+      putValue(ActionRankKey,     Double.box(index))
+      putValue(Action.ACCELERATOR_KEY, KeyBindings.keystrokeChar(('1' + index).toChar, withMenu = true))
+      override def actionPerformed(e: ActionEvent) {
+        tabs.setSelectedIndex(index)
       }
+    }
+
+  def tabActions(tabs: JTabbedPane): Seq[Action] =
+    for (i <- 0 until tabs.getTabCount) yield tabAction(tabs, i)
 }
 
 class TabsMenu(name: String, initialActions: Seq[Action]) extends Menu(name) {

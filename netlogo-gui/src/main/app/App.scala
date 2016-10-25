@@ -436,12 +436,6 @@ class App extends
     labManager = pico.getComponent(classOf[LabManagerInterface])
     frame.addLinkComponent(labManager)
 
-    tabs.init(Plugins.load(pico): _*)
-
-    val viewManager = pico.getComponent(classOf[GLViewManagerInterface])
-    workspace.init(viewManager)
-    frame.addLinkComponent(viewManager)
-
     fileMenu = pico.getComponent(classOf[FileMenu])
 
     pico.addComponent(classOf[EditMenu])
@@ -452,6 +446,13 @@ class App extends
       new ConstantParameter(AbstractWorkspace.isApp))
 
     val menuBar = pico.getComponent(classOf[MenuBar])
+
+    tabs.menu = menuBar
+    tabs.init(Plugins.load(pico): _*)
+
+    val viewManager = pico.getComponent(classOf[GLViewManagerInterface])
+    workspace.init(viewManager)
+    frame.addLinkComponent(viewManager)
 
     // a little ugly we have to typecast here, but oh well - ST 10/11/05
     helpMenu = new MenuBarFactory().addHelpMenu(menuBar).asInstanceOf[HelpMenu]

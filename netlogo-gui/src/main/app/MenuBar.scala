@@ -42,8 +42,10 @@ class MenuBar(fileMenu: FileMenu,
     }
   }
 
+  //TODO: This method was an attempted refactor that didn't work out. It should be removed
   def editActions(actionGroups: Seq[Seq[Action]]): Unit = {
   }
+
 
   override def helpActions(actions: Seq[Action]): Unit = {
     helpMenu.foreach(_.addEditorActions(actions))
@@ -54,6 +56,15 @@ class MenuBar(fileMenu: FileMenu,
       case ToolsCategory => toolsMenu.offerAction(action)
       case HelpCategory  => helpMenu.foreach(_.offerAction(action))
       case TabsCategory  => tabsMenu.offerAction(action)
+      case _ =>
+    }
+  }
+
+  def revokeAction(action: Action): Unit = {
+    action.getValue(ActionCategoryKey) match {
+      case ToolsCategory => toolsMenu.revokeAction(action)
+      case HelpCategory  => helpMenu.foreach(_.revokeAction(action))
+      case TabsCategory  => tabsMenu.revokeAction(action)
       case _ =>
     }
   }

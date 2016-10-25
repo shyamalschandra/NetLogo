@@ -69,6 +69,23 @@ class Menu(text: String) extends javax.swing.JMenu(text) with UserAction.Menu {
 
   protected var groups: Map[String, Range] = Map()
 
+  def revokeAction(action: Action): Unit = {
+    getMenuComponents.zipWithIndex.collect {
+      case (menuItem: JMenuItem, i) if menuItem.getAction == action => i
+    }.foreach { removeIndex =>
+      remove(removeIndex)
+      groups = groups.map {
+        case (k, v) if v.start <= removeIndex && v.end >= removeIndex =>
+          k -> (v.start to (v.end - 1))
+        case (k, v) if v.start > removeIndex =>
+          k -> ((v.start - 1) to (v.end - 1))
+        case other => other
+        }.filterNot {
+          case (k, v) => v.end < v.start
+        }
+    }
+  }
+
   def offerAction(action: Action): Unit = {
     val actionGroup = action.getValue(UserAction.ActionGroupKey) match {
       case s: String => s

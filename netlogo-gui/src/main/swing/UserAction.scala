@@ -30,6 +30,7 @@ object UserAction {
 
   trait Menu {
     def offerAction(action: javax.swing.Action): Unit
+    def revokeAction(action: javax.swing.Action): Unit
   }
 
   // convenience methods
