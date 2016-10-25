@@ -70,6 +70,9 @@ menu.file.import.hubNetClientInterface.prompt = Which section would you like to 
 menu.file.import.hubNetClientInterface.fromInterface = Interface Tab
 menu.file.import.hubNetClientInterface.fromClient = HubNet client
 menu.file.quit = Quit
+menu.file.recent = Recent Files
+menu.file.recent.clear = Clear Items
+menu.file.recent.empty = <empty>
 
 menu.edit = Edit
 menu.edit.cut = Cut

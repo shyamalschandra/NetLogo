@@ -27,6 +27,7 @@ object UserAction {
   val FileOperationsSubcategory = "org.nlogo.swing.FileOperationsSubcategory"
   val FileExportSubcategory = "org.nlogo.swing.FileExportSubcategory"
   val FileImportSubcategory = "org.nlogo.swing.FileImportSubcategory"
+  val FileRecentSubcategory = "org.nlogo.swing.FileRecentSubcategory"
   val FileShareGroup        = "org.nlogo.swing.FileShareGroup"
 
   val ToolsDialogsGroup = "org.nlogo.swing.ToolsDialogsGroup"

@@ -71,19 +71,26 @@ class Menu(text: String) extends JMenu(text) with UserAction.Menu {
   protected var subcategories: Map[String, Menu] = Map()
 
   def revokeAction(action: Action): Unit = {
+    action.subcategory.flatMap(subcategories.get).foreach(_.revokeAction(action))
     getMenuComponents.zipWithIndex.collect {
       case (menuItem: JMenuItem, i) if menuItem.getAction == action => i
     }.foreach { removeIndex =>
       remove(removeIndex)
-      groups = groups.map {
+      val alteredGroups = groups.map {
         case (k, v) if v.start <= removeIndex && v.end >= removeIndex =>
           k -> (v.start to (v.end - 1))
         case (k, v) if v.start > removeIndex =>
           k -> ((v.start - 1) to (v.end - 1))
         case other => other
-        }.filterNot {
-          case (k, v) => v.end < v.start
-        }
+      }
+      alteredGroups.filter {
+        case (k, v) => v.end < v.start
+      }.foreach {
+        case (k, v) if v.end >= 0 => remove(v.end) // remove starting separator
+        case _ =>
+      }
+      groups =
+        alteredGroups.filterNot { case (k, v) => v.end < v.start }
     }
   }
 

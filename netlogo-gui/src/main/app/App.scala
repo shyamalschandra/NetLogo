@@ -296,11 +296,12 @@ class App extends
   def tabs = _tabs
   var menuBar: MenuBar = null
   var helpMenu: HelpMenu = null
-  var fileManager: FileManager = null
+  var _fileManager: FileManager = null
   var monitorManager:AgentMonitorManager = null
   var aggregateManager: AggregateManagerInterface = null
   var colorDialog: ColorDialog = null
   var labManager:LabManagerInterface = null
+  var recentFilesMenu: RecentFilesMenu = null
   private val listenerManager = new NetLogoListenerManager
   lazy val modelingCommons = pico.getComponent(classOf[ModelingCommonsInterface])
   private val ImportWorldURLProp = "netlogo.world_state_url"
@@ -457,7 +458,7 @@ class App extends
       new ComponentParameter(), new ComponentParameter(), new ComponentParameter(),
       new ComponentParameter(), new ComponentParameter(),
       new ConstantParameter(menuBar.fileMenu), new ConstantParameter(menuBar.fileMenu))
-    fileManager = pico.getComponent(classOf[FileManager])
+    setFileManager(pico.getComponent(classOf[FileManager]))
 
     val viewManager = pico.getComponent(classOf[GLViewManagerInterface])
     workspace.init(viewManager)
@@ -663,6 +664,17 @@ class App extends
     if (menuBar != this.menuBar) {
       this.menuBar = menuBar
       allActions.foreach(menuBar.offerAction)
+      Option(recentFilesMenu).foreach(_.setMenu(menuBar))
+    }
+  }
+
+  def fileManager: FileManager = _fileManager
+
+  def setFileManager(manager: FileManager): Unit = {
+    if (manager != _fileManager) {
+      _fileManager = manager
+      recentFilesMenu = new RecentFilesMenu(frame, manager)
+      frame.addLinkComponent(recentFilesMenu)
     }
   }
 
