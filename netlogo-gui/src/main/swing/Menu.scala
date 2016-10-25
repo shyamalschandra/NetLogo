@@ -3,7 +3,7 @@
 package org.nlogo.swing
 
 import javax.swing.{ Action, JMenu, JMenuItem }
-import UserAction.ActionRankKey
+import UserAction.{ ActionRankKey, DefaultRank, RichUserAction }
 
 class Menu(text: String) extends JMenu(text) with UserAction.Menu {
   def addMenuItem(name: String, fn: () => Unit): javax.swing.JMenuItem =
@@ -87,23 +87,19 @@ class Menu(text: String) extends JMenu(text) with UserAction.Menu {
   }
 
   def offerAction(action: Action): Unit = {
-    val actionGroup = action.getValue(UserAction.ActionGroupKey) match {
-      case s: String => s
-      case _         => "UndefinedGroup"
-    }
     if (groups.isEmpty) {
       add(new JMenuItem(action), 0)
-      groups = groups + (actionGroup -> (0 to 0))
-    } else if (! groups.isDefinedAt(actionGroup)) {
+      groups = groups + (action.group -> (0 to 0))
+    } else if (! groups.isDefinedAt(action.group)) {
       addSeparator()
       val index = getMenuComponentCount
       add(new JMenuItem(action), index)
-      groups = groups + (actionGroup -> (index to index))
+      groups = groups + (action.group -> (index to index))
     } else {
-      val range = groups(actionGroup)
+      val range = groups(action.group)
       add(new JMenuItem(action), insertionIndex(action, range))
       groups = groups.map {
-        case (k, v) if k == actionGroup      => k -> (range.start to range.end + 1)
+        case (k, v) if k == action.group     => k -> (range.start to range.end + 1)
         case (k, v) if v.start > range.start => k -> ((v.start + 1) to (v.end + 1))
         case kv                              => kv
       }
@@ -112,22 +108,15 @@ class Menu(text: String) extends JMenu(text) with UserAction.Menu {
 
   private def insertionIndex(action: Action, range: Range): Int = {
     if (action.getValue(ActionRankKey) != null) {
-      val defaultRank = Double.box(Double.MaxValue)
-      def toRank(a: AnyRef) = a match {
-        case d: java.lang.Double => d
-        case _                   => defaultRank
-      }
-      val actionRank = toRank(action.getValue(ActionRankKey))
-      val groupRanks: Seq[java.lang.Double] = getMenuComponents
+      val groupRanks: Seq[Double] = getMenuComponents
         .slice(range.start, range.end)
         .map {
-          case menuItem: JMenuItem => toRank(menuItem.getAction.getValue(ActionRankKey))
-          case _                   => defaultRank
+          case menuItem: JMenuItem => menuItem.getAction.rank
+          case _                   => DefaultRank
         }
-        val index = groupRanks.indexWhere((d: java.lang.Double) => d.doubleValue > actionRank)
-        range.start + index
+      val index = groupRanks.indexWhere(d => d > action.rank)
+      range.start + index
     } else
       range.end
-
   }
 }

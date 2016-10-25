@@ -2,6 +2,8 @@
 
 package org.nlogo.swing
 
+import javax.swing.Action
+
 object UserAction {
   /* Key denoting the I18n localization of a given action, from which the name can be looked up */
   val I18nKey              = "org.nlogo.swing.I18nKey"
@@ -30,6 +32,8 @@ object UserAction {
   val HelpWebGroup   = "org.nlogo.swing.HelpWebGroup"
   val HelpAboutGroup = "org.nlogo.swing.HelpAboutGroup"
 
+  val DefaultRank = Double.MaxValue
+
   trait Menu {
     def offerAction(action: javax.swing.Action): Unit
     def revokeAction(action: javax.swing.Action): Unit
@@ -52,6 +56,20 @@ object UserAction {
         (if (withMenu) Toolkit.getDefaultToolkit.getMenuShortcutKeyMask else 0) | (if (withShift) InputEvent.SHIFT_MASK else 0)
       KeyStroke.getKeyStroke(key, mask)
     }
+  }
+
+  implicit class RichUserAction(action: Action) {
+    def group: String =
+      action.getValue(ActionGroupKey) match {
+        case s: String => s
+        case _         => "UndefinedGroup"
+      }
+
+    def rank: Double =
+      action.getValue(ActionRankKey) match {
+        case d: java.lang.Double => d.doubleValue
+        case _                   => Double.MaxValue
+      }
   }
 }
 
