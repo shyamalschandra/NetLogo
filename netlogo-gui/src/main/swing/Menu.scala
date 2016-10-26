@@ -104,7 +104,9 @@ class Menu(text: String, var menuModel: MenuModel[Action, String]) extends JMenu
         add(createMenuItem(action))
         Some(group)
       case (None, mm.Branch(model, key, group)) =>
-        add(new Menu(subcategoryNameAndGroup(key)._1, model))
+        val menu = new Menu(subcategoryNameAndGroup(key)._1, model)
+        menu.rebuildFromModel(menu.menuModel)
+        add(menu)
         Some(group)
       case (Some(priorGroup), mm.Leaf(action, group)) =>
         if (group != priorGroup) { addSeparator() }
@@ -112,7 +114,9 @@ class Menu(text: String, var menuModel: MenuModel[Action, String]) extends JMenu
         Some(group)
       case (Some(priorGroup), mm.Branch(model, key, group)) =>
         if (group != priorGroup) { addSeparator() }
-        add(new Menu(subcategoryNameAndGroup(key)._1, model))
+        val menu = new Menu(subcategoryNameAndGroup(key)._1, model)
+        menu.rebuildFromModel(menu.menuModel)
+        add(menu)
         Some(group)
     }
   }
@@ -132,7 +136,7 @@ class Menu(text: String, var menuModel: MenuModel[Action, String]) extends JMenu
     subcategoryItem(action) match {
       case Some((subcategoryKey, subcategoryGroup)) =>
         val branch = menuModel.createBranch(subcategoryKey, subcategoryGroup)
-        branch.insertLeaf(action)
+        branch.insertLeaf(action, action.group)
       case None                  =>
         menuModel.insertLeaf(action, action.group)
     }
