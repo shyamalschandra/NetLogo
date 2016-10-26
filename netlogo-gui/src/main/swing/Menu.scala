@@ -21,13 +21,17 @@ object Menu {
   }
 
   implicit val menuOrdering = Menu.MenuOrdering
+
+  def model = new MenuModel[Action, String]
+
+  def model(sortOrder: Seq[String]) = new MenuModel[Action, String](sortOrder)
 }
 
 import Menu.menuOrdering
 
 class Menu(text: String, var menuModel: MenuModel[Action, String]) extends JMenu(text) with UserAction.Menu {
 
-  def this(text: String) = this(text, new MenuModel[Action, String])
+  def this(text: String) = this(text, Menu.model)
 
   def addMenuItem(name: String, fn: () => Unit): javax.swing.JMenuItem =
     addMenuItem(RichAction(name) { _ => fn() })

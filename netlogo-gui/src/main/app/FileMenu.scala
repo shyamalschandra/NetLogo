@@ -2,13 +2,20 @@
 
 package org.nlogo.app
 
+import javax.swing.Action
+
 import org.nlogo.core.I18N
 import org.nlogo.swing.{ Menu => SwingMenu, UserAction }
 
-class FileMenu(frame: AppFrame)
-  extends SwingMenu(I18N.gui.get("menu.file")) {
+object FileMenu {
+  val ExportImportGroup = "ExportImportGroup"
 
-    val ExportImportGroup = "ExportImportGroup"
+  def sortOrder = Seq(UserAction.FileOpenGroup, UserAction.FileSaveGroup, UserAction.FileShareGroup, ExportImportGroup)
+}
+
+import FileMenu._
+
+class FileMenu extends SwingMenu(I18N.gui.get("menu.file"), SwingMenu.model(sortOrder)) {
 
   implicit val i18nPrefix = I18N.Prefix("menu.file")
 
@@ -21,5 +28,11 @@ class FileMenu(frame: AppFrame)
 
   override def subcategoryNameAndGroup(key: String): (String, String) = {
     subcategoryNamesAndGroups.get(key).getOrElse(super.subcategoryNameAndGroup(key))
+  }
+
+  override def offerAction(action: Action): Unit = {
+    val isMac = System.getProperty("os.name").startsWith("Mac")
+    if (! (isMac && action.getValue(UserAction.ActionGroupKey) == "Quit"))
+      super.offerAction(action)
   }
 }

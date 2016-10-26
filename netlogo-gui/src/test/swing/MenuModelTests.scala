@@ -7,6 +7,7 @@ import org.scalatest.FunSuite
 class MenuModelTests extends FunSuite {
   trait Helper {
     val model = new MenuModel[String, Int]
+
     def assertLeafValueAt(value: String, i: Int): Unit = {
       model.children(i) match {
         case model.Leaf(v, _) => assert(v == value)
@@ -26,6 +27,7 @@ class MenuModelTests extends FunSuite {
       }
     }
   }
+
   test("an empty menu model has no items") { new Helper {
     assert(model.leaves.isEmpty)
   } }
@@ -103,5 +105,11 @@ class MenuModelTests extends FunSuite {
     assert(b.children.length == 1)
   } }
 
-  //TODO: We may need a way of ordering groups as well?
+  test("optionally initalizes with a list giving the order of groups") { new Helper {
+    override val model = new MenuModel[String, Int](Seq("group1", "group2"))
+    model.insertLeaf("abc", "group2")
+    model.insertLeaf("def", "group1")
+    assertLeafValueAt("def", 0)
+    assertLeafValueAt("abc", 1)
+  } }
 }

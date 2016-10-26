@@ -442,7 +442,6 @@ class App extends
     pico.add(classOf[MenuBar],
       "org.nlogo.app.MenuBar",
       new ComponentParameter(),
-      new ComponentParameter(),
       new ConstantParameter(AbstractWorkspace.isApp))
 
     val menuBar = pico.getComponent(classOf[MenuBar])
@@ -522,8 +521,12 @@ class App extends
   // bar.  It's needed especially for OS X since the screen menu bar
   // doesn't get shared across windows.  -- AZS 6/17/2005
   private class MenuBarFactory extends org.nlogo.window.MenuBarFactory {
-    import org.nlogo.swing.UserAction, UserAction.{ ActionCategoryKey, ToolsCategory }
-    def createFileMenu:  JMenu = pico.getComponent(classOf[FileMenu])
+    import org.nlogo.swing.UserAction, UserAction.{ ActionCategoryKey, FileCategory, ToolsCategory }
+    def createFileMenu:  JMenu = {
+      val fileMenu = pico.getComponent(classOf[FileMenu])
+      allActions.filter(_.getValue(ActionCategoryKey) == FileCategory).foreach(fileMenu.offerAction)
+      fileMenu
+    }
     def createEditMenu:  JMenu = new EditMenu(App.this)
     def createToolsMenu: JMenu = {
       val toolsMenu = new ToolsMenu

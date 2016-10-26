@@ -4,7 +4,7 @@ package org.nlogo.swing
 
 import scala.math.Ordering
 
-class MenuModel[A, B](implicit leafOrdering: Ordering[A], branchOrdering: Ordering[B]) {
+class MenuModel[A, B](var groupOrder: Seq[String] = Seq())(implicit leafOrdering: Ordering[A], branchOrdering: Ordering[B]) {
   sealed trait Node {
     def groupName: String
   }
@@ -15,7 +15,6 @@ class MenuModel[A, B](implicit leafOrdering: Ordering[A], branchOrdering: Orderi
   }
 
   var children: Seq[Node] = Seq.empty[Node]
-  var groups: Seq[String] = Seq()
 
   def leaves: Seq[A] = children collect {
     case Leaf(item, _) => item
@@ -23,12 +22,18 @@ class MenuModel[A, B](implicit leafOrdering: Ordering[A], branchOrdering: Orderi
 
   implicit val nodeOrdering = NodeOrdering
 
+  def addGroup(groupName: String): Unit = {
+    if (! groupOrder.contains(groupName))
+      groupOrder :+= groupName
+  }
+
   def insertLeaf(leafValue: A, groupName: String = ""): Unit = {
-    groups :+= groupName
+    addGroup(groupName)
     children = (children :+ Leaf(leafValue, groupName)).sorted
   }
 
   def createBranch(branchValue: B, groupName: String = ""): MenuModel[A, B] = {
+    addGroup(groupName)
     children.collect {
       case Branch(model, item, name) if branchValue == item && groupName == name => model
     }.headOption.getOrElse {
@@ -51,8 +56,8 @@ class MenuModel[A, B](implicit leafOrdering: Ordering[A], branchOrdering: Orderi
 
   object NodeOrdering extends Ordering[Node] {
     def compare(x: Node, y: Node): Int = {
-      val xGroup = groups.indexOf(x.groupName)
-      val yGroup = groups.indexOf(y.groupName)
+      val xGroup = groupOrder.indexOf(x.groupName)
+      val yGroup = groupOrder.indexOf(y.groupName)
       if (xGroup == yGroup)
         (x, y) match {
           case (xl: Leaf,  yl: Leaf)    => leafOrdering.compare(xl.item, yl.item)
