@@ -2,6 +2,7 @@
 
 package org.nlogo.app.common
 
+import java.util.prefs.Preferences
 import java.awt.event.{FocusEvent, InputEvent, KeyEvent}
 import javax.swing.{ Action, JScrollPane, KeyStroke, ScrollPaneConstants }
 import javax.swing.text.TextAction
@@ -25,6 +26,8 @@ class EditorFactory(compiler: CompilerServices) extends DefaultEditorFactory(com
       .addKeymap(
         KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.CTRL_DOWN_MASK),
         new AutoSuggestAction("auto-suggest", codeCompletionPopup))
+      .withLineNumbers(
+        Preferences.userRoot.node("/org/nlogo/NetLogo").get("line_numbers", "false").toBoolean)
   }
 
   def newEditor(cols: Int, rows: Int, enableFocusTraversal: Boolean, enableHighlightCurrentLine: Boolean = false): AbstractEditorArea =
@@ -55,9 +58,12 @@ class EditorFactory(compiler: CompilerServices) extends DefaultEditorFactory(com
 
   override def scrollPane(editor: AbstractEditorArea): EditorScrollPane =
     editor match {
-      case aea: AdvancedEditorArea => new RTextScrollPane(aea) with EditorScrollPane {
-        def lineNumbersEnabled = getLineNumbersEnabled
-      }
+      case aea: AdvancedEditorArea =>
+        val sp = new RTextScrollPane(aea) with EditorScrollPane {
+          def lineNumbersEnabled = getLineNumbersEnabled
+        }
+        sp.setLineNumbersEnabled(editor.configuration.showLineNumbers)
+        sp
       case _ => super.scrollPane(editor)
     }
 }

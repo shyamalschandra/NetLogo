@@ -629,7 +629,10 @@ class App extends
   }
 
   lazy val openPreferencesDialog =
-    new ShowPreferencesDialog(new PreferencesDialog(frame, Preference.Language))
+    new ShowPreferencesDialog(new PreferencesDialog(frame,
+      Preference.Language,
+      new Preference.LineNumbers(tabs)))
+
   lazy val openAboutDialog =
     new ShowAboutWindow(frame)
   lazy val openColorDialog       = new OpenColorDialog(frame)

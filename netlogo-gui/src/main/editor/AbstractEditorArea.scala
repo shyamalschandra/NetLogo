@@ -5,6 +5,8 @@ package org.nlogo.editor
 import javax.swing.text.{ Document, EditorKit, JTextComponent }
 
 trait AbstractEditorArea extends JTextComponent {
+  def configuration: EditorConfiguration
+
   def enableBracketMatcher(enable: Boolean): Unit
   def getEditorKit(): EditorKit
   def setEditorKit(kit: EditorKit): Unit

@@ -36,12 +36,8 @@ with WindowEvents.LoadModelEvent.Handler
     val config = super.editorConfiguration
     workspace.getFrame match {
       case frame: JFrame => frame.getJMenuBar match {
-        case em: EditorMenu =>
-          println("I'm here!")
-          config.withMenu(em)
-        case other =>
-          println("not there: " + other)
-          config
+        case em: EditorMenu => config.withMenu(em)
+        case other          => config
       }
       case _ => config
     }

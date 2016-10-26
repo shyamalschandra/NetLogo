@@ -6,7 +6,6 @@ package org.nlogo.app
  have their own menu bar and menus ev 8/25/05 */
 
 import java.awt.event.ActionEvent
-import java.util.prefs.Preferences
 import javax.swing.{ AbstractAction, Action, JCheckBoxMenuItem, JMenuItem }
 
 import org.nlogo.api.Refreshable
@@ -15,21 +14,11 @@ import org.nlogo.editor.Actions
 import org.nlogo.core.I18N
 
 class EditMenu(app: App) extends org.nlogo.swing.Menu(I18N.gui.get("menu.edit"))
-with AppEvents.SwitchedTabsEvent.Handler
-with org.nlogo.window.Events.AboutToQuitEvent.Handler
-{
+with AppEvents.SwitchedTabsEvent.Handler {
 
   implicit val i18nName = I18N.Prefix("menu.edit")
 
   private var refreshables = Set.empty[Refreshable]
-
-  val prefs = Preferences.userNodeForPackage(getClass)
-  val lineNumbersKey = "line_numbers"
-
-  val lineNumbersAction = new AbstractAction(I18N.gui("showLineNumbers")) {
-    def actionPerformed(e: ActionEvent) =
-      app.tabs.lineNumbersVisible = !app.tabs.lineNumbersVisible
-  }
 
   /*
   //TODO i18n - do we need to change the shortcut keys too?
@@ -44,10 +33,7 @@ with org.nlogo.window.Events.AboutToQuitEvent.Handler
   addSeparator()
 
   //TODO: Move this out of the menu
-  val lineNumberPreference = prefs.get(lineNumbersKey, "false").toBoolean
-  app.tabs.lineNumbersVisible = lineNumberPreference
 
-  private val lineNumbersItem = addCheckBoxMenuItem(I18N.gui("showLineNumbers"), lineNumberPreference, lineNumbersAction)
   addSeparator()
   val contextualMenuStart = getComponentCount - 1
   add(new JMenuItem(org.nlogo.editor.Actions.shiftLeftAction))
@@ -56,12 +42,6 @@ with org.nlogo.window.Events.AboutToQuitEvent.Handler
   addSeparator()
   add(new JMenuItem(org.nlogo.editor.Actions.commentToggleAction))
   addSeparator()
-  */
-
-
-  /*
-  lineNumbersAction.setEnabled(false)
-  if (lineNumbersItem.isSelected) lineNumbersAction.actionPerformed(null)
   */
 
   addMenuListener(new javax.swing.event.MenuListener() {
@@ -78,7 +58,6 @@ with org.nlogo.window.Events.AboutToQuitEvent.Handler
 
   final def handle(e: AppEvents.SwitchedTabsEvent) {
     // snapAction.setEnabled(e.newTab == app.tabs.interfaceTab)
-    lineNumbersAction.setEnabled(e.newTab != app.tabs.interfaceTab && e.newTab != app.tabs.infoTab)
   }
 
   override def offerAction(action: Action): Unit = {
@@ -87,9 +66,5 @@ with org.nlogo.window.Events.AboutToQuitEvent.Handler
       case _ =>
     }
     super.offerAction(action)
-  }
-
-  def handle(e: org.nlogo.window.Events.AboutToQuitEvent) = {
-    // prefs.put(lineNumbersKey, lineNumbersItem.isSelected.toString)
   }
 }

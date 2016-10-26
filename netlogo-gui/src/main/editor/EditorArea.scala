@@ -44,14 +44,14 @@ object EditorArea {
 
 import EditorArea._
 
-class EditorArea(configuration: EditorConfiguration)
+class EditorArea(val configuration: EditorConfiguration)
   extends JEditorPane
   with AbstractEditorArea
   with FocusTraversable
   with java.awt.event.FocusListener {
 
-  val rows = configuration.rows
-  val columns = configuration.columns
+  val rows      = configuration.rows
+  val columns   = configuration.columns
   val colorizer = configuration.colorizer
 
   private var indenter: Option[Indenter] = None

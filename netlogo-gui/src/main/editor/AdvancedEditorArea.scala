@@ -15,7 +15,7 @@ import org.fife.ui.rsyntaxtextarea.{ folding, AbstractTokenMakerFactory, RSyntax
 import org.nlogo.ide.NetLogoFoldParser
 import KeyBinding._
 
-class AdvancedEditorArea(configuration: EditorConfiguration, rows: Int, columns: Int)
+class AdvancedEditorArea(val configuration: EditorConfiguration, rows: Int, columns: Int)
   extends RSyntaxTextArea(rows, columns) with AbstractEditorArea {
 
   TokenMakerFactory.getDefaultInstance

@@ -41,7 +41,7 @@ object EditorConfiguration {
     }
 
   def default(rows: Int, columns: Int, colorizer: Colorizer) =
-    EditorConfiguration(rows, columns, defaultFont, emptyListener, colorizer, defaultActions(colorizer), defaultMenuItems(colorizer), false, false, emptyMenu)
+    EditorConfiguration(rows, columns, defaultFont, emptyListener, colorizer, defaultActions(colorizer), defaultMenuItems(colorizer), false, false, false, emptyMenu)
 }
 
 case class EditorConfiguration(
@@ -54,6 +54,7 @@ case class EditorConfiguration(
   contextActions:       Seq[Action],
   enableFocusTraversal: Boolean,
   highlightCurrentLine: Boolean,
+  showLineNumbers:      Boolean,
   menu:                 EditorMenu) {
 
     def withFont(font: Font) =
@@ -64,6 +65,8 @@ case class EditorConfiguration(
       copy(enableFocusTraversal = isEnabled)
     def withCurrentLineHighlighted(isHighlighted: Boolean) =
       copy(highlightCurrentLine = isHighlighted)
+    def withLineNumbers(show: Boolean) =
+      copy(showLineNumbers = show)
     def withContextActions(actions: Seq[Action]) =
       copy(contextActions = contextActions ++ actions)
     def addKeymap(key: KeyStroke, action: TextAction) =
