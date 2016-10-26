@@ -86,6 +86,7 @@ menu.edit.find = Find…
 menu.edit.findNext = Find Next
 menu.edit.shiftLeft = Shift Left
 menu.edit.shiftRight = Shift Right
+menu.edit.shiftTab = Tab Right
 menu.edit.format = Format
 menu.edit.comment = Comment
 menu.edit.uncomment = Uncomment

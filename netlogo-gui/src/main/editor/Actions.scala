@@ -3,10 +3,10 @@
 package org.nlogo.editor
 
 import java.awt.event.{ ActionEvent, KeyEvent }
-import javax.swing.Action, Action.{ ACCELERATOR_KEY, ACTION_COMMAND_KEY, NAME }
+import javax.swing.{ AbstractAction, Action }, Action.{ ACCELERATOR_KEY, ACTION_COMMAND_KEY, NAME }
 import javax.swing.event.{ ChangeEvent, ChangeListener }
 import javax.swing.text._
-import javax.swing.text.DefaultEditorKit.{CutAction, CopyAction, PasteAction, InsertContentAction}
+import javax.swing.text.DefaultEditorKit.{ CutAction, CopyAction, PasteAction, InsertContentAction, SelectAllAction }
 
 import org.nlogo.api.Refreshable
 import org.nlogo.core.I18N
@@ -16,26 +16,33 @@ import KeyBinding._
 import RichDocument._
 
 object Actions {
-  val commentToggleAction = new CommentToggleAction()
-  val shiftLeftAction = new ShiftLeftAction()
-  val shiftRightAction = new ShiftRightAction()
-  val tabKeyAction = new TabKeyAction()
-  val shiftTabKeyAction = new ShiftTabKeyAction()
-  val CutAction = new NetLogoCutAction()
-  val CopyAction = new NetLogoCopyAction()
-  val PasteAction = new NetLogoPasteAction()
-  val DeleteAction = new NetLogoDeleteAction()
-
   /// default editor kit actions
-  private val actionMap = new DefaultEditorKit().getActions.map{ a => (a.getValue(Action.NAME), a) }.toMap
+  private val actionMap =
+    new DefaultEditorKit().getActions.map{ a => (a.getValue(Action.NAME), a) }.toMap
+
+  val commentToggleAction = new CommentToggleAction()
+  val shiftLeftAction     = new ShiftLeftAction()
+  val shiftRightAction    = new ShiftRightAction()
+  val tabKeyAction        = new TabKeyAction()
+  val shiftTabKeyAction   = new ShiftTabKeyAction()
+  val CutAction           = new NetLogoCutAction()
+  val CopyAction          = new NetLogoCopyAction()
+  val PasteAction         = new NetLogoPasteAction()
+  val DeleteAction        = new NetLogoDeleteAction()
+  val SelectAllAction     = new NetLogoSelectAllAction()
+
   def getDefaultEditorKitAction(name:String) = actionMap(name)
-  val SELECT_ALL_ACTION = getDefaultEditorKitAction(DefaultEditorKit.selectAllAction)
 
   def setEnabled(enabled:Boolean){
     List(commentToggleAction,shiftLeftAction,shiftRightAction).foreach(_.setEnabled(enabled))
   }
 
-  class TabKeyAction extends MyTextAction("tab-key", _.indentSelection() )
+  class TabKeyAction extends MyTextAction(I18N.gui.get("menu.edit.format"), _.indentSelection()) {
+    putValue(UserAction.ActionGroupKey,    UserAction.EditFormatGroup)
+    putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
+    putValue(ACCELERATOR_KEY,              UserAction.KeyBindings.keystroke(java.awt.event.KeyEvent.VK_TAB))
+  }
+
   def quickHelpAction(colorizer: Colorizer) =
     new QuickHelpAction(colorizer)
     /*
@@ -100,8 +107,24 @@ object Actions {
     putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
   }
 
+  class NetLogoSelectAllAction extends AbstractAction {
+    putValue(NAME,                         I18N.gui.get("menu.edit.selectAll"))
+    putValue(ACCELERATOR_KEY,              UserAction.KeyBindings.keystroke('A', withMenu = true))
+    putValue(UserAction.ActionGroupKey,    "SelectAll")
+    putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
+
+    val defaultAction =
+      getDefaultEditorKitAction(DefaultEditorKit.selectAllAction)
+
+    override def actionPerformed(event: ActionEvent): Unit = {
+      defaultAction.actionPerformed(event)
+    }
+  }
+
   class ShiftLeftAction extends DocumentAction(I18N.gui.get("menu.edit.shiftLeft")) {
     putValue(ACCELERATOR_KEY, keystroke(KeyEvent.VK_OPEN_BRACKET, menuShortcutMask))
+    putValue(UserAction.ActionGroupKey,    UserAction.EditFormatGroup)
+    putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
 
     override def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit = {
       val (startLine, endLine) =
@@ -123,6 +146,8 @@ object Actions {
 
   class ShiftRightAction extends DocumentAction(I18N.gui.get("menu.edit.shiftRight")) {
     putValue(ACCELERATOR_KEY, keystroke(KeyEvent.VK_CLOSE_BRACKET, menuShortcutMask))
+    putValue(UserAction.ActionGroupKey,    UserAction.EditFormatGroup)
+    putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
 
     override def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit = {
       val (startLine, endLine) =
@@ -131,7 +156,11 @@ object Actions {
     }
   }
 
-  class ShiftTabKeyAction extends DocumentAction("shift-tab-key") {
+  class ShiftTabKeyAction extends DocumentAction(I18N.gui.get("menu.edit.shiftTab")) {
+    putValue(ACCELERATOR_KEY, UserAction.KeyBindings.keystroke(KeyEvent.VK_TAB, withShift = true))
+    putValue(UserAction.ActionGroupKey,    UserAction.EditFormatGroup)
+    putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
+
     override def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit = {
       val (startLine, endLine) =
         document.selectionLineRange(component.getSelectionStart, component.getSelectionEnd)
@@ -156,7 +185,9 @@ object Actions {
   }
 
   class CommentToggleAction extends DocumentAction(I18N.gui.get("menu.edit.comment") + " / " + I18N.gui.get("menu.edit.uncomment")) {
-    putValue(ACCELERATOR_KEY, keystroke(KeyEvent.VK_SEMICOLON, menuShortcutMask))
+    putValue(ACCELERATOR_KEY,              keystroke(KeyEvent.VK_SEMICOLON, menuShortcutMask))
+    putValue(UserAction.ActionGroupKey,    UserAction.EditFormatGroup)
+    putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
 
     override def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit = {
       val (startLine, endLine) =

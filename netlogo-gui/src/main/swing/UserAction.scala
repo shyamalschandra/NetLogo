@@ -24,7 +24,8 @@ object UserAction {
   val ToolsCategory = "org.nlogo.swing.ToolsCategory"
   val HelpCategory  = "org.nlogo.swing.HelpCategory"
 
-  val EditClipboardGroup    = "org.nlogo.swing.EditClipboardGroup"
+  val EditClipboardGroup = "org.nlogo.swing.EditClipboardGroup"
+  val EditFormatGroup    = "org.nlogo.swing.EditFormatGroup"
 
   val FileExportSubcategory = "org.nlogo.swing.FileExportSubcategory"
   val FileImportSubcategory = "org.nlogo.swing.FileImportSubcategory"
@@ -33,8 +34,8 @@ object UserAction {
   val FileSaveGroup         = "org.nlogo.swing.FileSaveGroup"
   val FileShareGroup        = "org.nlogo.swing.FileShareGroup"
 
-  val HelpWebGroup   = "org.nlogo.swing.HelpWebGroup"
-  val HelpAboutGroup = "org.nlogo.swing.HelpAboutGroup"
+  val HelpWebGroup    = "org.nlogo.swing.HelpWebGroup"
+  val HelpAboutGroup  = "org.nlogo.swing.HelpAboutGroup"
 
   val ToolsDialogsGroup = "org.nlogo.swing.ToolsDialogsGroup"
   val ToolsHubNetGroup  = "org.nlogo.swing.ToolsHubNetGroup"

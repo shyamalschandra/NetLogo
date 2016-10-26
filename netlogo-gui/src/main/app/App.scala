@@ -638,7 +638,7 @@ class App extends
   lazy val openColorDialog       = new OpenColorDialog(frame)
 
   lazy val allActions: Seq[javax.swing.Action] = {
-    val osSpecificActions = if (isMac) Seq() else Seq(openPreferencesDialog, openAboutDialog)
+    val osSpecificActions = /* if (isMac) Seq() else */ Seq(openPreferencesDialog, openAboutDialog)
 
     val workspaceActions = org.nlogo.window.WorkspaceActions(workspace)
 

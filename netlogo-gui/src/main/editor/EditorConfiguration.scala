@@ -128,6 +128,14 @@ case class EditorConfiguration(
     additionalActions.values.foreach(menu.offerAction(_))
   }
 
-  // we pass up all actions, the menus can decide what they want to use
-  def menuActions: Seq[Action] = additionalActions.values.toSeq ++ Seq(Actions.PasteAction, Actions.CutAction, Actions.CopyAction, Actions.DeleteAction)
+  def menuActions: Seq[Action] = additionalActions.values.toSeq ++
+    Seq(Actions.PasteAction,
+      Actions.CutAction,
+      Actions.CopyAction,
+      Actions.DeleteAction,
+      Actions.SelectAllAction,
+      Actions.commentToggleAction,
+      Actions.shiftLeftAction,
+      Actions.shiftRightAction,
+      Actions.tabKeyAction)
 }

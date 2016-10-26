@@ -20,28 +20,17 @@ with AppEvents.SwitchedTabsEvent.Handler {
 
   private var refreshables = Set.empty[Refreshable]
 
+  setMnemonic('E')
+
   /*
   //TODO i18n - do we need to change the shortcut keys too?
-  setMnemonic('E')
   addMenuItem('Z', org.nlogo.editor.UndoManager.undoAction)
   addMenuItem('Y', org.nlogo.editor.UndoManager.redoAction)
-  addSeparator()
-  addMenuItem(I18N.gui("selectAll"), 'A', Actions.SELECT_ALL_ACTION)
   addSeparator()
   addMenuItem(I18N.gui("find"), 'F', org.nlogo.app.common.FindDialog.FIND_ACTION)
   addMenuItem(I18N.gui("findNext"), 'G', org.nlogo.app.common.FindDialog.FIND_NEXT_ACTION)
   addSeparator()
 
-  //TODO: Move this out of the menu
-
-  addSeparator()
-  val contextualMenuStart = getComponentCount - 1
-  add(new JMenuItem(org.nlogo.editor.Actions.shiftLeftAction))
-  add(new JMenuItem(org.nlogo.editor.Actions.shiftRightAction))
-  addMenuItem(I18N.gui("format"), (java.awt.event.KeyEvent.VK_TAB).toChar, org.nlogo.editor.Actions.tabKeyAction, false)
-  addSeparator()
-  add(new JMenuItem(org.nlogo.editor.Actions.commentToggleAction))
-  addSeparator()
   */
 
   addMenuListener(new javax.swing.event.MenuListener() {
