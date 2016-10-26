@@ -6,16 +6,22 @@ import org.scalatest.FunSuite
 
 class MenuModelTests extends FunSuite {
   trait Helper {
-    val model = new MenuModel[String]()
+    val model = new MenuModel[String, Int]
     def assertLeafValueAt(value: String, i: Int): Unit = {
       model.children(i) match {
         case model.Leaf(v, _) => assert(v == value)
         case _ => fail(s"expected leaf at $i, but found branch")
       }
     }
-    def assertBranchValueAt(b: MenuModel[String], i: Int): Unit = {
+    def assertBranchAt(b: MenuModel[String, Int], i: Int): Unit = {
       model.children(i) match {
         case model.Branch(m, _, _) => assert(m == b)
+        case _ => fail(s"expected branch at $i, but found leaf")
+      }
+    }
+    def assertBranchValueAt(branchValue: Int, i: Int): Unit = {
+      model.children(i) match {
+        case model.Branch(_, v, _) => assert(v == branchValue)
         case _ => fail(s"expected branch at $i, but found leaf")
       }
     }
@@ -38,17 +44,17 @@ class MenuModelTests extends FunSuite {
   } }
 
   test("can have branches inserted") { new Helper {
-    val b = model.createBranch("")
+    val b = model.createBranch(0, "")
     b.insertLeaf("abc")
-    assertBranchValueAt(b, 0)
+    assertBranchAt(b, 0)
   } }
 
-  test("lists both branches and leaves as children") { new Helper {
-    val b = model.createBranch("")
+  test("lists branches and leaves as children, with leaves listed first") { new Helper {
+    val b = model.createBranch(0, "")
     b.insertLeaf("abc")
     model.insertLeaf("def")
-    assertBranchValueAt(b, 0)
-    assertLeafValueAt("def", 1)
+    assertLeafValueAt("def", 0)
+    assertBranchAt(b, 1)
   } }
 
   test("groups like items") { new Helper {
@@ -63,8 +69,15 @@ class MenuModelTests extends FunSuite {
   test("allows branches to be placed in groups") { new Helper {
     model.insertLeaf("abc", "group1")
     model.insertLeaf("ghi", "group2")
-    val b = model.createBranch("def", "group1")
-    assertBranchValueAt(b, 1)
+    val b = model.createBranch(0, "group1")
+    assertBranchAt(b, 1)
+  } }
+
+  test("allows branch ordering") { new Helper {
+    val b1 = model.createBranch(3, "a")
+    val b2 = model.createBranch(0, "a")
+    assertBranchAt(b2, 0)
+    assertBranchAt(b1, 1)
   } }
 
   test("permits removal of elements") { new Helper {
@@ -75,4 +88,20 @@ class MenuModelTests extends FunSuite {
     assert(model.children.length == 2)
     assertLeafValueAt("ghi", 1)
   } }
+
+  test("creating a branch with the same key in the same group returns the existing branch") { new Helper {
+    val b1 = model.createBranch(0, "abc")
+    val b2 = model.createBranch(0, "abc")
+    assert(b1 == b2)
+  } }
+
+  test("removal removes nested children") { new Helper {
+    val b = model.createBranch(0, "a")
+    b.insertLeaf("abc", "group1")
+    b.insertLeaf("def", "group2")
+    model.removeElement("def")
+    assert(b.children.length == 1)
+  } }
+
+  //TODO: We may need a way of ordering groups as well?
 }

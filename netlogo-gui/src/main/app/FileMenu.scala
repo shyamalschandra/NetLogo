@@ -14,14 +14,12 @@ class FileMenu(frame: AppFrame)
 
   setMnemonic('F')
 
-  override def createSubcategory(key: String): (SwingMenu, String) = {
-    if (key == UserAction.FileExportSubcategory)
-      (new SwingMenu(I18N.gui("export")), ExportImportGroup)
-    else if (key == UserAction.FileImportSubcategory)
-      (new SwingMenu(I18N.gui("import")), ExportImportGroup)
-    else if (key == UserAction.FileRecentSubcategory)
-      (new SwingMenu(I18N.gui("recent")), UserAction.FileOpenGroup)
-    else
-      super.createSubcategory(key)
+  val subcategoryNamesAndGroups = Map(
+    UserAction.FileExportSubcategory -> (I18N.gui("export") -> ExportImportGroup),
+    UserAction.FileImportSubcategory -> (I18N.gui("import") -> ExportImportGroup),
+    UserAction.FileRecentSubcategory -> (I18N.gui("recent") -> UserAction.FileOpenGroup))
+
+  override def subcategoryNameAndGroup(key: String): (String, String) = {
+    subcategoryNamesAndGroups.get(key).getOrElse(super.subcategoryNameAndGroup(key))
   }
 }

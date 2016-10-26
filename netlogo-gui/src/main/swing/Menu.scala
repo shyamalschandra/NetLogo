@@ -6,7 +6,29 @@ import java.awt.Component
 import javax.swing.{ Action, JMenu, JMenuItem }
 import UserAction.{ ActionRankKey, DefaultGroup, DefaultRank, RichUserAction }
 
-class Menu(text: String) extends JMenu(text) with UserAction.Menu {
+import scala.math.Ordering
+
+object Menu {
+  object MenuOrdering extends scala.math.Ordering[Action] {
+    private def getRank(a: Action): Double =
+      a.getValue(ActionRankKey) match {
+        case d: java.lang.Double => d.doubleValue
+        case _ => DefaultRank
+      }
+
+    def compare(x: Action, y: Action): Int =
+      implicitly[Ordering[Double]].compare(getRank(x), getRank(y))
+  }
+
+  implicit val menuOrdering = Menu.MenuOrdering
+}
+
+import Menu.menuOrdering
+
+class Menu(text: String, var menuModel: MenuModel[Action, String]) extends JMenu(text) with UserAction.Menu {
+
+  def this(text: String) = this(text, new MenuModel[Action, String])
+
   def addMenuItem(name: String, fn: () => Unit): javax.swing.JMenuItem =
     addMenuItem(RichAction(name) { _ => fn() })
   def addMenuItem(name: String, c: Char, shifted: Boolean, fn: () => Unit): javax.swing.JMenuItem =
@@ -71,100 +93,52 @@ class Menu(text: String) extends JMenu(text) with UserAction.Menu {
   protected var groups: Map[String, Range] = Map()
   protected var subcategories: Map[String, (Menu, String)] = Map()
 
-  def revokeAction(action: Action): Unit = {
-    action.subcategory.flatMap(subcategories.get).foreach(_._1.revokeAction(action))
-    getMenuComponents.zipWithIndex.collect {
-      case (menuItem: JMenuItem, i) if menuItem.getAction == action => i
-    }.foreach { removeIndex =>
-      remove(removeIndex)
-      val alteredGroups = groups.map {
-        case (k, v) if v.start <= removeIndex && v.end >= removeIndex =>
-          k -> (v.start to (v.end - 1))
-        case (k, v) if v.start > removeIndex =>
-          k -> ((v.start - 1) to (v.end - 1))
-        case other => other
-      }
-      alteredGroups.filter {
-        case (k, v) => v.end < v.start
-      }.foreach {
-        case (k, v) if v.end >= 0 => remove(v.end) // remove starting separator
-        case _ =>
-      }
-      groups =
-        alteredGroups.filterNot { case (k, v) => v.end < v.start }
+  def rebuildFromModel(mm: MenuModel[Action, String]): Unit = {
+    getMenuComponents.foreach(remove(_))
+    mm.children.foldLeft(Option.empty[String]) {
+      case (None, mm.Leaf(action, group)) =>
+        add(new JMenuItem(action))
+        Some(group)
+      case (None, mm.Branch(model, key, group)) =>
+        add(new Menu(subcategoryNameAndGroup(key)._1, model))
+        Some(group)
+      case (Some(priorGroup), mm.Leaf(action, group)) =>
+        if (group != priorGroup) { addSeparator() }
+        add(new JMenuItem(action))
+        Some(group)
+      case (Some(priorGroup), mm.Branch(model, key, group)) =>
+        if (group != priorGroup) { addSeparator() }
+        add(new Menu(subcategoryNameAndGroup(key)._1, model))
+        Some(group)
     }
+  }
+
+  def revokeAction(action: Action): Unit = {
+    menuModel.removeElement(action)
+    rebuildFromModel(menuModel)
   }
 
   def offerAction(action: Action): Unit = {
     subcategoryItem(action) match {
-      case Some((subcategoryItem, subcategoryGroup)) =>
-        subcategoryItem.insertAction(action)
-      case None                  => insertAction(action)
+      case Some((subcategoryKey, subcategoryGroup)) =>
+        val branch = menuModel.createBranch(subcategoryKey, subcategoryGroup)
+        branch.insertLeaf(action)
+      case None                  =>
+        menuModel.insertLeaf(action, action.group)
+    }
+    rebuildFromModel(menuModel)
+  }
+
+  def subcategoryItem(action: Action): Option[(String, String)] = {
+    action.getValue(UserAction.ActionSubcategoryKey) match {
+      case key: String =>
+        val (_, group) = subcategoryNameAndGroup(key)
+        Some((key, group))
+      case _ => None
     }
   }
 
-  def subcategoryItem(action: Action): Option[(Menu, String)] = {
-    action.subcategory match {
-      case Some(subcatName) if subcategories.isDefinedAt(subcatName) =>
-        Some(subcategories(subcatName))
-      case Some(subcatName) =>
-        val (subcat, group) = createSubcategory(subcatName)
-        insertItem(subcat, group, DefaultRank)
-        subcategories = subcategories + (subcatName -> (subcat -> group))
-        Some(subcat -> group)
-      case None => None
-    }
-  }
-
-  protected def createSubcategory(key: String): (Menu, String) = {
-    (new Menu(key), DefaultGroup)
-  }
-
-  private def insertAction(action: Action): Unit = {
-    insertItem(new JMenuItem(action), action.group, action.rank)
-  }
-
-  private def insertItem(item: Component, group: String, rank: Double): Unit = {
-    val index = insertionIndex(group, rank)
-
-    if (getClass.getName.contains("File")) { println("raw index: " + index) }
-    val separatedIndex =
-      if (! groups.isEmpty && ! groups.isDefinedAt(group)) {
-        if (getClass.getName.contains("File")) { println("inserting separator") }
-        insertSeparator(index)
-        index + 1
-      } else index
-
-    if (getClass.getName.contains("File")) { println("inserting item: " + item + " @ " + separatedIndex) }
-    add(item, separatedIndex)
-    updateGroups(group, separatedIndex)
-    if (getClass.getName.contains("File")) { println("after insertion in: " + getClass + " " + groups.mkString("\n")) }
-  }
-
-  private def updateGroups(groupName: String, insertedIndex: Int): Unit = {
-    if (! groups.isDefinedAt(groupName))
-      groups = groups + (groupName -> (insertedIndex to insertedIndex))
-    else
-      groups = groups.map {
-        case (k, v) if k == groupName          => k -> (v.start       to (v.end + 1))
-        case (k, v) if v.start > insertedIndex => k -> ((v.start + 1) to (v.end + 1))
-        case kv                                => kv
-      }
-  }
-
-  private def insertionIndex(groupName: String, rank: Double): Int = {
-    if (groups.isDefinedAt(groupName)) rankedIndex(rank, groups(groupName))
-    else getMenuComponentCount
-  }
-
-  private def rankedIndex(rank: Double, range: Range): Int = {
-    val groupRanks: Seq[Double] = getMenuComponents
-      .slice(range.start, range.end)
-      .map {
-        case menuItem: JMenuItem => menuItem.getAction.rank
-        case _                   => DefaultRank
-      }
-    val index = groupRanks.indexWhere(d => d > rank)
-    if (index == -1) range.end else range.start + index
+  protected def subcategoryNameAndGroup(key: String): (String, String) = {
+    (key, DefaultGroup)
   }
 }
