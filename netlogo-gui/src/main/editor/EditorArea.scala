@@ -233,17 +233,14 @@ class EditorArea(configuration: EditorConfiguration)
 
   private class EditorContextMenu(colorizer: Colorizer) extends JPopupMenu {
 
-    val copyItem  = new JMenuItem(Actions.COPY_ACTION)
-    val cutItem   = new JMenuItem(Actions.CUT_ACTION)
-    val pasteItem = new JMenuItem(Actions.PASTE_ACTION)
+    val copyItem  = new JMenuItem(Actions.CopyAction)
+    val cutItem   = new JMenuItem(Actions.CutAction)
+    val pasteItem = new JMenuItem(Actions.PasteAction)
 
     locally {
       add(copyItem)
-      Actions.COPY_ACTION.putValue(Action.NAME, I18N.gui.get("menu.edit.copy"))
       add(cutItem)
-      Actions.CUT_ACTION.putValue(Action.NAME, I18N.gui.get("menu.edit.cut"))
       add(pasteItem)
-      Actions.PASTE_ACTION.putValue(Action.NAME, I18N.gui.get("menu.edit.paste"))
       addSeparator()
       for (item <- configuration.contextActions) {
         item.putValue("editor", EditorArea.this)

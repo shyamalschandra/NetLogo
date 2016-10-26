@@ -7,7 +7,7 @@ package org.nlogo.app
 
 import java.awt.event.ActionEvent
 import java.util.prefs.Preferences
-import javax.swing.{ AbstractAction, JCheckBoxMenuItem, JMenuItem }
+import javax.swing.{ AbstractAction, Action, JCheckBoxMenuItem, JMenuItem }
 
 import org.nlogo.api.ModelSettings
 import org.nlogo.app.common.{ Events => AppEvents }
@@ -21,6 +21,9 @@ with org.nlogo.window.Events.AboutToQuitEvent.Handler
 {
 
   implicit val i18nName = I18N.Prefix("menu.edit")
+
+  private var refreshables = Set.empty[Actions.RefreshableAction]
+
   val prefs = Preferences.userNodeForPackage(getClass)
   val lineNumbersKey = "line_numbers"
 
@@ -32,15 +35,11 @@ with org.nlogo.window.Events.AboutToQuitEvent.Handler
       app.tabs.lineNumbersVisible = !app.tabs.lineNumbersVisible
   }
 
+  /*
   //TODO i18n - do we need to change the shortcut keys too?
   setMnemonic('E')
   addMenuItem('Z', org.nlogo.editor.UndoManager.undoAction)
   addMenuItem('Y', org.nlogo.editor.UndoManager.redoAction)
-  addSeparator()
-  addMenuItem(I18N.gui("cut"), 'X', Actions.CUT_ACTION )
-  addMenuItem(I18N.gui("copy"), 'C', Actions.COPY_ACTION)
-  addMenuItem(I18N.gui("paste"), 'V', Actions.PASTE_ACTION)
-  addMenuItem(I18N.gui("delete"), (java.awt.event.KeyEvent.VK_DELETE).toChar, Actions.DELETE_ACTION, false)
   addSeparator()
   addMenuItem(I18N.gui("selectAll"), 'A', Actions.SELECT_ALL_ACTION)
   addSeparator()
@@ -61,18 +60,18 @@ with org.nlogo.window.Events.AboutToQuitEvent.Handler
   addSeparator()
   add(new JMenuItem(org.nlogo.editor.Actions.commentToggleAction))
   addSeparator()
+  */
 
-  private val snapper = addCheckBoxMenuItem(I18N.gui("snapToGrid"), app.workspace.snapOn, snapAction)
+  // private val snapper = addCheckBoxMenuItem(I18N.gui("snapToGrid"), app.workspace.snapOn, snapAction)
 
+  /*
   lineNumbersAction.setEnabled(false)
   if (lineNumbersItem.isSelected) lineNumbersAction.actionPerformed(null)
+  */
 
   addMenuListener(new javax.swing.event.MenuListener() {
     override def menuSelected(e: javax.swing.event.MenuEvent): Unit = {
-      Actions.CUT_ACTION.setEnabled(app.tabs.codeTab.isTextSelected())
-      Actions.COPY_ACTION.setEnabled(app.tabs.codeTab.isTextSelected())
-      Actions.PASTE_ACTION.setEnabled(java.awt.Toolkit.getDefaultToolkit().getSystemClipboard()
-        .isDataFlavorAvailable(java.awt.datatransfer.DataFlavor.stringFlavor))
+      refreshables.foreach(_.checkEnablement())
     }
 
     override def menuDeselected(e: javax.swing.event.MenuEvent): Unit = {
@@ -91,11 +90,20 @@ with org.nlogo.window.Events.AboutToQuitEvent.Handler
     e.model.optionalSectionValue[ModelSettings]("org.nlogo.modelsection.modelsettings") match {
       case Some(settings: ModelSettings) =>
         app.workspace.snapOn(settings.snapToGrid)
-        snapper.setState(settings.snapToGrid)
+        // snapper.setState(settings.snapToGrid)
       case _ =>
     }
   }
 
-  def handle(e: org.nlogo.window.Events.AboutToQuitEvent) =
-    prefs.put(lineNumbersKey, lineNumbersItem.isSelected.toString)
+  override def offerAction(action: Action): Unit = {
+    action match {
+      case refreshable: Actions.RefreshableAction => refreshables = refreshables + refreshable
+      case _ =>
+    }
+    super.offerAction(action)
+  }
+
+  def handle(e: org.nlogo.window.Events.AboutToQuitEvent) = {
+    // prefs.put(lineNumbersKey, lineNumbersItem.isSelected.toString)
+  }
 }

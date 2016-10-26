@@ -126,5 +126,5 @@ case class EditorConfiguration(
   }
 
   // we pass up all actions, the menus can decide what they want to use
-  def menuActions: Seq[Action] = additionalActions.values.toSeq
+  def menuActions: Seq[Action] = additionalActions.values.toSeq ++ Seq(Actions.PasteAction, Actions.CutAction, Actions.CopyAction, Actions.DeleteAction)
 }

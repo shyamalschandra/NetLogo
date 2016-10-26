@@ -5,7 +5,7 @@ package org.nlogo.editor
 import org.nlogo.core.I18N
 
 import java.awt.event.{ ActionEvent, KeyEvent }
-import javax.swing.Action, Action.{ ACCELERATOR_KEY, ACTION_COMMAND_KEY }
+import javax.swing.Action, Action.{ ACCELERATOR_KEY, ACTION_COMMAND_KEY, NAME }
 import javax.swing.event.{ ChangeEvent, ChangeListener }
 import javax.swing.text._
 import javax.swing.text.DefaultEditorKit.{CutAction, CopyAction, PasteAction, InsertContentAction}
@@ -16,15 +16,19 @@ import KeyBinding._
 import RichDocument._
 
 object Actions {
+  trait RefreshableAction {
+    def checkEnablement(): Unit
+  }
+
   val commentToggleAction = new CommentToggleAction()
   val shiftLeftAction = new ShiftLeftAction()
   val shiftRightAction = new ShiftRightAction()
   val tabKeyAction = new TabKeyAction()
   val shiftTabKeyAction = new ShiftTabKeyAction()
-  val CUT_ACTION = new CutAction()
-  val COPY_ACTION = new CopyAction()
-  val PASTE_ACTION = new NetLogoPasteAction()
-  val DELETE_ACTION = new InsertContentAction() { putValue(Action.ACTION_COMMAND_KEY, "")  }
+  val CutAction = new NetLogoCutAction()
+  val CopyAction = new NetLogoCopyAction()
+  val PasteAction = new NetLogoPasteAction()
+  val DeleteAction = new NetLogoDeleteAction()
 
   /// default editor kit actions
   private val actionMap = new DefaultEditorKit().getActions.map{ a => (a.getValue(Action.NAME), a) }.toMap
@@ -66,10 +70,11 @@ object Actions {
     def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit
   }
 
-  class NetLogoPasteAction extends PasteAction {
-    putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
-    putValue(UserAction.ActionGroupKey,    UserAction.EditClipboardGroup)
+  class NetLogoPasteAction extends PasteAction with RefreshableAction {
+    putValue(NAME,                         I18N.gui.get("menu.edit.paste"))
     putValue(ACCELERATOR_KEY,              UserAction.KeyBindings.keystroke('V', withMenu = true))
+    putValue(UserAction.ActionGroupKey,    UserAction.EditClipboardGroup)
+    putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
 
     def checkEnablement(): Unit = {
       setEnabled(java.awt.Toolkit.getDefaultToolkit().getSystemClipboard()
@@ -77,6 +82,27 @@ object Actions {
     }
   }
 
+  class NetLogoCopyAction extends CopyAction {
+    putValue(NAME,                         I18N.gui.get("menu.edit.copy"))
+    putValue(ACCELERATOR_KEY,              UserAction.KeyBindings.keystroke('C', withMenu = true))
+    putValue(UserAction.ActionGroupKey,    UserAction.EditClipboardGroup)
+    putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
+  }
+
+  class NetLogoCutAction extends CutAction {
+    putValue(NAME,                         I18N.gui.get("menu.edit.cut"))
+    putValue(ACCELERATOR_KEY,              UserAction.KeyBindings.keystroke('X', withMenu = true))
+    putValue(UserAction.ActionGroupKey,    UserAction.EditClipboardGroup)
+    putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
+  }
+
+  class NetLogoDeleteAction extends InsertContentAction {
+    putValue(NAME,                         I18N.gui.get("menu.edit.delete"))
+    putValue(ACCELERATOR_KEY,              UserAction.KeyBindings.keystroke(java.awt.event.KeyEvent.VK_DELETE))
+    putValue(ACTION_COMMAND_KEY,           "")
+    putValue(UserAction.ActionGroupKey,    UserAction.EditClipboardGroup)
+    putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
+  }
 
   class ShiftLeftAction extends DocumentAction(I18N.gui.get("menu.edit.shiftLeft")) {
     putValue(ACCELERATOR_KEY, keystroke(KeyEvent.VK_OPEN_BRACKET, menuShortcutMask))
