@@ -2,24 +2,20 @@
 
 package org.nlogo.editor
 
-import org.nlogo.core.I18N
-
 import java.awt.event.{ ActionEvent, KeyEvent }
 import javax.swing.Action, Action.{ ACCELERATOR_KEY, ACTION_COMMAND_KEY, NAME }
 import javax.swing.event.{ ChangeEvent, ChangeListener }
 import javax.swing.text._
 import javax.swing.text.DefaultEditorKit.{CutAction, CopyAction, PasteAction, InsertContentAction}
 
+import org.nlogo.api.Refreshable
+import org.nlogo.core.I18N
 import org.nlogo.swing.UserAction //TODO: Depend won't like this...
 
 import KeyBinding._
 import RichDocument._
 
 object Actions {
-  trait RefreshableAction {
-    def checkEnablement(): Unit
-  }
-
   val commentToggleAction = new CommentToggleAction()
   val shiftLeftAction = new ShiftLeftAction()
   val shiftRightAction = new ShiftRightAction()
@@ -70,13 +66,13 @@ object Actions {
     def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit
   }
 
-  class NetLogoPasteAction extends PasteAction with RefreshableAction {
+  class NetLogoPasteAction extends PasteAction with Refreshable {
     putValue(NAME,                         I18N.gui.get("menu.edit.paste"))
     putValue(ACCELERATOR_KEY,              UserAction.KeyBindings.keystroke('V', withMenu = true))
     putValue(UserAction.ActionGroupKey,    UserAction.EditClipboardGroup)
     putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
 
-    def checkEnablement(): Unit = {
+    def refresh(): Unit = {
       setEnabled(java.awt.Toolkit.getDefaultToolkit().getSystemClipboard()
         .isDataFlavorAvailable(java.awt.datatransfer.DataFlavor.stringFlavor))
     }

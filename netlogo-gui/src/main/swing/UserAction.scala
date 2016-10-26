@@ -47,6 +47,10 @@ object UserAction {
     def revokeAction(action: javax.swing.Action): Unit
   }
 
+  trait CheckBoxAction {
+    def checkedState: Boolean
+  }
+
   // convenience methods
   object KeyBindings {
     import java.awt.Toolkit

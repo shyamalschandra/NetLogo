@@ -8,6 +8,7 @@ import java.awt.event.{ ActionEvent, InputEvent, KeyEvent }
 import javax.swing.{ AbstractAction, Action, KeyStroke }
 
 import org.nlogo.core.{ I18N, AgentKind }
+import org.nlogo.api.Refreshable
 import org.nlogo.swing.UserAction._
 
 object WorkspaceActions {
@@ -24,7 +25,8 @@ object WorkspaceActions {
       new SimpleGUIWorkspaceAction(I18N.gui("patchMonitor"), MonitorsGroup, workspace, _.inspectAgent(AgentKind.Patch)),
       new SimpleGUIWorkspaceAction(I18N.gui("linkMonitor"), MonitorsGroup, workspace, _.inspectAgent(AgentKind.Link)),
       new SimpleGUIWorkspaceAction(I18N.gui("closeAllAgentMonitors"), MonitorsGroup, workspace, _.closeAgentMonitors),
-      new Open3DViewAction(workspace))
+      new Open3DViewAction(workspace),
+      new SnapToGridAction(workspace))
 
   }
 
@@ -73,4 +75,25 @@ class HubNetControlCenterAction(workspace: GUIWorkspace) extends AbstractAction(
     override def actionPerformed(e: ActionEvent): Unit = {
       workspace.hubNetManager.get.showControlCenter
     }
+}
+
+class SnapToGridAction(workspace: GUIWorkspace)
+  extends AbstractAction(I18N.gui.get("menu.edit.snapToGrid"))
+  with CheckBoxAction
+  with Refreshable {
+
+  putValue(ActionCategoryKey,      EditCategory)
+  putValue(ActionGroupKey,         "SnapToGrid")
+  putValue(Action.SELECTED_KEY,    checkedState)
+
+  def actionPerformed(e: ActionEvent) = {
+    workspace.setSnapOn(! workspace.snapOn)
+    putValue(Action.SELECTED_KEY, checkedState)
+  }
+
+  def checkedState: Boolean = workspace.snapOn
+
+  def refresh(): Unit = {
+    putValue(Action.SELECTED_KEY, checkedState)
+  }
 }

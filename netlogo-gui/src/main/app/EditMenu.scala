@@ -9,27 +9,23 @@ import java.awt.event.ActionEvent
 import java.util.prefs.Preferences
 import javax.swing.{ AbstractAction, Action, JCheckBoxMenuItem, JMenuItem }
 
-import org.nlogo.api.ModelSettings
+import org.nlogo.api.Refreshable
 import org.nlogo.app.common.{ Events => AppEvents }
 import org.nlogo.editor.Actions
 import org.nlogo.core.I18N
 
 class EditMenu(app: App) extends org.nlogo.swing.Menu(I18N.gui.get("menu.edit"))
 with AppEvents.SwitchedTabsEvent.Handler
-with org.nlogo.window.Events.LoadModelEvent.Handler
 with org.nlogo.window.Events.AboutToQuitEvent.Handler
 {
 
   implicit val i18nName = I18N.Prefix("menu.edit")
 
-  private var refreshables = Set.empty[Actions.RefreshableAction]
+  private var refreshables = Set.empty[Refreshable]
 
   val prefs = Preferences.userNodeForPackage(getClass)
   val lineNumbersKey = "line_numbers"
 
-  val snapAction = new AbstractAction(I18N.gui("snapToGrid")) {
-    def actionPerformed(e: ActionEvent) = app.workspace.snapOn(!app.workspace.snapOn)
-  }
   val lineNumbersAction = new AbstractAction(I18N.gui("showLineNumbers")) {
     def actionPerformed(e: ActionEvent) =
       app.tabs.lineNumbersVisible = !app.tabs.lineNumbersVisible
@@ -62,7 +58,6 @@ with org.nlogo.window.Events.AboutToQuitEvent.Handler
   addSeparator()
   */
 
-  // private val snapper = addCheckBoxMenuItem(I18N.gui("snapToGrid"), app.workspace.snapOn, snapAction)
 
   /*
   lineNumbersAction.setEnabled(false)
@@ -71,7 +66,7 @@ with org.nlogo.window.Events.AboutToQuitEvent.Handler
 
   addMenuListener(new javax.swing.event.MenuListener() {
     override def menuSelected(e: javax.swing.event.MenuEvent): Unit = {
-      refreshables.foreach(_.checkEnablement())
+      refreshables.foreach(_.refresh())
     }
 
     override def menuDeselected(e: javax.swing.event.MenuEvent): Unit = {
@@ -82,22 +77,13 @@ with org.nlogo.window.Events.AboutToQuitEvent.Handler
   })
 
   final def handle(e: AppEvents.SwitchedTabsEvent) {
-    snapAction.setEnabled(e.newTab == app.tabs.interfaceTab)
+    // snapAction.setEnabled(e.newTab == app.tabs.interfaceTab)
     lineNumbersAction.setEnabled(e.newTab != app.tabs.interfaceTab && e.newTab != app.tabs.infoTab)
-  }
-
-  def handle(e: org.nlogo.window.Events.LoadModelEvent) {
-    e.model.optionalSectionValue[ModelSettings]("org.nlogo.modelsection.modelsettings") match {
-      case Some(settings: ModelSettings) =>
-        app.workspace.snapOn(settings.snapToGrid)
-        // snapper.setState(settings.snapToGrid)
-      case _ =>
-    }
   }
 
   override def offerAction(action: Action): Unit = {
     action match {
-      case refreshable: Actions.RefreshableAction => refreshables = refreshables + refreshable
+      case refreshable: Refreshable => refreshables = refreshables + refreshable
       case _ =>
     }
     super.offerAction(action)

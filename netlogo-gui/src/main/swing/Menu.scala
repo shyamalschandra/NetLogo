@@ -3,7 +3,7 @@
 package org.nlogo.swing
 
 import java.awt.Component
-import javax.swing.{ Action, JMenu, JMenuItem }
+import javax.swing.{ Action, JCheckBoxMenuItem, JMenu, JMenuItem }
 import UserAction.{ ActionRankKey, DefaultGroup, DefaultRank, RichUserAction }
 
 import scala.math.Ordering
@@ -101,14 +101,14 @@ class Menu(text: String, var menuModel: MenuModel[Action, String]) extends JMenu
     getMenuComponents.foreach(remove(_))
     mm.children.foldLeft(Option.empty[String]) {
       case (None, mm.Leaf(action, group)) =>
-        add(new JMenuItem(action))
+        add(createMenuItem(action))
         Some(group)
       case (None, mm.Branch(model, key, group)) =>
         add(new Menu(subcategoryNameAndGroup(key)._1, model))
         Some(group)
       case (Some(priorGroup), mm.Leaf(action, group)) =>
         if (group != priorGroup) { addSeparator() }
-        add(new JMenuItem(action))
+        add(createMenuItem(action))
         Some(group)
       case (Some(priorGroup), mm.Branch(model, key, group)) =>
         if (group != priorGroup) { addSeparator() }
@@ -116,6 +116,12 @@ class Menu(text: String, var menuModel: MenuModel[Action, String]) extends JMenu
         Some(group)
     }
   }
+
+  private def createMenuItem(action: Action): JMenuItem =
+    action match {
+      case cba: UserAction.CheckBoxAction => new JCheckBoxMenuItem(action)
+      case _                              => new JMenuItem(action)
+    }
 
   def revokeAction(action: Action): Unit = {
     menuModel.removeElement(action)
