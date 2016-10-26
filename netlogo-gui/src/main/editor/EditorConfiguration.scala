@@ -37,8 +37,7 @@ object EditorConfiguration {
 
   private val emptyMenu =
     new EditorMenu {
-      def editActions(actionGroups: Seq[Seq[Action]]): Unit = {}
-      def helpActions(actionGroups: Seq[Action]): Unit = {}
+      def offerAction(action: Action): Unit = {}
     }
 
   def default(rows: Int, columns: Int, colorizer: Colorizer) =
@@ -123,8 +122,9 @@ case class EditorConfiguration(
       case (k, v) => editor.getInputMap.put(k, v)
     }
 
-    val helpActions =
-      additionalActions.values.filter(_.getValue(Actions.MenuCategory) == Actions.HelpMenu).toSeq
-    menu.helpActions(helpActions)
+    additionalActions.values.foreach(menu.offerAction(_))
   }
+
+  // we pass up all actions, the menus can decide what they want to use
+  def menuActions: Seq[Action] = additionalActions.values.toSeq
 }

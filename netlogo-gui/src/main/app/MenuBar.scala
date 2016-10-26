@@ -7,7 +7,7 @@ import javax.swing.{ Action, JMenu, JMenuBar }
 import org.nlogo.core.I18N
 import org.nlogo.editor.EditorMenu
 import org.nlogo.swing.{ TabsMenu, UserAction },
-  UserAction.{ ActionCategoryKey, FileCategory, HelpCategory, TabsCategory, ToolsCategory }
+  UserAction.{ ActionCategoryKey, EditCategory, FileCategory, HelpCategory, TabsCategory, ToolsCategory }
 
 class MenuBar(editMenu: EditMenu,
   isApplicationWide:    Boolean)
@@ -28,6 +28,7 @@ class MenuBar(editMenu: EditMenu,
   private var helpMenu = Option.empty[HelpMenu]
 
   private var categoryMenus: Map[String, UserAction.Menu] = Map(
+    EditCategory  -> editMenu,
     FileCategory  -> fileMenu,
     ToolsCategory -> toolsMenu,
     TabsCategory  -> tabsMenu
@@ -49,16 +50,6 @@ class MenuBar(editMenu: EditMenu,
       }
     }
   }
-
-  //TODO: This method was an attempted refactor that didn't work out. It should be removed
-  def editActions(actionGroups: Seq[Seq[Action]]): Unit = {
-  }
-
-
-  override def helpActions(actions: Seq[Action]): Unit = {
-    helpMenu.foreach(_.addEditorActions(actions))
-  }
-
 
   def offerAction(action: javax.swing.Action): Unit = {
     val categoryKey = action.getValue(ActionCategoryKey) match {

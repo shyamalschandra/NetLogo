@@ -223,7 +223,6 @@ class Tabs(val workspace:  GUIWorkspace,
 
   val printAction = {
     val action = RichAction("print-current-tab") { _ =>
-      println("print action invoked")
       currentTab match {
         case printable: org.nlogo.swing.Printable =>
           try org.nlogo.swing.PrinterManager.print(printable, workspace.modelNameForDisplay)

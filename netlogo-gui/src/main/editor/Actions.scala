@@ -10,15 +10,12 @@ import javax.swing.event.{ ChangeEvent, ChangeListener }
 import javax.swing.text._
 import javax.swing.text.DefaultEditorKit.{CutAction, CopyAction, PasteAction, InsertContentAction}
 
+import org.nlogo.swing.UserAction //TODO: Depend won't like this...
+
 import KeyBinding._
 import RichDocument._
 
 object Actions {
-  val MenuCategory = "org.nloog.editor.Actions.MenuCategory"
-  val HelpMenu = "org.nloog.editor.Actions.HelpMenu"
-  val EditMenu = "org.nloog.editor.Actions.EditMenu"
-
-
   val commentToggleAction = new CommentToggleAction()
   val shiftLeftAction = new ShiftLeftAction()
   val shiftRightAction = new ShiftRightAction()
@@ -26,7 +23,7 @@ object Actions {
   val shiftTabKeyAction = new ShiftTabKeyAction()
   val CUT_ACTION = new CutAction()
   val COPY_ACTION = new CopyAction()
-  val PASTE_ACTION = new PasteAction()
+  val PASTE_ACTION = new NetLogoPasteAction()
   val DELETE_ACTION = new InsertContentAction() { putValue(Action.ACTION_COMMAND_KEY, "")  }
 
   /// default editor kit actions
@@ -68,6 +65,18 @@ object Actions {
 
     def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit
   }
+
+  class NetLogoPasteAction extends PasteAction {
+    putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
+    putValue(UserAction.ActionGroupKey,    UserAction.EditClipboardGroup)
+    putValue(ACCELERATOR_KEY,              UserAction.KeyBindings.keystroke('V', withMenu = true))
+
+    def checkEnablement(): Unit = {
+      setEnabled(java.awt.Toolkit.getDefaultToolkit().getSystemClipboard()
+        .isDataFlavorAvailable(java.awt.datatransfer.DataFlavor.stringFlavor))
+    }
+  }
+
 
   class ShiftLeftAction extends DocumentAction(I18N.gui.get("menu.edit.shiftLeft")) {
     putValue(ACCELERATOR_KEY, keystroke(KeyEvent.VK_OPEN_BRACKET, menuShortcutMask))
@@ -168,7 +177,7 @@ extends Actions.DocumentAction(I18N.gui.get("tabs.code.rightclick.quickhelp"))
 with ChangeListener {
   putValue(ACCELERATOR_KEY, keystroke(KeyEvent.VK_F1))
   putValue(ACTION_COMMAND_KEY, "org.nlogo.editor.quickHelp")
-  putValue(MenuCategory, HelpMenu)
+  putValue(UserAction.ActionCategoryKey, UserAction.HelpCategory)
 
   private var currentOffset = -1
 

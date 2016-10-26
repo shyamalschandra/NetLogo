@@ -87,7 +87,7 @@ class CodeTab(val workspace: AbstractWorkspace) extends JPanel
   def dirty() { new WindowEvents.DirtyEvent().raise(this) }
 
   def menuActions =
-    Seq(new CodeToHtml.Action(workspace, this, () => getText))
+    Seq(new CodeToHtml.Action(workspace, this, () => getText)) ++ editorConfiguration.menuActions
 
   private def needsCompile() {
     _needsCompile = true
