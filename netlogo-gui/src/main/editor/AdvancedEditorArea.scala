@@ -44,19 +44,17 @@ class AdvancedEditorArea(val configuration: EditorConfiguration, rows: Int, colu
     popupMenu
   }
 
-  def getEditorKit(): javax.swing.text.EditorKit = ???
-  def getEditorKitForContentType(contentType: String): javax.swing.text.EditorKit = ???
-  def setEditorKit(kit: javax.swing.text.EditorKit): Unit = ???
-  def lineToEndOffset(doc: Document,line: Int): Int = ???
-  def lineToStartOffset(doc: Document,line: Int): Int = ???
-  def offsetToLine(doc: Document,line: Int): Int = ???
   def setIndenter(indenter: Indenter): Unit = {
     indenter.addActions(configuration, getInputMap)
     // TODO: EditorArea also uses indenter in replaceSelection, although I don't know
     // whether we need to do that or not
   }
+
   // this needs to be implemented if we ever allow tab-based focus traversal
   // with this editor area
-  def setSelection(s: Boolean): Unit = {
-  }
+  def setSelection(s: Boolean): Unit = { }
+
+  def getEditorKit(): javax.swing.text.EditorKit = ???
+  def getEditorKitForContentType(contentType: String): javax.swing.text.EditorKit = ???
+  def setEditorKit(kit: javax.swing.text.EditorKit): Unit = ???
 }

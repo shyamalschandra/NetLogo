@@ -2,6 +2,7 @@
 
 package org.nlogo.editor
 
+import java.awt.Component
 import java.awt.event.{ ActionEvent, KeyEvent }
 import javax.swing.{ AbstractAction, Action }, Action.{ ACCELERATOR_KEY, ACTION_COMMAND_KEY, NAME }
 import javax.swing.event.{ ChangeEvent, ChangeListener }
@@ -216,29 +217,43 @@ object Actions {
 
 import Actions._
 
-class QuickHelpAction(name: String, colorizer: Colorizer)
-  extends Actions.DocumentAction(name) {
-  putValue(UserAction.ActionCategoryKey, UserAction.HelpCategory)
+trait QuickHelpAction {
+  def colorizer: Colorizer
 
-  override def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit = {
-    val targetOffset = component.getSelectionEnd
-
-    if (targetOffset != -1) {
-      val lineNumber = document.offsetToLine(targetOffset)
+  def doHelp(document: Document, offset: Int, component: Component): Unit = {
+    if (offset != -1) {
+      val lineNumber = document.offsetToLine(offset)
       for {
-        lineText    <- document.getLineText(document.offsetToLine(targetOffset))
-        tokenString <- colorizer.getTokenAtPosition(lineText, targetOffset - document.lineToStartOffset(lineNumber))
+        lineText    <- document.getLineText(document.offsetToLine(offset))
+        tokenString <- colorizer.getTokenAtPosition(lineText, offset - document.lineToStartOffset(lineNumber))
       } {
         colorizer.doHelp(component, tokenString)
       }
     }
   }
 }
+class MouseQuickHelpAction(val colorizer: Colorizer)
+  extends AbstractAction(I18N.gui.get("tabs.code.rightclick.quickhelp"))
+  with EditorAwareAction
+  with QuickHelpAction {
 
-class MouseQuickHelpAction(colorizer: Colorizer) extends QuickHelpAction(I18N.gui.get("tabs.code.rightclick.quickhelp"), colorizer) {
+  putValue(UserAction.ActionCategoryKey, UserAction.HelpCategory)
+
+  override def actionPerformed(e: ActionEvent): Unit = {
+    doHelp(editor.getDocument, documentOffset, editor)
+  }
 }
 
-class KeyboardQuickHelpAction(colorizer: Colorizer) extends QuickHelpAction(I18N.gui.get("tabs.code.rightclick.quickhelp"), colorizer) {
+class KeyboardQuickHelpAction(val colorizer: Colorizer)
+  extends Actions.DocumentAction(I18N.gui.get("tabs.code.rightclick.quickhelp"))
+  with QuickHelpAction {
+
+  putValue(UserAction.ActionCategoryKey, UserAction.HelpCategory)
   putValue(ACCELERATOR_KEY, keystroke(KeyEvent.VK_F1))
   putValue(ACTION_COMMAND_KEY, "org.nlogo.editor.quickHelp")
+
+  override def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit = {
+    val targetOffset = component.getSelectionEnd
+    doHelp(component.getDocument, targetOffset, component)
+  }
 }
