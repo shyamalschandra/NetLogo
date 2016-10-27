@@ -124,7 +124,10 @@ class Menu(text: String, var menuModel: MenuModel[Action, String]) extends JMenu
   private def createMenuItem(action: Action): JMenuItem =
     action match {
       case cba: UserAction.CheckBoxAction => new JCheckBoxMenuItem(action)
-      case _                              => new JMenuItem(action)
+      case _                              =>
+        val jmi = new JMenuItem(action)
+        jmi.setIcon(null)
+        jmi
     }
 
   def revokeAction(action: Action): Unit = {

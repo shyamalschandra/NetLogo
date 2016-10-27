@@ -26,6 +26,8 @@ object UserAction {
 
   val EditClipboardGroup = "org.nlogo.swing.EditClipboardGroup"
   val EditFormatGroup    = "org.nlogo.swing.EditFormatGroup"
+  val EditFindGroup      = "org.nlogo.swing.EditFindGroup"
+  val EditUndoGroup      = "org.nlogo.swing.EditUndoGroup"
 
   val FileExportSubcategory = "org.nlogo.swing.FileExportSubcategory"
   val FileImportSubcategory = "org.nlogo.swing.FileImportSubcategory"

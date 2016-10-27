@@ -2,7 +2,7 @@
 
 package org.nlogo.app
 
-import org.nlogo.app.common.{ CodeToHtml, EditorFactory, FileActions, Events => AppEvents, SaveModelingCommonsAction }
+import org.nlogo.app.common.{ CodeToHtml, EditorFactory, FileActions, FindDialog, Events => AppEvents, SaveModelingCommonsAction }
 import org.nlogo.app.interfacetab.{ InterfaceToolBar, WidgetPanel }
 import org.nlogo.app.tools.{ AgentMonitorManager, GraphicsPreview, Preference, PreferencesDialog, PreviewCommandsEditor }
 import org.nlogo.core.{ AgentKind, CompilerException, Dialect, I18N, LogoList, Model, Nobody,
@@ -656,7 +656,9 @@ class App extends
         pico.getComponent(classOf[PreviewCommandsEditorInterface]),
         workspace,
         () => pico.getComponent(classOf[ModelSaver]).asInstanceOf[ModelSaver].currentModel),
-      new SaveModelingCommonsAction(modelingCommons, menuBar.fileMenu)
+      new SaveModelingCommonsAction(modelingCommons, menuBar.fileMenu),
+      FindDialog.FIND_ACTION,
+      FindDialog.FIND_NEXT_ACTION
     ) ++
     HelpActions.apply ++
     FileActions(workspace, menuBar.fileMenu) ++

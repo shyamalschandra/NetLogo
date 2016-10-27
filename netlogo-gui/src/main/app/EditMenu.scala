@@ -27,9 +27,6 @@ with AppEvents.SwitchedTabsEvent.Handler {
   addMenuItem('Z', org.nlogo.editor.UndoManager.undoAction)
   addMenuItem('Y', org.nlogo.editor.UndoManager.redoAction)
   addSeparator()
-  addMenuItem(I18N.gui("find"), 'F', org.nlogo.app.common.FindDialog.FIND_ACTION)
-  addMenuItem(I18N.gui("findNext"), 'G', org.nlogo.app.common.FindDialog.FIND_NEXT_ACTION)
-  addSeparator()
 
   */
 
