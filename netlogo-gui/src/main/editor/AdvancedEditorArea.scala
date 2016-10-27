@@ -18,6 +18,8 @@ import KeyBinding._
 class AdvancedEditorArea(val configuration: EditorConfiguration, rows: Int, columns: Int)
   extends RSyntaxTextArea(rows, columns) with AbstractEditorArea {
 
+  var indenter = Option.empty[Indenter]
+
   val tmf = TokenMakerFactory.getDefaultInstance.asInstanceOf[AbstractTokenMakerFactory]
   tmf.putMapping("netlogo",   "org.nlogo.ide.NetLogoTwoDTokenMaker")
   tmf.putMapping("netlogo3d", "org.nlogo.ide.NetLogoThreeDTokenMaker")
@@ -48,8 +50,15 @@ class AdvancedEditorArea(val configuration: EditorConfiguration, rows: Int, colu
 
   def setIndenter(indenter: Indenter): Unit = {
     indenter.addActions(configuration, getInputMap)
-    // TODO: EditorArea also uses indenter in replaceSelection, although I don't know
-    // whether we need to do that or not
+    this.indenter = Some(indenter)
+  }
+
+  override def replaceSelection(s: String): Unit = {
+    var selection =
+      s.dropWhile(c => Character.getType(c) == Character.FORMAT)
+        .replaceAllLiterally("\t", "  ")
+    super.replaceSelection(s)
+    indenter.foreach(_.handleInsertion(selection))
   }
 
   // this needs to be implemented if we ever allow tab-based focus traversal
