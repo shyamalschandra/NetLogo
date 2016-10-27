@@ -25,6 +25,7 @@ class AdvancedEditorArea(val configuration: EditorConfiguration, rows: Int, colu
   tmf.putMapping("netlogo3d", "org.nlogo.ide.NetLogoThreeDTokenMaker")
 
   FoldParserManager.get.addFoldParserMapping("netlogo", new NetLogoFoldParser())
+  FoldParserManager.get.addFoldParserMapping("netlogo3d", new NetLogoFoldParser())
 
   setSyntaxEditingStyle(if (configuration.is3Dlanguage) "netlogo3d" else "netlogo")
   setCodeFoldingEnabled(true)

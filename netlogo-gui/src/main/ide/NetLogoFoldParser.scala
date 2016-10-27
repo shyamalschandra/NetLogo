@@ -18,6 +18,7 @@ object NetLogoFoldParser {
 
   def sections(text: String): Seq[Seq[Token]] = {
     val tokens = tokenizer.tokenizeString(text, "").map(namer).buffered
+
     @tailrec
     def takeUntilCloseBracketOrKeyword(acc: Seq[Token]): Seq[Token] =
       if (! tokens.hasNext) acc
@@ -74,16 +75,24 @@ import NetLogoFoldParser.sections
 class NetLogoFoldParser extends FoldParser {
   override def getFolds(textArea: RSyntaxTextArea): java.util.List[Fold] = {
     import scala.collection.JavaConverters._
-    val parsedSections = sections(textArea.getText)
+    val text = textArea.getText
+    val parsedSections = sections(text)
 
-    parsedSections.map { section =>
-      val foldType = section.head.tpe match {
-        case TokenType.Comment => FoldType.COMMENT
-        case _                 => FoldType.CODE
-      }
-      val fold = new Fold(foldType, textArea, section.head.start)
-      fold.setEndOffset(section.last.end)
-      fold
-    }.toSeq.asJava
+    parsedSections
+      .filterNot(singleLineDeclaration(text))
+      .map { section =>
+        val foldType = section.head.tpe match {
+          case TokenType.Comment => FoldType.COMMENT
+          case _                 => FoldType.CODE
+        }
+        val fold = new Fold(foldType, textArea, section.head.start)
+        fold.setEndOffset(section.last.end)
+        fold
+      }.toSeq.asJava
+  }
+
+  private def singleLineDeclaration(text: String)(toks: Seq[Token]): Boolean = {
+    val slice =  text.slice(toks.head.start, toks.last.end)
+    ! slice.contains("\n")
   }
 }
