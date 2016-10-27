@@ -2,7 +2,7 @@
 
 package org.nlogo.editor
 
-import java.awt.Font
+import java.awt.{ Color, Font }
 import java.awt.event.KeyEvent
 
 import javax.swing.{ Action, JPopupMenu }
@@ -30,6 +30,8 @@ class AdvancedEditorArea(val configuration: EditorConfiguration, rows: Int, colu
   val theme =
     Theme.load(getClass.getResourceAsStream("/system/netlogo-editor-style.xml"))
   theme.apply(this)
+
+  setCaretColor(Color.darkGray)
 
   def enableBracketMatcher(enable: Boolean): Unit = {
     setBracketMatchingEnabled(enable)
