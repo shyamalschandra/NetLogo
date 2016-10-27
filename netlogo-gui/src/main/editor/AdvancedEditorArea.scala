@@ -18,13 +18,13 @@ import KeyBinding._
 class AdvancedEditorArea(val configuration: EditorConfiguration, rows: Int, columns: Int)
   extends RSyntaxTextArea(rows, columns) with AbstractEditorArea {
 
-  TokenMakerFactory.getDefaultInstance
-    .asInstanceOf[AbstractTokenMakerFactory]
-    .putMapping("netlogo", "org.nlogo.ide.NetLogoTokenMaker")
+  val tmf = TokenMakerFactory.getDefaultInstance.asInstanceOf[AbstractTokenMakerFactory]
+  tmf.putMapping("netlogo",   "org.nlogo.ide.NetLogoTwoDTokenMaker")
+  tmf.putMapping("netlogo3d", "org.nlogo.ide.NetLogoThreeDTokenMaker")
 
   FoldParserManager.get.addFoldParserMapping("netlogo", new NetLogoFoldParser())
 
-  setSyntaxEditingStyle("netlogo")
+  setSyntaxEditingStyle(if (configuration.is3Dlanguage) "netlogo3d" else "netlogo")
   setCodeFoldingEnabled(true)
 
   val theme =

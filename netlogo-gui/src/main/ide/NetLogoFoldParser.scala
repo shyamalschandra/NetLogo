@@ -12,6 +12,7 @@ import scala.annotation.tailrec
 object NetLogoFoldParser {
   val tokenizer: TokenizerInterface =
     Femto.scalaSingleton[TokenizerInterface]("org.nlogo.lex.Tokenizer")
+
   val namer: (Token => Token) =
     Femto.scalaSingleton[Token => Token]("org.nlogo.parse.Namer0")
 

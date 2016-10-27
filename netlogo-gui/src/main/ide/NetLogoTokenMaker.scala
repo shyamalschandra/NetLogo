@@ -8,7 +8,7 @@ import java.text.CharacterIterator.DONE
 import org.fife.ui.rsyntaxtextarea.{ TokenMakerBase }
 import org.fife.ui.rsyntaxtextarea.{ Token => RstaToken, TokenImpl, TokenTypes }
 
-import org.nlogo.api.NetLogoLegacyDialect
+import org.nlogo.api.{ NetLogoLegacyDialect, NetLogoThreeDDialect }
 import org.nlogo.core.{ Dialect, Femto, SourceLocation, Token, TokenType }
 import org.nlogo.lex.{ LexPredicate, LexStates, TokenGenerator, WhitespaceTokenizingLexer, WrappedInput }
 
@@ -49,8 +49,8 @@ class SegmentWrappedInput(val segment: Segment, var offset: Int) extends Wrapped
   }
 }
 
-class NetLogoTokenMaker(dialect: Dialect) extends TokenMakerBase {
-  def this() = this(NetLogoLegacyDialect)
+trait NetLogoTokenMaker extends TokenMakerBase {
+  def dialect: Dialect
 
   val namer = Femto.scalaSingleton[Token => Token]("org.nlogo.parse.Namer0")
 
@@ -95,8 +95,13 @@ class NetLogoTokenMaker(dialect: Dialect) extends TokenMakerBase {
     }
   }
 
+  // Implementation restriction: trait NetLogoTokenMaker accesses protected
+  // method resetTokenList inside a concrete trait method.
+  // Add an accessor in a class extending class TokenMakerBase as a workaround.
+  def _resetTokenList(): Unit
+
   def getTokenList(seg: Segment, initialTokenType: Int, offset: Int): RstaToken = {
-    resetTokenList()
+    _resetTokenList()
 
     val offsetShift = - seg.offset + offset
 
@@ -122,4 +127,16 @@ class NetLogoTokenMaker(dialect: Dialect) extends TokenMakerBase {
     }
     firstToken.getOrElse(new TokenImpl(seg, seg.getIndex, seg.getIndex, offset, TokenTypes.NULL, 0))
   }
+}
+
+class NetLogoTwoDTokenMaker extends NetLogoTokenMaker {
+  def dialect = NetLogoLegacyDialect
+
+  def _resetTokenList(): Unit = { super.resetTokenList() }
+}
+
+class NetLogoThreeDTokenMaker extends NetLogoTokenMaker {
+  def dialect = NetLogoThreeDDialect
+
+  def _resetTokenList(): Unit = { super.resetTokenList() }
 }

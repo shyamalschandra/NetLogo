@@ -23,7 +23,7 @@ class NetLogoTokenMakerTest extends FunSuite {
     var text: String = ""
     val offset = 0
     def seg = new Segment(text.toCharArray, 0, text.length)
-    val nlTokenMaker = new NetLogoTokenMaker(NetLogoLegacyDialect)
+    val nlTokenMaker = new NetLogoTwoDTokenMaker()
     def tokens: RstaToken = nlTokenMaker.getTokenList(seg, TokenTypes.NULL, offset)
   }
 
