@@ -137,5 +137,7 @@ case class EditorConfiguration(
       Actions.commentToggleAction,
       Actions.shiftLeftAction,
       Actions.shiftRightAction,
-      Actions.tabKeyAction)
+      Actions.tabKeyAction,
+      UndoManager.undoAction,
+      UndoManager.redoAction)
 }

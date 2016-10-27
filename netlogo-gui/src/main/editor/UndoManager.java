@@ -8,6 +8,9 @@ import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoableEdit;
 
+import org.nlogo.swing.UserAction;
+import org.nlogo.swing.UserAction.KeyBindings$;
+
 // some of this is cribbed from Sun's TextComponentDemo - ST 7/30/04
 
 // compound edit stuff copied from My World GIS - ER 4/11/08
@@ -133,6 +136,9 @@ public strictfp class UndoManager extends javax.swing.undo.UndoManager
     public UndoAction() {
       super("Undo");
       setEnabled(false);
+      putValue(UserAction.ActionCategoryKey(), UserAction.EditCategory());
+      putValue(UserAction.ActionGroupKey(), UserAction.EditUndoGroup());
+      putValue(javax.swing.Action.ACCELERATOR_KEY, KeyBindings$.MODULE$.keystroke('Z', true, false));
     }
 
     public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -159,6 +165,9 @@ public strictfp class UndoManager extends javax.swing.undo.UndoManager
     public RedoAction() {
       super("Redo");
       setEnabled(false);
+      putValue(UserAction.ActionCategoryKey(), UserAction.EditCategory());
+      putValue(UserAction.ActionGroupKey(), UserAction.EditUndoGroup());
+      putValue(javax.swing.Action.ACCELERATOR_KEY, KeyBindings$.MODULE$.keystroke('Y', true, false));
     }
 
     public void actionPerformed(java.awt.event.ActionEvent e) {

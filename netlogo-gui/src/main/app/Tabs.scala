@@ -43,8 +43,7 @@ class Tabs(val workspace:  GUIWorkspace,
     }
   }
 
-  //TODO: This could be made a constructor parameter, but making it so (at the moment)
-  //creates a circular dependency between this class, App, and FileMenu
+  // This might make more sense as a constructor parameter - RG 10/27/16
   var menu: UserAction.Menu = null
 
   var tabActions: Seq[Action] = TabsMenu.tabActions(this)
@@ -59,7 +58,6 @@ class Tabs(val workspace:  GUIWorkspace,
   var currentTab: java.awt.Component = interfaceTab
 
   def init(moreTabs: (String, java.awt.Component) *) {
-    assert(menu != null)
     addTab(I18N.gui.get("tabs.run"), interfaceTab)
     addTab(I18N.gui.get("tabs.info"), infoTab)
     addTab(I18N.gui.get("tabs.code"), codeTab)

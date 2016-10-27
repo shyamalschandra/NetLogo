@@ -437,16 +437,7 @@ class App extends
     labManager = pico.getComponent(classOf[LabManagerInterface])
     frame.addLinkComponent(labManager)
 
-
-    pico.addComponent(classOf[EditMenu])
-    pico.add(classOf[MenuBar],
-      "org.nlogo.app.MenuBar",
-      new ComponentParameter(),
-      new ConstantParameter(AbstractWorkspace.isApp))
-
-    val menuBar = pico.getComponent(classOf[MenuBar])
-
-    tabs.menu = menuBar
+    val menuBar = new MenuBar(AbstractWorkspace.isApp)
 
     pico.addComponent(classOf[DirtyMonitor])
     val dirtyMonitor = pico.getComponent(classOf[DirtyMonitor])
@@ -521,13 +512,17 @@ class App extends
   // bar.  It's needed especially for OS X since the screen menu bar
   // doesn't get shared across windows.  -- AZS 6/17/2005
   private class MenuBarFactory extends org.nlogo.window.MenuBarFactory {
-    import org.nlogo.swing.UserAction, UserAction.{ ActionCategoryKey, FileCategory, ToolsCategory }
+    import org.nlogo.swing.UserAction, UserAction.{ ActionCategoryKey, EditCategory, FileCategory, ToolsCategory }
     def createFileMenu:  JMenu = {
       val fileMenu = pico.getComponent(classOf[FileMenu])
       allActions.filter(_.getValue(ActionCategoryKey) == FileCategory).foreach(fileMenu.offerAction)
       fileMenu
     }
-    def createEditMenu:  JMenu = new EditMenu(App.this)
+    def createEditMenu:  JMenu = {
+      val editMenu = new EditMenu()
+      allActions.filter(_.getValue(ActionCategoryKey) == EditCategory).foreach(editMenu.offerAction)
+      editMenu
+    }
     def createToolsMenu: JMenu = {
       val toolsMenu = new ToolsMenu
       allActions.filter(_.getValue(ActionCategoryKey) == ToolsCategory).foreach(toolsMenu.offerAction)
@@ -671,6 +666,7 @@ class App extends
   def setMenuBar(menuBar: MenuBar): Unit = {
     if (menuBar != this.menuBar) {
       this.menuBar = menuBar
+      tabs.menu = menuBar
       allActions.foreach(menuBar.offerAction)
       Option(recentFilesMenu).foreach(_.setMenu(menuBar))
     }

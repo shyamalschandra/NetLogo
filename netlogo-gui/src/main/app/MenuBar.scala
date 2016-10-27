@@ -9,12 +9,12 @@ import org.nlogo.editor.EditorMenu
 import org.nlogo.swing.{ TabsMenu, UserAction },
   UserAction.{ ActionCategoryKey, EditCategory, FileCategory, HelpCategory, TabsCategory, ToolsCategory }
 
-class MenuBar(editMenu: EditMenu,
-  isApplicationWide:    Boolean)
+class MenuBar(isApplicationWide: Boolean)
   extends JMenuBar
   with EditorMenu
   with UserAction.Menu {
 
+  val editMenu  = new EditMenu
   val fileMenu  = new FileMenu
   val tabsMenu  = new TabsMenu(I18N.gui.get("menu.tabs"))
   val toolsMenu = new ToolsMenu

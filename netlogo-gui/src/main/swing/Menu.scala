@@ -79,20 +79,6 @@ class Menu(text: String, var menuModel: MenuModel[Action, String]) extends JMenu
     add(item)
     item
   }
-  def addCheckBoxMenuItem(text: String, initialValue: Boolean, action: javax.swing.Action) = {
-    val item =
-      if(action == null)
-        new javax.swing.JCheckBoxMenuItem(text, initialValue)
-      else {
-        val item = new javax.swing.JCheckBoxMenuItem(action)
-        item.setText(text)
-        item.setState(initialValue)
-        item
-      }
-    item.setIcon(null) // unwanted visual clutter - ST 7/31/03
-    add(item)
-    item
-  }
 
   protected var groups: Map[String, Range] = Map()
   protected var subcategories: Map[String, (Menu, String)] = Map()
