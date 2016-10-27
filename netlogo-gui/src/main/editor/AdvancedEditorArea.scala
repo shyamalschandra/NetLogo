@@ -5,7 +5,7 @@ package org.nlogo.editor
 import java.awt.Font
 import java.awt.event.KeyEvent
 
-import javax.swing.Action
+import javax.swing.{ Action, JPopupMenu }
 import javax.swing.text.Document
 
 import org.fife.ui.rtextarea.RTextScrollPane
@@ -37,6 +37,12 @@ class AdvancedEditorArea(val configuration: EditorConfiguration, rows: Int, colu
 
   override def getActions(): Array[Action] =
     super.getActions.filter(_.getValue(Action.NAME) != "RSTA.GoToMatchingBracketAction").toArray[Action]
+
+  override def createPopupMenu(): JPopupMenu = {
+    val popupMenu = super.createPopupMenu
+    configuration.contextActions.foreach(popupMenu.add)
+    popupMenu
+  }
 
   def getEditorKit(): javax.swing.text.EditorKit = ???
   def getEditorKitForContentType(contentType: String): javax.swing.text.EditorKit = ???

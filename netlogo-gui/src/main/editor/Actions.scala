@@ -43,15 +43,6 @@ object Actions {
     putValue(ACCELERATOR_KEY,              UserAction.KeyBindings.keystroke(java.awt.event.KeyEvent.VK_TAB))
   }
 
-  def quickHelpAction(colorizer: Colorizer) =
-    new QuickHelpAction(colorizer)
-    /*
-    new MyTextAction(i18n("tabs.code.rightclick.quickhelp"),
-      e => e.getHelpTarget(e.getSelectionStart).foreach(t => colorizer.doHelp(e, t)))
-    */
-  def mouseQuickHelpAction(colorizer: Colorizer, i18n: String => String) =
-    new MyTextAction(i18n("tabs.code.rightclick.quickhelp"),
-      e => e.getHelpTarget(e.getMousePos).foreach(t => colorizer.doHelp(e, t)))
   class MyTextAction(name:String, f: EditorArea => Unit) extends TextAction(name) {
     override def actionPerformed(e:ActionEvent){
       val component = getTextComponent(e)
@@ -225,31 +216,29 @@ object Actions {
 
 import Actions._
 
-// QuickHelpAction tracks the position of the caret and opens help when needed
-class QuickHelpAction(colorizer: Colorizer)
-extends Actions.DocumentAction(I18N.gui.get("tabs.code.rightclick.quickhelp"))
-with ChangeListener {
-  putValue(ACCELERATOR_KEY, keystroke(KeyEvent.VK_F1))
-  putValue(ACTION_COMMAND_KEY, "org.nlogo.editor.quickHelp")
+class QuickHelpAction(name: String, colorizer: Colorizer)
+  extends Actions.DocumentAction(name) {
   putValue(UserAction.ActionCategoryKey, UserAction.HelpCategory)
 
-  private var currentOffset = -1
-
   override def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit = {
-    if (currentOffset != -1) {
-      for {
-        lineText <- document.getLineText(currentOffset)
-        tokenString <- colorizer.getTokenAtPosition(lineText, currentOffset)
-        } {
-          colorizer.doHelp(component, tokenString)
-        }
-    }
-  }
+    val targetOffset = component.getSelectionEnd
 
-  override def stateChanged(e: ChangeEvent): Unit = {
-    e.getSource match {
-      case caret: Caret => currentOffset = caret.getDot
-      case _ =>
+    if (targetOffset != -1) {
+      val lineNumber = document.offsetToLine(targetOffset)
+      for {
+        lineText    <- document.getLineText(document.offsetToLine(targetOffset))
+        tokenString <- colorizer.getTokenAtPosition(lineText, targetOffset - document.lineToStartOffset(lineNumber))
+      } {
+        colorizer.doHelp(component, tokenString)
+      }
     }
   }
+}
+
+class MouseQuickHelpAction(colorizer: Colorizer) extends QuickHelpAction(I18N.gui.get("tabs.code.rightclick.quickhelp"), colorizer) {
+}
+
+class KeyboardQuickHelpAction(colorizer: Colorizer) extends QuickHelpAction(I18N.gui.get("tabs.code.rightclick.quickhelp"), colorizer) {
+  putValue(ACCELERATOR_KEY, keystroke(KeyEvent.VK_F1))
+  putValue(ACTION_COMMAND_KEY, "org.nlogo.editor.quickHelp")
 }

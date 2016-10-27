@@ -30,10 +30,10 @@ object EditorConfiguration {
     new TextListener() { override def textValueChanged(e: TextEvent) { } }
 
   def defaultMenuItems(colorizer: Colorizer): Seq[Action] =
-    Seq(Actions.mouseQuickHelpAction(colorizer, I18N.gui.get _))
+    Seq(new MouseQuickHelpAction(colorizer))
 
   def defaultActions(colorizer: Colorizer): Map[KeyStroke, TextAction] =
-    Map(keystroke(KeyEvent.VK_F1) -> new QuickHelpAction(colorizer))
+    Map(keystroke(KeyEvent.VK_F1) -> new KeyboardQuickHelpAction(colorizer))
 
   private val emptyMenu =
     new EditorMenu {
@@ -104,9 +104,9 @@ case class EditorConfiguration(
       val indenter = new DumbIndenter(editor)
       editor.setIndenter(indenter)
 
-      // add key binding, for getting quick "contexthelp", based on where
-      // the cursor is...
-      editor.getInputMap.put(keystroke(KeyEvent.VK_F1, 0), Actions.quickHelpAction(colorizer))
+      additionalActions.foreach {
+        case (k, v) => editor.getInputMap.put(k, v)
+      }
 
       val editorListener = new EditorListener(e => listener.textValueChanged(null))
       editorListener.install(editor)
@@ -124,8 +124,6 @@ case class EditorConfiguration(
     additionalActions.foreach {
       case (k, v) => editor.getInputMap.put(k, v)
     }
-
-    additionalActions.values.foreach(menu.offerAction(_))
   }
 
   def menuActions: Seq[Action] = additionalActions.values.toSeq ++
