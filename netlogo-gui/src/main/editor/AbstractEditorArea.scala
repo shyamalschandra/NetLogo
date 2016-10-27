@@ -2,6 +2,7 @@
 
 package org.nlogo.editor
 
+import javax.swing.{ JViewport, SwingUtilities }
 import javax.swing.text.{ Document, EditorKit, JTextComponent }
 
 trait AbstractEditorArea extends JTextComponent {
@@ -21,4 +22,11 @@ trait AbstractEditorArea extends JTextComponent {
   def offsetToLine(doc: Document, line: Int): Int
   def lineToStartOffset(doc: Document, line: Int): Int
   def lineToEndOffset(doc: Document, line: Int): Int
+
+  def containingViewport: Option[JViewport] = {
+    SwingUtilities.getAncestorOfClass(classOf[JViewport], this) match {
+      case j: JViewport => Some(j)
+      case _ => None
+    }
+  }
 }

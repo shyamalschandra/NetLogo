@@ -19,7 +19,7 @@ import org.fife.ui.rtextarea.RTextScrollPane
 class EditorFactory(compiler: CompilerServices) extends DefaultEditorFactory(compiler) {
   override def defaultConfiguration(cols: Int, rows: Int): EditorConfiguration = {
     val codeCompletionPopup = new CodeCompletionPopup
-    val showUsageBox = new ShowUsageBox
+    val showUsageBox = new ShowUsageBox(colorizer)
     val actions = Seq[Action](new ShowUsageBoxAction(showUsageBox), new JumpToDeclarationAction())
     super.defaultConfiguration(cols, rows)
       .withContextActions(actions)

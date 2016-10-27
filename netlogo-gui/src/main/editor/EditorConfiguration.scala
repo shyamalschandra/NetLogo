@@ -121,6 +121,11 @@ case class EditorConfiguration(
     val indenter = new DumbIndenter(editor)
     editor.setIndenter(indenter)
 
+    contextActions.foreach {
+      case e: EditorAwareAction => e.install(editor)
+      case _ =>
+    }
+
     additionalActions.foreach {
       case (k, v) => editor.getInputMap.put(k, v)
     }

@@ -171,25 +171,6 @@ class EditorArea(val configuration: EditorConfiguration)
   def offsetToLine(doc: Document, offset: Int): Int =
     doc.getDefaultRootElement.getElementIndex(offset)
 
-  /**
-    * Centers the line containing the position in editorArea.
-    * By default center the line containing the cursor
-    */
-  def centerCursorInScrollPane(position: Int = getCaretPosition): Unit = {
-    val container = SwingUtilities.getAncestorOfClass(classOf[JViewport], this)
-    if (container == null) return
-    try {
-      val r = modelToView(position)
-      val viewport = container.asInstanceOf[JViewport]
-      val extentHeight = viewport.getExtentSize.height
-      val viewHeight = viewport.getViewSize.height
-      val y = (0 max r.y - ((extentHeight - r.height) / 2)) min (viewHeight - extentHeight)
-      viewport.setViewPosition(new Point(0, y))
-    } catch {
-      case ex: BadLocationException =>
-    }
-  }
-
   private var _selectionActive = true
 
   def selectionActive = _selectionActive
@@ -243,7 +224,6 @@ class EditorArea(val configuration: EditorConfiguration)
       add(pasteItem)
       addSeparator()
       for (item <- configuration.contextActions) {
-        item.putValue("editor", EditorArea.this)
         add(new JMenuItem(item))
       }
     }
@@ -257,9 +237,9 @@ class EditorArea(val configuration: EditorConfiguration)
         Toolkit.getDefaultToolkit.getSystemClipboard.isDataFlavorAvailable(DataFlavor.stringFlavor))
       val point = new Point(invoker.getLocationOnScreen)
       point.translate(x, y)
-      for (item <- configuration.contextActions) {
-        item.putValue("cursorLocation", mousePos)
-        item.putValue("popupLocation", point)
+      configuration.contextActions.foreach {
+        case e: EditorAwareAction => e.updateEditorInfo(EditorArea.this, point, mousePos)
+        case _ =>
       }
       super.show(invoker, x, y)
     }
