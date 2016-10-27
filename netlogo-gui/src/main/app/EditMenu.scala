@@ -11,8 +11,10 @@ import javax.swing.{ AbstractAction, Action, JCheckBoxMenuItem, JMenuItem }
 import org.nlogo.api.Refreshable
 import org.nlogo.editor.Actions
 import org.nlogo.core.I18N
+import org.nlogo.swing.Menu
 
-class EditMenu extends org.nlogo.swing.Menu(I18N.gui.get("menu.edit")) {
+
+class EditMenu extends Menu(I18N.gui.get("menu.edit")) {
 
   implicit val i18nName = I18N.Prefix("menu.edit")
 
@@ -25,11 +27,9 @@ class EditMenu extends org.nlogo.swing.Menu(I18N.gui.get("menu.edit")) {
       refreshables.foreach(_.refresh())
     }
 
-    override def menuDeselected(e: javax.swing.event.MenuEvent): Unit = {
-    }
+    override def menuDeselected(e: javax.swing.event.MenuEvent): Unit = { }
 
-    override def menuCanceled(e: javax.swing.event.MenuEvent): Unit = {
-    }
+    override def menuCanceled(e: javax.swing.event.MenuEvent): Unit = { }
   })
 
   override def offerAction(action: Action): Unit = {

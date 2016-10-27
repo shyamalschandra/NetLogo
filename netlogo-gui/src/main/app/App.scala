@@ -639,8 +639,6 @@ class App extends
 
     val generalActions    = Seq[javax.swing.Action](
       openColorDialog,
-      tabs.interfaceTab.commandCenterAction,
-      tabs.printAction,
       new ShowShapeManager("turtleShapesEditor", turtleShapesManager),
       new ShowShapeManager("linkShapesEditor",   linkShapesManager),
       new ShowLabManager(labManager),

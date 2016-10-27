@@ -39,6 +39,7 @@ object UserAction {
   val HelpWebGroup    = "org.nlogo.swing.HelpWebGroup"
   val HelpAboutGroup  = "org.nlogo.swing.HelpAboutGroup"
 
+  val ToolsMonitorGroup = "org.nlogo.swing.ToolsMonitorGroup"
   val ToolsDialogsGroup = "org.nlogo.swing.ToolsDialogsGroup"
   val ToolsHubNetGroup  = "org.nlogo.swing.ToolsHubNetGroup"
 

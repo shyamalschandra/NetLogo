@@ -62,11 +62,12 @@ object Actions {
 
   abstract class DocumentAction(name: String) extends TextAction(name) {
     override def actionPerformed(e: ActionEvent): Unit = {
-      val component = getTextComponent(e)
-      try {
-        perform(component, component.getDocument, e)
-      } catch {
-        case ex: BadLocationException => throw new IllegalStateException(ex)
+      Option(getTextComponent(e)).foreach { component =>
+        try {
+          perform(component, component.getDocument, e)
+        } catch {
+          case ex: BadLocationException => throw new IllegalStateException(ex)
+        }
       }
     }
 

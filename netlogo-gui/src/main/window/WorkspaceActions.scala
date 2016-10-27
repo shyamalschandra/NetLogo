@@ -15,16 +15,16 @@ object WorkspaceActions {
   implicit val i18nName = I18N.Prefix("menu.tools")
 
   val HaltGroup     = "org.nlogo.window.WorkspaceActions.Halt"
-  val MonitorsGroup = "org.nlogo.window.WorkspaceActions.Monitors"
 
   def apply(workspace: GUIWorkspace): Seq[Action] = {
     Seq(
       new SimpleGUIWorkspaceAction(I18N.gui("halt"), HaltGroup, workspace, _.halt),
-      new SimpleGUIWorkspaceAction(I18N.gui("globalsMonitor"), MonitorsGroup, workspace, _.inspectAgent(AgentKind.Observer)),
-      new SimpleGUIWorkspaceAction(I18N.gui("turtleMonitor"), MonitorsGroup, workspace, _.inspectAgent(AgentKind.Turtle)),
-      new SimpleGUIWorkspaceAction(I18N.gui("patchMonitor"), MonitorsGroup, workspace, _.inspectAgent(AgentKind.Patch)),
-      new SimpleGUIWorkspaceAction(I18N.gui("linkMonitor"), MonitorsGroup, workspace, _.inspectAgent(AgentKind.Link)),
-      new SimpleGUIWorkspaceAction(I18N.gui("closeAllAgentMonitors"), MonitorsGroup, workspace, _.closeAgentMonitors),
+      new SimpleGUIWorkspaceAction(I18N.gui("globalsMonitor"), ToolsMonitorGroup, workspace, _.inspectAgent(AgentKind.Observer)),
+      new SimpleGUIWorkspaceAction(I18N.gui("turtleMonitor"), ToolsMonitorGroup, workspace, _.inspectAgent(AgentKind.Turtle)),
+      new SimpleGUIWorkspaceAction(I18N.gui("patchMonitor"), ToolsMonitorGroup, workspace, _.inspectAgent(AgentKind.Patch)),
+      new SimpleGUIWorkspaceAction(I18N.gui("linkMonitor"), ToolsMonitorGroup, workspace, _.inspectAgent(AgentKind.Link)),
+      new SimpleGUIWorkspaceAction(I18N.gui("closeAllAgentMonitors"), ToolsMonitorGroup, workspace, _.closeAgentMonitors),
+      new SimpleGUIWorkspaceAction(I18N.gui("closeDeadAgentMonitors"), ToolsMonitorGroup, workspace, _.stopInspectingDeadAgents),
       new Open3DViewAction(workspace),
       new SnapToGridAction(workspace))
 

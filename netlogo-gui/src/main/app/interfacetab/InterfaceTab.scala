@@ -15,6 +15,13 @@ import org.nlogo.swing.{PrinterManager, ToolBar, Printable => NlogoPrintable, Us
 import org.nlogo.swing.Implicits.thunk2action
 import org.nlogo.window.{EditDialogFactoryInterface, GUIWorkspace, InterfaceColors, ViewUpdatePanel, WidgetInfo, Events => WindowEvents}
 
+
+object InterfaceTab {
+  val MenuGroup = "org.nlogo.app.InterfaceTab"
+}
+
+import InterfaceTab._
+
 class InterfaceTab(workspace: GUIWorkspace,
                    monitorManager: AgentMonitorManager,
                    dialogFactory: EditDialogFactoryInterface) extends JPanel
@@ -147,11 +154,13 @@ class InterfaceTab(workspace: GUIWorkspace,
     }
   }
 
+  def menuActions: Seq[Action] = Seq(commandCenterAction)
+
   val commandCenterAction = {
     implicit val i18nPrefix = I18N.Prefix("menu.tools")
     new AbstractAction(I18N.gui("hideCommandCenter")) {
       putValue(ActionCategoryKey, ToolsCategory)
-      putValue(ActionGroupKey,    "org.nlogo.app.InterfaceTab")
+      putValue(ActionGroupKey,    MenuGroup)
       putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(Character.valueOf('/'), Toolkit.getDefaultToolkit.getMenuShortcutKeyMask))
 
       override def actionPerformed(e: ActionEvent) {

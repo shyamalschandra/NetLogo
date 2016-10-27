@@ -48,7 +48,7 @@ class Tabs(val workspace:  GUIWorkspace,
 
   var tabActions: Seq[Action] = TabsMenu.tabActions(this)
 
-  def menuActions = tabActions ++ codeTab.menuActions
+  def menuActions = tabActions ++ codeTab.menuActions ++ interfaceTab.menuActions :+ printAction
 
   val interfaceTab = new InterfaceTab(workspace, monitorManager, dialogFactory)
   val infoTab = new InfoTab(workspace.attachModelDir(_))
