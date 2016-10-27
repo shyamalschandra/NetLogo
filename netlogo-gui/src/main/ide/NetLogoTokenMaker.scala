@@ -9,7 +9,7 @@ import org.fife.ui.rsyntaxtextarea.{ TokenMakerBase }
 import org.fife.ui.rsyntaxtextarea.{ Token => RstaToken, TokenImpl, TokenTypes }
 
 import org.nlogo.api.{ NetLogoLegacyDialect, NetLogoThreeDDialect }
-import org.nlogo.core.{ Dialect, Femto, SourceLocation, Token, TokenType }
+import org.nlogo.core.{ Dialect, Femto, Nobody, SourceLocation, Token, TokenType }
 import org.nlogo.lex.{ LexPredicate, LexStates, TokenGenerator, WhitespaceTokenizingLexer, WrappedInput }
 
 import scala.annotation.tailrec
@@ -54,28 +54,28 @@ trait NetLogoTokenMaker extends TokenMakerBase {
 
   val namer = Femto.scalaSingleton[Token => Token]("org.nlogo.parse.Namer0")
 
+  def literalToken(value: AnyRef): Int =
+    value match {
+      case s: String           => TokenTypes.LITERAL_STRING_DOUBLE_QUOTE
+      case d: java.lang.Double => TokenTypes.LITERAL_NUMBER_FLOAT
+      case Nobody              => TokenTypes.LITERAL_BACKQUOTE
+      case _                   => TokenTypes.IDENTIFIER
+    }
+
   def rstaTokenType(t: Token): Int = {
     import TokenType._
 
     val punctType = TokenTypes.SEPARATOR
     t.tpe match {
       case OpenParen | CloseParen | OpenBracket | CloseBracket | OpenBrace | CloseBrace | Comma => punctType
-      case Literal    => t.value match {
-        case s: String           => TokenTypes.LITERAL_STRING_DOUBLE_QUOTE
-        case d: java.lang.Double => TokenTypes.LITERAL_NUMBER_FLOAT
-        case _                   => TokenTypes.IDENTIFIER
-      }
+      case Literal    => literalToken(t.value)
       case Ident      =>
         val namedToken = namer(t)
         namedToken.tpe match {
           case Command  => TokenTypes.OPERATOR
           case Reporter => TokenTypes.FUNCTION
           case Keyword  => TokenTypes.RESERVED_WORD
-          case Literal  => namedToken.value match {
-            case d: java.lang.Double  => TokenTypes.LITERAL_NUMBER_FLOAT
-            case s: java.lang.Boolean => TokenTypes.LITERAL_BOOLEAN
-            case _ => TokenTypes.IDENTIFIER
-          }
+          case Literal  => literalToken(namedToken.value)
           case _        =>
             if (dialect.tokenMapper.getCommand(t.text.toUpperCase).isDefined)
               TokenTypes.OPERATOR
