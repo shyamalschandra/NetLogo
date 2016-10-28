@@ -32,13 +32,6 @@ class EditorFactory(compiler: CompilerServices) extends DefaultEditorFactory(com
       .forThreeDLanguage(Version.is3D)
   }
 
-  def newEditor(cols: Int, rows: Int, enableFocusTraversal: Boolean, enableHighlightCurrentLine: Boolean = false): AbstractEditorArea =
-    newEditor(
-      defaultConfiguration(cols, rows)
-        .withFocusTraversalEnabled(enableFocusTraversal)
-        .withCurrentLineHighlighted(enableHighlightCurrentLine),
-        false)
-
   def newEditor(configuration: EditorConfiguration, isApp: Boolean): AbstractEditorArea = {
     val editor = newEditor(configuration)
 
@@ -49,11 +42,11 @@ class EditorFactory(compiler: CompilerServices) extends DefaultEditorFactory(com
   }
 
   override def newEditor(configuration: EditorConfiguration): AbstractEditorArea = {
-    if (configuration.rows == 100 && configuration.columns == 100) {
-      val editor = new AdvancedEditorArea(configuration, 100, 100)
-      configuration.configureAdvancedEditorArea(editor)
-      editor
-    } else
+    // This is a proxy for advanced editor fixtures required only by the main code tab
+    // - RG 10/28/16
+    if (configuration.highlightCurrentLine)
+      new AdvancedEditorArea(configuration, 100, 100)
+    else
       super.newEditor(configuration)
   }
 

@@ -15,8 +15,8 @@ import org.fife.ui.rsyntaxtextarea.{ folding, AbstractTokenMakerFactory, RSyntax
 import org.nlogo.ide.NetLogoFoldParser
 import KeyBinding._
 
-class AdvancedEditorArea(val configuration: EditorConfiguration, rows: Int, columns: Int)
-  extends RSyntaxTextArea(rows, columns) with AbstractEditorArea {
+class AdvancedEditorArea(val configuration: EditorConfiguration)
+  extends RSyntaxTextArea(configuration.rows, configuration.columns) with AbstractEditorArea {
 
   var indenter = Option.empty[Indenter]
 
@@ -35,6 +35,8 @@ class AdvancedEditorArea(val configuration: EditorConfiguration, rows: Int, colu
   theme.apply(this)
 
   setCaretColor(Color.darkGray)
+
+  configuration.configureAdvancedEditorArea(this)
 
   def enableBracketMatcher(enable: Boolean): Unit = {
     setBracketMatchingEnabled(enable)
