@@ -16,7 +16,7 @@ import org.nlogo.workspace.AbstractWorkspace
 // This is THE Code tab.  Certain settings and things that are only accessible here.
 // Other Code tabs come and go.
 
-class MainCodeTab(workspace: GUIWorkspace, tabs: TabsInterface)
+class MainCodeTab(workspace: GUIWorkspace, tabs: TabsInterface, editorMenu: EditorMenu)
 extends CodeTab(workspace)
 with WindowEvents.LoadModelEvent.Handler
 {
@@ -34,13 +34,7 @@ with WindowEvents.LoadModelEvent.Handler
 
   override def editorConfiguration = {
     val config = super.editorConfiguration
-    workspace.getFrame match {
-      case frame: JFrame => frame.getJMenuBar match {
-        case em: EditorMenu => config.withMenu(em)
-        case other          => config
-      }
-      case _ => config
-    }
+    config.withMenu(editorMenu)
   }
 
   def smartTabbingEnabled = tabbing.isSelected

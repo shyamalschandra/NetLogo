@@ -76,8 +76,8 @@ case class EditorConfiguration(
       copy(additionalActions = additionalActions + (key -> action))
     def withKeymap(keymap: Map[KeyStroke, TextAction]) =
       copy(additionalActions = keymap)
-    def withMenu(menu: EditorMenu) =
-      copy(menu = menu)
+    def withMenu(newMenu: EditorMenu) =
+      copy(menu = newMenu)
 
     def configureEditorArea(editor: EditorArea) = {
 
@@ -113,6 +113,8 @@ case class EditorConfiguration(
 
       val editorListener = new EditorListener(e => listener.textValueChanged(null))
       editorListener.install(editor)
+      menu.offerAction(editor.undoAction)
+      menu.offerAction(editor.redoAction)
     }
 
   def configureAdvancedEditorArea(editor: AbstractEditorArea) = {
@@ -132,6 +134,9 @@ case class EditorConfiguration(
     additionalActions.foreach {
       case (k, v) => editor.getInputMap.put(k, v)
     }
+
+    menu.offerAction(editor.undoAction)
+    menu.offerAction(editor.redoAction)
   }
 
   def permanentActions: Seq[Action] = additionalActions.values.toSeq ++
@@ -139,9 +144,7 @@ case class EditorConfiguration(
       Actions.CutAction,
       Actions.CopyAction,
       Actions.DeleteAction,
-      Actions.SelectAllAction,
-      UndoManager.undoAction,
-      UndoManager.redoAction)
+      Actions.SelectAllAction)
 
   def editorOnlyActions: Seq[Action] = Seq(
     Actions.commentToggleAction,

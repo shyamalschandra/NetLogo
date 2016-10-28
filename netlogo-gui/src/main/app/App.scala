@@ -137,7 +137,6 @@ object App{
 
     pico.addComponent(classOf[CodeToHtml])
     pico.addComponent(classOf[App])
-    pico.as(NO_CACHE).addComponent(classOf[FileMenu])
     pico.addComponent(classOf[ModelSaver])
     pico.add("org.nlogo.gl.view.ViewManager")
     // Anything that needs a parent Frame, we need to use ComponentParameter
@@ -184,6 +183,8 @@ object App{
       "org.nlogo.app.tools.PreviewCommandsEditor",
       new ComponentParameter(classOf[AppFrame]),
       new ComponentParameter(), new ComponentParameter())
+    pico.add(classOf[MenuBar], "org.nlogo.app.MenuBar",
+      new ConstantParameter(AbstractWorkspace.isApp))
     pico.addComponent(classOf[Tabs])
     pico.addComponent(classOf[AgentMonitorManager])
     app = pico.getComponent(classOf[App])
@@ -437,17 +438,17 @@ class App extends
     labManager = pico.getComponent(classOf[LabManagerInterface])
     frame.addLinkComponent(labManager)
 
-    val menuBar = new MenuBar(AbstractWorkspace.isApp)
-
     pico.addComponent(classOf[DirtyMonitor])
     val dirtyMonitor = pico.getComponent(classOf[DirtyMonitor])
     frame.addLinkComponent(dirtyMonitor)
+
+    val menuBar = pico.getComponent(classOf[MenuBar])
 
     pico.add(classOf[FileManager],
       "org.nlogo.app.FileManager",
       new ComponentParameter(), new ComponentParameter(), new ComponentParameter(),
       new ComponentParameter(), new ComponentParameter(),
-      new ConstantParameter(menuBar.fileMenu), new ConstantParameter(menuBar.fileMenu))
+      new ConstantParameter(menuBar), new ConstantParameter(menuBar))
     setFileManager(pico.getComponent(classOf[FileManager]))
 
     val viewManager = pico.getComponent(classOf[GLViewManagerInterface])
@@ -460,7 +461,6 @@ class App extends
     tabs.init(Plugins.load(pico): _*)
 
     app.setMenuBar(menuBar)
-
     frame.setJMenuBar(menuBar)
 
     org.nlogo.window.RuntimeErrorDialog.init(frame)
@@ -514,7 +514,7 @@ class App extends
   private class MenuBarFactory extends org.nlogo.window.MenuBarFactory {
     import org.nlogo.swing.UserAction, UserAction.{ ActionCategoryKey, EditCategory, FileCategory, ToolsCategory }
     def createFileMenu:  JMenu = {
-      val fileMenu = pico.getComponent(classOf[FileMenu])
+      val fileMenu = new FileMenu()
       allActions.filter(_.getValue(ActionCategoryKey) == FileCategory).foreach(fileMenu.offerAction)
       fileMenu
     }

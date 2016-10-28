@@ -158,6 +158,7 @@ class CodeTab(val workspace: AbstractWorkspace) extends JPanel
   override def innerSource_=(s: String): Unit = {
     text.setText(s)
     text.setCaretPosition(0)
+    text.resetUndoHistory()
   }
 
   def select(start: Int, end: Int) { text.select(start, end) }

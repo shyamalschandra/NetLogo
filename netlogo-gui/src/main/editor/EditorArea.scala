@@ -142,12 +142,9 @@ class EditorArea(val configuration: EditorConfiguration)
   private def getRowHeight: Int =
     getFontMetrics(getFont).getHeight
 
-  override def setText(text: String): Unit =
-    // not sure if this really needed - ST 8/27/03
-    if (text != getText()) {
-      super.setText(text)
-      undoManager.discardAllEdits()
-    }
+  def resetUndoHistory() {
+    undoManager.discardAllEdits()
+  }
 
   @throws(classOf[BadLocationException])
   def getLineText(offset: Int): String = {
@@ -289,4 +286,7 @@ class EditorArea(val configuration: EditorConfiguration)
       case ex: BadLocationException => throw new IllegalStateException(ex)
     }
   }
+
+  def undoAction = UndoManager.undoAction
+  def redoAction = UndoManager.redoAction
 }

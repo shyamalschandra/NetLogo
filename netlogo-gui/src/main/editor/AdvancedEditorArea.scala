@@ -6,9 +6,9 @@ import java.awt.{ Color, Font }
 import java.awt.event.KeyEvent
 
 import javax.swing.{ Action, JPopupMenu }
-import javax.swing.text.Document
+import javax.swing.text.{ Document, EditorKit }
 
-import org.fife.ui.rtextarea.RTextScrollPane
+import org.fife.ui.rtextarea.{ RTextArea, RTextScrollPane }
 import org.fife.ui.rsyntaxtextarea.{ folding, AbstractTokenMakerFactory, RSyntaxTextArea, SyntaxConstants, Theme, TokenMakerFactory },
   folding.FoldParserManager
 
@@ -44,6 +44,10 @@ class AdvancedEditorArea(val configuration: EditorConfiguration, rows: Int, colu
     super.getActions.filter(_.getValue(Action.NAME) != "RSTA.GoToMatchingBracketAction").toArray[Action]
   }
 
+  def resetUndoHistory(): Unit = {
+    discardAllEdits()
+  }
+
   override def createPopupMenu(): JPopupMenu = {
     val popupMenu = super.createPopupMenu
     configuration.contextActions.foreach(popupMenu.add)
@@ -69,7 +73,26 @@ class AdvancedEditorArea(val configuration: EditorConfiguration, rows: Int, colu
   // with this editor area
   def setSelection(s: Boolean): Unit = { }
 
-  def getEditorKit(): javax.swing.text.EditorKit = ???
-  def getEditorKitForContentType(contentType: String): javax.swing.text.EditorKit = ???
-  def setEditorKit(kit: javax.swing.text.EditorKit): Unit = ???
+  import org.nlogo.swing.UserAction
+  def undoAction = {
+    val action = RTextArea.getAction(RTextArea.UNDO_ACTION)
+    action.putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
+    action.putValue(UserAction.ActionGroupKey, UserAction.EditUndoGroup)
+    action.putValue(Action.ACCELERATOR_KEY, UserAction.KeyBindings.keystroke('Z', withMenu = true))
+    action
+  }
+  def redoAction = {
+    val action = RTextArea.getAction(RTextArea.REDO_ACTION)
+    action.putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
+    action.putValue(UserAction.ActionGroupKey, UserAction.EditUndoGroup)
+    action.putValue(Action.ACCELERATOR_KEY, UserAction.KeyBindings.keystroke('Y', withMenu = true))
+    action
+  }
+
+  // These methods are used only by the input widget, which uses editor.EditorArea
+  // exclusively at present. - RG 10/28/16
+  def getEditorKitForContentType(contentType: String): EditorKit = null
+  def getEditorKit(): EditorKit =
+    getUI.getEditorKit(this)
+  def setEditorKit(kit: EditorKit): Unit = { }
 }
