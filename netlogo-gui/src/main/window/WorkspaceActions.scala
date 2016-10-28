@@ -16,7 +16,7 @@ object WorkspaceActions {
 
   val HaltGroup     = "org.nlogo.window.WorkspaceActions.Halt"
 
-  def apply(workspace: GUIWorkspace): Seq[Action] = {
+  def apply(workspace: GUIWorkspace): Seq[Action] =
     Seq(
       new SimpleGUIWorkspaceAction(I18N.gui("halt"), HaltGroup, workspace, _.halt),
       new SimpleGUIWorkspaceAction(I18N.gui("globalsMonitor"), ToolsMonitorGroup, workspace, _.inspectAgent(AgentKind.Observer)),
@@ -25,10 +25,10 @@ object WorkspaceActions {
       new SimpleGUIWorkspaceAction(I18N.gui("linkMonitor"), ToolsMonitorGroup, workspace, _.inspectAgent(AgentKind.Link)),
       new SimpleGUIWorkspaceAction(I18N.gui("closeAllAgentMonitors"), ToolsMonitorGroup, workspace, _.closeAgentMonitors),
       new SimpleGUIWorkspaceAction(I18N.gui("closeDeadAgentMonitors"), ToolsMonitorGroup, workspace, _.stopInspectingDeadAgents),
-      new Open3DViewAction(workspace),
-      new SnapToGridAction(workspace))
+      new Open3DViewAction(workspace))
 
-  }
+  def interfaceActions(workspace: GUIWorkspace): Seq[Action] =
+    Seq(new SnapToGridAction(workspace))
 
   class GUIWorkspaceAction(name: String, workspace: GUIWorkspace) extends AbstractAction(name) {
     def performAction(workspace: GUIWorkspace): Unit = {}

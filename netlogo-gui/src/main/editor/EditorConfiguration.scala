@@ -134,16 +134,18 @@ case class EditorConfiguration(
     }
   }
 
-  def menuActions: Seq[Action] = additionalActions.values.toSeq ++
+  def permanentActions: Seq[Action] = additionalActions.values.toSeq ++
     Seq(Actions.PasteAction,
       Actions.CutAction,
       Actions.CopyAction,
       Actions.DeleteAction,
       Actions.SelectAllAction,
-      Actions.commentToggleAction,
-      Actions.shiftLeftAction,
-      Actions.shiftRightAction,
-      Actions.tabKeyAction,
       UndoManager.undoAction,
       UndoManager.redoAction)
+
+  def editorOnlyActions: Seq[Action] = Seq(
+    Actions.commentToggleAction,
+    Actions.shiftLeftAction,
+    Actions.shiftRightAction,
+    Actions.tabKeyAction)
 }

@@ -658,13 +658,13 @@ class App extends
     workspaceActions ++
     fileManager.actions
 
-    osSpecificActions ++ generalActions ++ tabs.menuActions
+    osSpecificActions ++ generalActions
   }
 
   def setMenuBar(menuBar: MenuBar): Unit = {
     if (menuBar != this.menuBar) {
       this.menuBar = menuBar
-      tabs.menu = menuBar
+      tabs.setMenu(menuBar)
       allActions.foreach(menuBar.offerAction)
       Option(recentFilesMenu).foreach(_.setMenu(menuBar))
     }

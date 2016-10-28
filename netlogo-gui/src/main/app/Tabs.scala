@@ -8,7 +8,7 @@ import javax.swing.{ AbstractAction, Action, JTabbedPane, UIManager }
 import javax.swing.plaf.ComponentUI
 
 import org.nlogo.app.codetab.{ CodeTab, MainCodeTab, TemporaryCodeTab }
-import org.nlogo.app.common.{ Events => AppEvents, TabsInterface }
+import org.nlogo.app.common.{ Events => AppEvents, MenuTab, TabsInterface }
 import org.nlogo.app.infotab.InfoTab
 import org.nlogo.app.interfacetab.InterfaceTab
 import org.nlogo.app.tools.AgentMonitorManager
@@ -43,12 +43,22 @@ class Tabs(val workspace:  GUIWorkspace,
     }
   }
 
-  // This might make more sense as a constructor parameter - RG 10/27/16
-  var menu: UserAction.Menu = null
+  def setMenu(newMenu: UserAction.Menu): Unit = {
+    val menuItems = permanentMenuActions ++ (currentTab match {
+      case mt: MenuTab => mt.activeMenuActions
+      case _ => Seq()
+    })
+    menuItems.foreach(action => menu.foreach(_.revokeAction(action)))
+    menuItems.foreach(newMenu.offerAction)
+    menu = Some(newMenu)
+  }
+
+  private var menu = Option.empty[UserAction.Menu]
+
+  private def permanentMenuActions =
+    tabActions ++ codeTab.permanentMenuActions ++ interfaceTab.permanentMenuActions :+ printAction
 
   var tabActions: Seq[Action] = TabsMenu.tabActions(this)
-
-  def menuActions = tabActions ++ codeTab.menuActions ++ interfaceTab.menuActions :+ printAction
 
   val interfaceTab = new InterfaceTab(workspace, monitorManager, dialogFactory)
   val infoTab = new InfoTab(workspace.attachModelDir(_))
@@ -69,7 +79,15 @@ class Tabs(val workspace:  GUIWorkspace,
 
   def stateChanged(e: javax.swing.event.ChangeEvent) {
     previousTab = currentTab
+    previousTab match {
+      case mt: MenuTab => mt.activeMenuActions.foreach(action => menu.foreach(_.revokeAction(action)))
+      case _ =>
+    }
     currentTab = getSelectedComponent
+    currentTab match {
+      case mt: MenuTab => mt.activeMenuActions.foreach(action => menu.foreach(_.offerAction(action)))
+      case _ =>
+    }
     currentTab.requestFocus()
     new AppEvents.SwitchedTabsEvent(previousTab, currentTab).raise(this)
   }
@@ -205,15 +223,15 @@ class Tabs(val workspace:  GUIWorkspace,
   def lineNumbersVisible_=(visible: Boolean) = forAllCodeTabs(_.lineNumbersVisible = visible)
 
   def removeMenuItem(index: Int) {
-    tabActions.foreach(menu.revokeAction(_))
+    tabActions.foreach(action => menu.foreach(_.revokeAction(action)))
     tabActions = TabsMenu.tabActions(this)
-    tabActions.foreach(menu.offerAction(_))
+    tabActions.foreach(action => menu.foreach(_.offerAction(action)))
   }
 
   def addMenuItem(i: Int, name: String) {
     val newAction = TabsMenu.tabAction(this, i)
     tabActions = tabActions :+ newAction
-    menu.offerAction(newAction)
+    menu.foreach(_.offerAction(newAction))
   }
 
   private def stripPath(filename: String): String =
