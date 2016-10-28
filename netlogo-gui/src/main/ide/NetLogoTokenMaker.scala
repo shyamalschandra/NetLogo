@@ -56,14 +56,21 @@ trait NetLogoTokenMaker extends TokenMakerBase {
 
   def literalToken(value: AnyRef): Int =
     value match {
-      case s: String           => TokenTypes.LITERAL_STRING_DOUBLE_QUOTE
-      case d: java.lang.Double => TokenTypes.LITERAL_NUMBER_FLOAT
-      case Nobody              => TokenTypes.LITERAL_BACKQUOTE
-      case _                   => TokenTypes.IDENTIFIER
+      case s: String            => TokenTypes.LITERAL_STRING_DOUBLE_QUOTE
+      case d: java.lang.Double  => TokenTypes.LITERAL_NUMBER_FLOAT
+      case b: java.lang.Boolean => TokenTypes.LITERAL_BOOLEAN
+      case Nobody               => TokenTypes.LITERAL_BACKQUOTE
+      case _                    => TokenTypes.IDENTIFIER
     }
 
-  def rstaTokenType(t: Token): Int = {
+  def rstaTokenType(t: Token, firstOnLine: Boolean): Int = {
     import TokenType._
+    def isBreedVariable = {
+      (dialect.agentVariables.implicitObserverVariableTypeMap.keySet ++
+      dialect.agentVariables.implicitTurtleVariableTypeMap.keySet ++
+      dialect.agentVariables.implicitPatchVariableTypeMap.keySet ++
+      dialect.agentVariables.implicitLinkVariableTypeMap.keySet).contains(t.text.toUpperCase)
+    }
 
     val punctType = TokenTypes.SEPARATOR
     t.tpe match {
@@ -80,6 +87,10 @@ trait NetLogoTokenMaker extends TokenMakerBase {
             if (dialect.tokenMapper.getCommand(t.text.toUpperCase).isDefined)
               TokenTypes.OPERATOR
             else if (dialect.tokenMapper.getReporter(t.text.toUpperCase).isDefined)
+              TokenTypes.FUNCTION
+            else if (t.text.equalsIgnoreCase("BREED") && firstOnLine)
+              TokenTypes.RESERVED_WORD
+            else if (isBreedVariable)
               TokenTypes.FUNCTION
             else
               TokenTypes.IDENTIFIER
@@ -108,7 +119,7 @@ trait NetLogoTokenMaker extends TokenMakerBase {
     seg.setIndex(seg.getBeginIndex) // reset Segment
 
     def netlogoTokenToRstaToken(netLogoToken: Token, lastToken: Option[TokenImpl]): TokenImpl = {
-      val next = new TokenImpl(seg, netLogoToken.start, netLogoToken.end - 1, offsetShift + netLogoToken.start, rstaTokenType(netLogoToken), 0)
+      val next = new TokenImpl(seg, netLogoToken.start, netLogoToken.end - 1, offsetShift + netLogoToken.start, rstaTokenType(netLogoToken, lastToken.isEmpty), 0)
       lastToken.foreach { last =>
         last.setNextToken(next)
       }

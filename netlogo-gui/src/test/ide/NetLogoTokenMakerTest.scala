@@ -25,6 +25,12 @@ class NetLogoTokenMakerTest extends FunSuite {
     def seg = new Segment(text.toCharArray, 0, text.length)
     val nlTokenMaker = new NetLogoTwoDTokenMaker()
     def tokens: RstaToken = nlTokenMaker.getTokenList(seg, TokenTypes.NULL, offset)
+    def tokenToSeq(t: RstaToken, acc: Seq[RstaToken]): Seq[RstaToken] =
+      t match {
+        case null => acc
+        case tok  => tokenToSeq(t.getNextToken, acc :+ tok)
+      }
+    def tokenSeq = tokenToSeq(tokens, Seq())
   }
 
   test("wrapped input: empty string") { new SegInputHelper {
@@ -87,39 +93,32 @@ class NetLogoTokenMakerTest extends FunSuite {
 
   test("NetLogoTokenMaker: single token followed by whitespace") { new Helper {
     text = "123 "
-    val t = tokens
-    val t2 = tokens.getNextToken
-    assert(t2 != null)
-    assert(t2.getType == TokenTypes.WHITESPACE)
-    assert(t2.getLexeme == " ")
-    assert(t2.getNextToken == null)
+    assert(tokenSeq(1) != null)
+    assert(tokenSeq(1).getType == TokenTypes.WHITESPACE)
+    assert(tokenSeq(1).getLexeme == " ")
+    assert(tokenSeq(1).getNextToken == null)
   } }
 
   test("NetLogoTokenMaker: two tokens separated by whitespace") { new Helper {
     text = "123 \"456\""
-    val t = tokens
-    val t2 = tokens.getNextToken
-    assert(t2 != null)
-    val t3 = t2.getNextToken
-    assert(t3.getType == TokenTypes.LITERAL_STRING_DOUBLE_QUOTE)
-    assert(t3.getLexeme == "\"456\"")
-    assert(t3.getNextToken == null)
+    assert(tokenSeq.length == 3)
+    assert(tokenSeq(2).getType == TokenTypes.LITERAL_STRING_DOUBLE_QUOTE)
+    assert(tokenSeq(2).getLexeme == "\"456\"")
+    assert(tokenSeq(2).getNextToken == null)
   } }
 
   test("NetLogoTokenMaker: open literal string") { new Helper {
     text = "\""
-    val t = tokens
-    assert(t.getNextToken == null)
-    assert(t.getLexeme == "\"")
+    assert(tokenSeq.length == 1)
+    assert(tokenSeq(0).getLexeme == "\"")
   } }
 
   test("NetLogoTokenMaker: non-zero offset") { new Helper {
     override val offset = 5
     text = "abc"
-    val t = tokens
-    assert(t.getOffset == 5)
-    assert(t.getEndOffset == 8)
-    assert(t.containsPosition(7))
+    assert(tokenSeq(0).getOffset == 5)
+    assert(tokenSeq(0).getEndOffset == 8)
+    assert(tokenSeq(0).containsPosition(7))
   } }
 
   test("NetLogoTokenMaker: non-zero offset bracket") { new Helper {
@@ -133,19 +132,19 @@ class NetLogoTokenMakerTest extends FunSuite {
 
   test("NetLogoTokenMaker: ident and number separated by whitespace") { new Helper {
     text = "abc 123"
-    val t = tokens
-    assert(t.getType == TokenTypes.IDENTIFIER)
-    val t2 = tokens.getNextToken
-    assert(t2 != null)
-    val t3 = t2.getNextToken
-    assert(t3.getType == TokenTypes.LITERAL_NUMBER_FLOAT)
-    assert(t3.getLexeme == "123")
-    assert(t3.getNextToken == null)
+    assert(tokenSeq.length == 3)
+    assert(tokenSeq(0).getType == TokenTypes.IDENTIFIER)
+    assert(tokenSeq(2).getType == TokenTypes.LITERAL_NUMBER_FLOAT)
+    assert(tokenSeq(2).getLexeme == "123")
+    assert(tokenSeq(2).getNextToken == null)
   } }
 
-  test("NetLogoTokenMaker: newline separated") { new Helper {
-    pending
+  test("breed tokenizes as keyword if it's the first word on a line, as a reporter otherwise") { new Helper {
+    text = "breed breed"
+    assert(tokenSeq(0).getType == TokenTypes.RESERVED_WORD)
+    assert(tokenSeq(2).getType == TokenTypes.FUNCTION)
   } }
+
 
   def testTokenType(tokenText: String, expectedType: Int): Unit = {
     test(s"token type of $tokenText") { new Helper {
@@ -159,7 +158,6 @@ class NetLogoTokenMakerTest extends FunSuite {
   testTokenType("true", TokenTypes.LITERAL_BOOLEAN)
   testTokenType("ask", TokenTypes.OPERATOR)
   testTokenType("fput", TokenTypes.FUNCTION)
-  //TODO don't know what NOBODY should be...
-  testTokenType("nobody", TokenTypes.DATA_TYPE)
-  //TODO: "Breed" at start of line is a keyword, "breed" elsewhere is a function
+  testTokenType("xcor", TokenTypes.FUNCTION)
+  testTokenType("nobody", TokenTypes.LITERAL_BACKQUOTE)
 }
