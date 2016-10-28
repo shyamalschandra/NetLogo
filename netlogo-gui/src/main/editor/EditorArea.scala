@@ -73,11 +73,11 @@ class EditorArea(val configuration: EditorConfiguration)
     setCaret(caret)
     setDragEnabled(false)
 
+    undoManager.watch(this)
+
     // on Windows, prevent save() from outputting ^M characters - ST 2/23/04
     getDocument.putProperty(DefaultEditorKit.EndOfLineStringProperty, "\n")
-
     getDocument.putProperty(PlainDocument.tabSizeAttribute, Int.box(2))
-    getDocument.addUndoableEditListener(undoManager)
 
     // add key bindings for undo and redo so they work even in modal dialogs
     val mask: Int = getToolkit.getMenuShortcutKeyMask
@@ -181,7 +181,6 @@ class EditorArea(val configuration: EditorConfiguration)
 
   def focusGained(fe: java.awt.event.FocusEvent): Unit = {
     Actions.setEnabled(true)
-    UndoManager.setCurrentManager(undoManager)
   }
 
   def focusLost(fe: java.awt.event.FocusEvent): Unit = {
@@ -189,7 +188,6 @@ class EditorArea(val configuration: EditorConfiguration)
     colorizer.reset()
     if (!fe.isTemporary) {
       Actions.setEnabled(false)
-      UndoManager.setCurrentManager(null)
     }
   }
 
