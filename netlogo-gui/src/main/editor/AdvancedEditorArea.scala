@@ -40,12 +40,15 @@ class AdvancedEditorArea(val configuration: EditorConfiguration, rows: Int, colu
     setBracketMatchingEnabled(enable)
   }
 
-  override def getActions(): Array[Action] =
+  override def getActions(): Array[Action] = {
     super.getActions.filter(_.getValue(Action.NAME) != "RSTA.GoToMatchingBracketAction").toArray[Action]
+  }
 
   override def createPopupMenu(): JPopupMenu = {
     val popupMenu = super.createPopupMenu
     configuration.contextActions.foreach(popupMenu.add)
+    popupMenu.add(new ToggleFoldsAction(this))
+    popupMenu.addPopupMenuListener(new SuspendCaretPopupListener(this))
     popupMenu
   }
 
