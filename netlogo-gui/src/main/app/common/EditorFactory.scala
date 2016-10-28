@@ -3,6 +3,7 @@
 package org.nlogo.app.common
 
 import java.util.prefs.Preferences
+import java.awt.Font
 import java.awt.event.{FocusEvent, InputEvent, KeyEvent}
 import javax.swing.{ Action, JScrollPane, KeyStroke, ScrollPaneConstants }
 import javax.swing.text.TextAction
@@ -62,6 +63,10 @@ class EditorFactory(compiler: CompilerServices) extends DefaultEditorFactory(com
       case aea: AdvancedEditorArea =>
         val sp = new RTextScrollPane(aea) with EditorScrollPane {
           def lineNumbersEnabled = getLineNumbersEnabled
+          override def setFont(f: Font) = {
+            super.setFont(f)
+            Option(getGutter).foreach(_.setLineNumberFont(f))
+          }
         }
         sp.setLineNumbersEnabled(editor.configuration.showLineNumbers)
         sp
