@@ -2,12 +2,13 @@
 
 package org.nlogo.ide
 
-import org.nlogo.core.{ Femto, Token, TokenizerInterface, TokenType }
+import org.nlogo.core.{ CompilerException, Femto, Token, TokenizerInterface, TokenType }
 
 import org.fife.ui.rsyntaxtextarea.{ folding, RSyntaxTextArea },
   folding.{ Fold, FoldParser, FoldType }
 
 import scala.annotation.tailrec
+import scala.util.Try
 
 object NetLogoFoldParser {
   val tokenizer: TokenizerInterface =
@@ -17,7 +18,10 @@ object NetLogoFoldParser {
     Femto.scalaSingleton[Token => Token]("org.nlogo.parse.Namer0")
 
   def sections(text: String): Seq[Seq[Token]] = {
-    val tokens = tokenizer.tokenizeString(text, "").map(namer).buffered
+    val tokens = tokenizer.tokenizeString(text, "")
+      .map(t => Try(namer(t)).recover({
+        case c: CompilerException => t
+      }).get).buffered
 
     @tailrec
     def takeUntilCloseBracketOrKeyword(acc: Seq[Token]): Seq[Token] =

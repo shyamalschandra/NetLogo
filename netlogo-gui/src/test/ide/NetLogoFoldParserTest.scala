@@ -32,6 +32,11 @@ class NetLogoFoldParserTest extends FunSuite with ProgramGenerator {
     assert(sections(code)(1).map(_.text).mkString(" ") === "to foo bar end")
   }
 
+  test("handles bad tokens without error") {
+    val code = """to foo fput " list end"""
+    assert(sections(code).length == 1)
+  }
+
   test("delimits the appropriate number of syntax elements") {
     forAll(wellFormedPrograms) { p =>
       assert(sections(p.programText).length === p.statementCount, p.programText)
