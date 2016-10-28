@@ -11,7 +11,7 @@ class LineNumberScrollPane(text: JTextComponent, vsbPolicy: Int, hsbPolicy: Int)
   extends JScrollPane(text, vsbPolicy, hsbPolicy)
   with EditorScrollPane {
 
-  val lineNumbers = new LineNumbersBar(text)
+  lazy val lineNumbers = new LineNumbersBar(text)
 
   def setLineNumbersEnabled(enabled: Boolean) = {
     setRowHeaderView(if(enabled) lineNumbers else null)
