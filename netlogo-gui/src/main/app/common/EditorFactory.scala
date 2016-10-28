@@ -45,7 +45,7 @@ class EditorFactory(compiler: CompilerServices) extends DefaultEditorFactory(com
     // This is a proxy for advanced editor fixtures required only by the main code tab
     // - RG 10/28/16
     if (configuration.highlightCurrentLine)
-      new AdvancedEditorArea(configuration, 100, 100)
+      new AdvancedEditorArea(configuration)
     else
       super.newEditor(configuration)
   }

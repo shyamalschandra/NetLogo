@@ -24,9 +24,13 @@ abstract class ShowDialogAction(name: String) extends AbstractAction(name) {
   }
 }
 
+object ShowPreferencesDialog {
+  val Group = "org.nlogo.app.Preferences"
+}
+
 class ShowPreferencesDialog(newDialog: => JDialog) extends ShowDialogAction(I18N.gui.get("menu.tools.preferences")) {
   putValue(ActionCategoryKey, ToolsCategory)
-  putValue(ActionGroupKey,    "org.nlogo.app.Preferences")
+  putValue(ActionGroupKey,    ShowPreferencesDialog.Group)
 
   def createDialog(): JDialog = newDialog
 }

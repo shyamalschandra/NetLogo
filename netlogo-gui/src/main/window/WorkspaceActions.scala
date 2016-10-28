@@ -52,6 +52,7 @@ object WorkspaceActions {
     putValue(ActionCategoryKey,      ToolsCategory)
     putValue(ActionGroupKey,         ToolsDialogsGroup)
     putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_T, Toolkit.getDefaultToolkit.getMenuShortcutKeyMask | InputEvent.SHIFT_MASK))
+    putValue(ActionRankKey,          Double.box(0))
 
     override def performAction(workspace: GUIWorkspace): Unit = {
       try {

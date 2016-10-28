@@ -15,7 +15,7 @@ import org.nlogo.window.WorkspaceActions.HaltGroup
 import org.nlogo.swing.{ Menu, UserAction}, UserAction.{ ToolsDialogsGroup, ToolsMonitorGroup, ToolsHubNetGroup }
 
 object ToolsMenu {
-  val sortOrder = Seq(HaltGroup, ToolsMonitorGroup, InterfaceTab.MenuGroup, ToolsDialogsGroup, ToolsHubNetGroup)
+  val sortOrder = Seq(ShowPreferencesDialog.Group, HaltGroup, ToolsMonitorGroup, InterfaceTab.MenuGroup, ToolsDialogsGroup, ToolsHubNetGroup)
 }
 
 class ToolsMenu

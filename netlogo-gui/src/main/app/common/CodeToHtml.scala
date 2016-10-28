@@ -8,7 +8,8 @@ import org.nlogo.workspace.AbstractWorkspace
 import org.nlogo.api.{ Version, FileIO }
 import org.nlogo.core.{ Dialect, Femto }
 import org.nlogo.nvm.CompilerInterface
-import org.nlogo.swing.UserAction, UserAction.{ ActionCategoryKey, ActionSubcategoryKey, FileCategory, FileExportSubcategory }
+import org.nlogo.swing.UserAction, UserAction.{ ActionCategoryKey,
+  ActionRankKey, ActionSubcategoryKey, FileCategory, FileExportSubcategory }
 
 object CodeToHtml {
   // for standalone use, for example on a web server
@@ -34,6 +35,7 @@ object CodeToHtml {
   }) {
     putValue(ActionCategoryKey,    FileCategory)
     putValue(ActionSubcategoryKey, FileExportSubcategory)
+    putValue(ActionRankKey,        Double.box(6))
   }
 }
 

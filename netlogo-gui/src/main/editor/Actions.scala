@@ -103,7 +103,7 @@ object Actions {
   class NetLogoSelectAllAction extends AbstractAction {
     putValue(NAME,                         I18N.gui.get("menu.edit.selectAll"))
     putValue(ACCELERATOR_KEY,              UserAction.KeyBindings.keystroke('A', withMenu = true))
-    putValue(UserAction.ActionGroupKey,    "SelectAll")
+    putValue(UserAction.ActionGroupKey,    UserAction.EditSelectionGroup)
     putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
 
     val defaultAction =
@@ -245,7 +245,7 @@ class MouseQuickHelpAction(val colorizer: Colorizer)
 }
 
 class KeyboardQuickHelpAction(val colorizer: Colorizer)
-  extends Actions.DocumentAction(I18N.gui.get("tabs.code.rightclick.quickhelp"))
+  extends Actions.DocumentAction(I18N.gui.get("menu.help.lookUpInDictionary"))
   with QuickHelpAction {
 
   putValue(UserAction.ActionCategoryKey, UserAction.HelpCategory)

@@ -11,7 +11,7 @@ import org.nlogo.api.LocalFile
 import org.nlogo.plot.Plot
 import org.nlogo.swing.{ Implicits, UserAction },
   Implicits.thunk2runnable,
-  UserAction.{ ActionCategoryKey, ActionSubcategoryKey, FileCategory, FileExportSubcategory, FileImportSubcategory }
+  UserAction.{ ActionCategoryKey, ActionRankKey, ActionSubcategoryKey, FileCategory, FileExportSubcategory, FileImportSubcategory }
 import org.nlogo.window.{ Events => WindowEvents, FileController, GUIWorkspace, PlotWidgetExport },
   WindowEvents.{ ExportPlotEvent }
 
@@ -36,12 +36,14 @@ object FileActions {
   class ExportWorldAction(workspace: GUIWorkspace, parent: Component) extends ExportAction("world", workspace.guessExportName("world.csv"), parent, workspace.exportWorld _) {
     putValue(ActionCategoryKey,    FileCategory)
     putValue(ActionSubcategoryKey, FileExportSubcategory)
+    putValue(ActionRankKey,        Double.box(0))
   }
 
   class ExportGraphicsAction(workspace: GUIWorkspace, parent: Component)
     extends ExportBackgroundAction[String](parent, "view", workspace.guessExportName("view.png")) {
       putValue(ActionCategoryKey,    FileCategory)
       putValue(ActionSubcategoryKey, FileExportSubcategory)
+      putValue(ActionRankKey,        Double.box(3))
 
       def beforeModalDialog(): String = promptForFilePath()
 
@@ -56,6 +58,7 @@ object FileActions {
   }) {
     putValue(ActionCategoryKey,    FileCategory)
     putValue(ActionSubcategoryKey, FileExportSubcategory)
+    putValue(ActionRankKey,        Double.box(5))
   }
 
   class ExportPlotAction(workspace: GUIWorkspace, parent: Component)
@@ -63,6 +66,7 @@ object FileActions {
 
     putValue(ActionCategoryKey,    FileCategory)
     putValue(ActionSubcategoryKey, FileExportSubcategory)
+    putValue(ActionRankKey,        Double.box(1))
 
     def beforeModalDialog(): (String, Plot) = {
       val plot = workspace.plotExportControls.choosePlot(frame)
@@ -82,6 +86,7 @@ object FileActions {
 
     putValue(ActionCategoryKey,    FileCategory)
     putValue(ActionSubcategoryKey, FileExportSubcategory)
+    putValue(ActionRankKey,        Double.box(2))
 
     def beforeModalDialog(): String = {
       if (workspace.plotExportControls.plotNames.isEmpty) {
@@ -102,6 +107,7 @@ object FileActions {
 
     putValue(ActionCategoryKey,    FileCategory)
     putValue(ActionSubcategoryKey, FileExportSubcategory)
+    putValue(ActionRankKey,        Double.box(4))
 
     def beforeModalDialog(): String = promptForFilePath()
 

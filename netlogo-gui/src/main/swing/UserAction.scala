@@ -25,6 +25,7 @@ object UserAction {
   val HelpCategory  = "org.nlogo.swing.HelpCategory"
 
   val EditClipboardGroup = "org.nlogo.swing.EditClipboardGroup"
+  val EditSelectionGroup = "org.nlogo.swing.EditSelectionGroup"
   val EditFormatGroup    = "org.nlogo.swing.EditFormatGroup"
   val EditFindGroup      = "org.nlogo.swing.EditFindGroup"
   val EditUndoGroup      = "org.nlogo.swing.EditUndoGroup"
