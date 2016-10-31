@@ -21,10 +21,8 @@ object Actions {
   private val actionMap =
     new DefaultEditorKit().getActions.map{ a => (a.getValue(Action.NAME), a) }.toMap
 
-  val commentToggleAction = new CommentToggleAction()
   val shiftLeftAction     = new ShiftLeftAction()
   val shiftRightAction    = new ShiftRightAction()
-  val tabKeyAction        = new TabKeyAction()
   val shiftTabKeyAction   = new ShiftTabKeyAction()
   val CutAction           = new NetLogoCutAction()
   val CopyAction          = new NetLogoCopyAction()
@@ -35,22 +33,8 @@ object Actions {
   def getDefaultEditorKitAction(name:String) = actionMap(name)
 
   def setEnabled(enabled:Boolean){
-    List(commentToggleAction,shiftLeftAction,shiftRightAction).foreach(_.setEnabled(enabled))
+    List(shiftLeftAction,shiftRightAction).foreach(_.setEnabled(enabled))
   }
-
-  class TabKeyAction extends MyTextAction(I18N.gui.get("menu.edit.format"), _.indentSelection()) {
-    putValue(UserAction.ActionGroupKey,    UserAction.EditFormatGroup)
-    putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
-    putValue(ACCELERATOR_KEY,              UserAction.KeyBindings.keystroke(java.awt.event.KeyEvent.VK_TAB))
-  }
-
-  class MyTextAction(name:String, f: EditorArea => Unit) extends TextAction(name) {
-    override def actionPerformed(e:ActionEvent){
-      val component = getTextComponent(e)
-      if(component.isInstanceOf[EditorArea]) f(component.asInstanceOf[EditorArea])
-    }
-  }
-
 
   abstract class DocumentAction(name: String) extends TextAction(name) {
     override def actionPerformed(e: ActionEvent): Unit = {
@@ -176,43 +160,6 @@ object Actions {
       }
     }
   }
-
-  class CommentToggleAction extends DocumentAction(I18N.gui.get("menu.edit.comment") + " / " + I18N.gui.get("menu.edit.uncomment")) {
-    putValue(ACCELERATOR_KEY,              keystroke(KeyEvent.VK_SEMICOLON, menuShortcutMask))
-    putValue(UserAction.ActionGroupKey,    UserAction.EditFormatGroup)
-    putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
-
-    override def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit = {
-      val (startLine, endLine) =
-        document.selectionLineRange(component.getSelectionStart, component.getSelectionEnd)
-
-      for(currentLine <- startLine to endLine) {
-        val lineStart = document.lineToStartOffset(currentLine)
-        val lineEnd = document.lineToEndOffset(currentLine)
-        val text = document.getText(lineStart, lineEnd - lineStart)
-        val semicolonPos = text.indexOf(';')
-        val allSpaces = (0 until semicolonPos)
-          .forall(i => Character.isWhitespace(text.charAt(i)))
-        if (!allSpaces || semicolonPos == -1) {
-          document.insertBeforeLinesInRange(startLine, endLine, ";")
-          return
-        }
-      }
-      // Logic to uncomment the selected section
-      for (line <- startLine to endLine) {
-        val lineStart = document.lineToStartOffset(line)
-        val lineEnd   = document.lineToEndOffset(line)
-        val text      = document.getText(lineStart, lineEnd - lineStart)
-        val semicolonPos = text.indexOf(';')
-        if (semicolonPos != -1) {
-          val allSpaces = (0 until semicolonPos)
-            .forall(i => Character.isWhitespace(text.charAt(i)))
-          if (allSpaces)
-            document.remove(lineStart + semicolonPos, 1)
-        }
-      }
-    }
-  }
 }
 
 import Actions._
@@ -232,6 +179,7 @@ trait QuickHelpAction {
     }
   }
 }
+
 class MouseQuickHelpAction(val colorizer: Colorizer)
   extends AbstractAction(I18N.gui.get("tabs.code.rightclick.quickhelp"))
   with EditorAwareAction

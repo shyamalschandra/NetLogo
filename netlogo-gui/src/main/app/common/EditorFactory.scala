@@ -21,7 +21,7 @@ class EditorFactory(compiler: CompilerServices) extends DefaultEditorFactory(com
   override def defaultConfiguration(cols: Int, rows: Int): EditorConfiguration = {
     val codeCompletionPopup = new CodeCompletionPopup
     val showUsageBox = new ShowUsageBox(colorizer)
-    val actions = Seq[Action](new ShowUsageBoxAction(showUsageBox), new JumpToDeclarationAction())
+    val actions = Seq[Action](new ToggleComments(), new ShowUsageBoxAction(showUsageBox), new JumpToDeclarationAction())
     super.defaultConfiguration(cols, rows)
       .withContextActions(actions)
       .addKeymap(

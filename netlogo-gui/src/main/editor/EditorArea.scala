@@ -111,12 +111,11 @@ class EditorArea(val configuration: EditorConfiguration)
     newIndenter.addActions(configuration, getInputMap)
   }
 
-  override def getActions: Array[Action] =
-    TextAction.augmentList(super.getActions,
-      Array[Action](
-        Actions.commentToggleAction,
-        Actions.shiftLeftAction, Actions.shiftRightAction,
-        new MouseQuickHelpAction(colorizer)))
+  override def getActions: Array[Action] = {
+    val extraActions =
+      (configuration.editorOnlyActions :+ new MouseQuickHelpAction(colorizer)).toArray[Action]
+    TextAction.augmentList(super.getActions, extraActions)
+  }
 
   override def getPreferredScrollableViewportSize: Dimension = {
     val dimension =

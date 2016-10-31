@@ -127,7 +127,7 @@ case class EditorConfiguration(
     editor.setIndenter(indenter)
 
     contextActions.foreach {
-      case e: EditorAwareAction => e.install(editor)
+      case e: InstallableAction => e.install(editor)
       case _ =>
     }
 
@@ -146,9 +146,8 @@ case class EditorConfiguration(
       Actions.DeleteAction,
       Actions.SelectAllAction)
 
-  def editorOnlyActions: Seq[Action] = Seq(
-    Actions.commentToggleAction,
-    Actions.shiftLeftAction,
-    Actions.shiftRightAction,
-    Actions.tabKeyAction)
+  def editorOnlyActions: Seq[Action] =
+    contextActions ++ Seq(
+      Actions.shiftLeftAction,
+      Actions.shiftRightAction)
 }
