@@ -21,12 +21,20 @@ class EditorFactory(compiler: CompilerServices) extends DefaultEditorFactory(com
   override def defaultConfiguration(cols: Int, rows: Int): EditorConfiguration = {
     val codeCompletionPopup = new CodeCompletionPopup
     val showUsageBox = new ShowUsageBox(colorizer)
-    val actions = Seq[Action](new ToggleComments(), new ShowUsageBoxAction(showUsageBox), new JumpToDeclarationAction())
+    val shiftTabAction = new ShiftActions.LeftTab()
+    val actions = Seq[Action](
+      new ToggleComments(),
+      new ShiftActions.Left(),
+      new ShiftActions.Right(),
+      new ShowUsageBoxAction(showUsageBox),
+      new JumpToDeclarationAction())
     super.defaultConfiguration(cols, rows)
       .withContextActions(actions)
       .addKeymap(
         KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.CTRL_DOWN_MASK),
         new AutoSuggestAction("auto-suggest", codeCompletionPopup))
+      .addKeymap(
+        KeyStroke.getKeyStroke(KeyEvent.VK_TAB, InputEvent.SHIFT_MASK), shiftTabAction)
       .withLineNumbers(
         Preferences.userRoot.node("/org/nlogo/NetLogo").get("line_numbers", "false").toBoolean)
       .forThreeDLanguage(Version.is3D)

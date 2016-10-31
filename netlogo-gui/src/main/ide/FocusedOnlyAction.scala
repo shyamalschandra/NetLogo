@@ -16,6 +16,8 @@ trait FocusedOnlyAction extends InstallableAction with FocusListener {
   }
 
   def focusLost(fe: FocusEvent): Unit = {
-    setEnabled(false)
+    if (! fe.isTemporary) {
+      setEnabled(false)
+    }
   }
 }

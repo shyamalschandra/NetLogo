@@ -13,6 +13,7 @@ import org.nlogo.agent.Observer
 import org.nlogo.app.common.{ CodeToHtml, EditorFactory, Events => AppEvents, FindDialog, MenuTab }
 import org.nlogo.core.{ AgentKind, I18N }
 import org.nlogo.editor.{ DumbIndenter, LineNumbersBar }
+import org.nlogo.ide.FocusedOnlyAction
 import org.nlogo.swing.{ Printable => NlogoPrintable, PrinterManager, ToolBar, ToolBarActionButton }
 import org.nlogo.window.{ EditorAreaErrorLabel, Events => WindowEvents, ProceduresInterface, Zoomable }
 import org.nlogo.workspace.AbstractWorkspace
@@ -90,7 +91,9 @@ class CodeTab(val workspace: AbstractWorkspace) extends JPanel
   override val permanentMenuActions =
     Seq(new CodeToHtml.Action(workspace, this, () => getText)) ++ editorConfiguration.permanentActions
 
-  activeMenuActions = editorConfiguration.editorOnlyActions
+  activeMenuActions = editorConfiguration.contextActions.collect {
+    case f: FocusedOnlyAction => f
+  }
 
   private def needsCompile() {
     _needsCompile = true

@@ -21,9 +21,6 @@ object Actions {
   private val actionMap =
     new DefaultEditorKit().getActions.map{ a => (a.getValue(Action.NAME), a) }.toMap
 
-  val shiftLeftAction     = new ShiftLeftAction()
-  val shiftRightAction    = new ShiftRightAction()
-  val shiftTabKeyAction   = new ShiftTabKeyAction()
   val CutAction           = new NetLogoCutAction()
   val CopyAction          = new NetLogoCopyAction()
   val PasteAction         = new NetLogoPasteAction()
@@ -31,10 +28,6 @@ object Actions {
   val SelectAllAction     = new NetLogoSelectAllAction()
 
   def getDefaultEditorKitAction(name:String) = actionMap(name)
-
-  def setEnabled(enabled:Boolean){
-    List(shiftLeftAction,shiftRightAction).foreach(_.setEnabled(enabled))
-  }
 
   abstract class DocumentAction(name: String) extends TextAction(name) {
     override def actionPerformed(e: ActionEvent): Unit = {
@@ -95,69 +88,6 @@ object Actions {
 
     override def actionPerformed(event: ActionEvent): Unit = {
       defaultAction.actionPerformed(event)
-    }
-  }
-
-  class ShiftLeftAction extends DocumentAction(I18N.gui.get("menu.edit.shiftLeft")) {
-    putValue(ACCELERATOR_KEY, keystroke(KeyEvent.VK_OPEN_BRACKET, menuShortcutMask))
-    putValue(UserAction.ActionGroupKey,    UserAction.EditFormatGroup)
-    putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
-
-    override def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit = {
-      val (startLine, endLine) =
-        document.selectionLineRange(component.getSelectionStart, component.getSelectionEnd)
-
-      for {
-        lineNum <- startLine to endLine
-      } {
-        val lineStart = document.lineToStartOffset(lineNum)
-        if (lineStart != -1) {
-          val text = document.getText(lineStart, 1)
-          if (text.length > 0 && text.charAt(0) == ' ') {
-            document.remove(lineStart, 1)
-          }
-        }
-      }
-    }
-  }
-
-  class ShiftRightAction extends DocumentAction(I18N.gui.get("menu.edit.shiftRight")) {
-    putValue(ACCELERATOR_KEY, keystroke(KeyEvent.VK_CLOSE_BRACKET, menuShortcutMask))
-    putValue(UserAction.ActionGroupKey,    UserAction.EditFormatGroup)
-    putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
-
-    override def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit = {
-      val (startLine, endLine) =
-        document.selectionLineRange(component.getSelectionStart, component.getSelectionEnd)
-      document.insertBeforeLinesInRange(startLine, endLine, " ")
-    }
-  }
-
-  class ShiftTabKeyAction extends DocumentAction(I18N.gui.get("menu.edit.shiftTab")) {
-    putValue(ACCELERATOR_KEY, UserAction.KeyBindings.keystroke(KeyEvent.VK_TAB, withShift = true))
-    putValue(UserAction.ActionGroupKey,    UserAction.EditFormatGroup)
-    putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
-
-    override def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit = {
-      val (startLine, endLine) =
-        document.selectionLineRange(component.getSelectionStart, component.getSelectionEnd)
-      for {
-        lineNum <- startLine to endLine
-      } {
-        val lineStart = document.lineToStartOffset(lineNum)
-        if (lineStart != -1) {
-          val text = document.getText(lineStart, 2)
-          text.length match {
-            case 0 =>
-            case 1 if text.charAt(0) == ' ' => document.remove(lineStart, 1)
-            case _ =>
-              if (text.charAt(0) == ' ' && text.charAt(1) == ' ')
-                document.remove(lineStart, 2)
-              else if (text.charAt(0) == ' ')
-                document.remove(lineStart, 1)
-          }
-        }
-      }
     }
   }
 }

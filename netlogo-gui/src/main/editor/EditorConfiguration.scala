@@ -100,8 +100,6 @@ case class EditorConfiguration(
         editor.addMouseListener(focusTraversalListener)
         editor.getInputMap.put(keystroke(KeyEvent.VK_TAB),           new TransferFocusAction())
         editor.getInputMap.put(keystroke(KeyEvent.VK_TAB, ShiftKey), new TransferFocusBackwardAction())
-      } else {
-        editor.getInputMap.put(keystroke(KeyEvent.VK_TAB, ShiftKey), Actions.shiftTabKeyAction)
       }
 
       val indenter = new DumbIndenter(editor)
@@ -109,6 +107,11 @@ case class EditorConfiguration(
 
       additionalActions.foreach {
         case (k, v) => editor.getInputMap.put(k, v)
+      }
+
+      contextActions.foreach {
+        case e: InstallableAction => e.install(editor)
+        case _ =>
       }
 
       val editorListener = new EditorListener(e => listener.textValueChanged(null))
@@ -120,8 +123,6 @@ case class EditorConfiguration(
   def configureAdvancedEditorArea(editor: AbstractEditorArea) = {
     val editorListener = new EditorListener(e => listener.textValueChanged(null))
     editorListener.install(editor)
-
-    editor.getInputMap.put(keystroke(KeyEvent.VK_TAB, ShiftKey), Actions.shiftTabKeyAction)
 
     val indenter = new DumbIndenter(editor)
     editor.setIndenter(indenter)
@@ -146,8 +147,5 @@ case class EditorConfiguration(
       Actions.DeleteAction,
       Actions.SelectAllAction)
 
-  def editorOnlyActions: Seq[Action] =
-    contextActions ++ Seq(
-      Actions.shiftLeftAction,
-      Actions.shiftRightAction)
+  def editorOnlyActions: Seq[Action] = Seq()
 }

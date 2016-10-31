@@ -175,16 +175,11 @@ class EditorArea(val configuration: EditorConfiguration)
     _selectionActive = s
   }
 
-  def focusGained(fe: java.awt.event.FocusEvent): Unit = {
-    Actions.setEnabled(true)
-  }
+  def focusGained(fe: java.awt.event.FocusEvent): Unit = { }
 
   def focusLost(fe: java.awt.event.FocusEvent): Unit = {
     bracketMatcher.focusLost(this)
     colorizer.reset()
-    if (!fe.isTemporary) {
-      Actions.setEnabled(false)
-    }
   }
 
   // this is used for quick help, when QH is triggered
