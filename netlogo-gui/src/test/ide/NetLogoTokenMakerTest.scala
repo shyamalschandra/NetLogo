@@ -8,17 +8,10 @@ import org.fife.ui.rsyntaxtextarea.{ Token => RstaToken, TokenImpl, TokenTypes }
 
 import org.nlogo.core.TokenType
 import org.nlogo.api.NetLogoLegacyDialect
-import org.nlogo.lex.{ LexOperations, StandardLexer }
 
 import org.scalatest.FunSuite
 
 class NetLogoTokenMakerTest extends FunSuite {
-  trait SegInputHelper {
-    var text: String = ""
-    lazy val seg = new Segment(text.toCharArray, 0, text.length)
-    lazy val input = new SegmentWrappedInput(seg)
-  }
-
   trait Helper {
     var text: String = ""
     val offset = 0
@@ -32,44 +25,6 @@ class NetLogoTokenMakerTest extends FunSuite {
       }
     def tokenSeq = tokenToSeq(tokens, Seq())
   }
-
-  test("wrapped input: empty string") { new SegInputHelper {
-    text = ""
-    assert(! input.hasNext)
-  } }
-
-  test("wrapped input: single character") { new SegInputHelper {
-    text = "a"
-    assert(input.hasNext)
-    assert(input.offset == 0)
-  } }
-
-  test("wrapped input: longest prefix") { new SegInputHelper {
-    text = "a"
-    val (res, nextInput) = input.longestPrefix(LexOperations.characterMatching(c => c == 'a'))
-    assert(res == "a")
-    assert(! nextInput.hasNext)
-    assert(nextInput.offset == 1)
-  } }
-
-  test("wrapped input: longest prefix of number") { new SegInputHelper {
-    text = "123"
-    val (res, nextInput) = input.longestPrefix(StandardLexer.numericLiteral._1)
-    assert(res == "123")
-    assert(! nextInput.hasNext)
-    assert(nextInput.offset == 3)
-  } }
-
-  test("wrapped input: assemble token") { new SegInputHelper {
-    text = "a"
-    val Some((res, nextInput)) =
-      input.assembleToken(LexOperations.characterMatching(c => c == 'a'), (s) => Some((s, TokenType.Ident, null)))
-    assert(res.start == 0)
-    assert(res.end == 1)
-    assert(res.tpe == TokenType.Ident)
-    assert(! nextInput.hasNext)
-    assert(nextInput.offset == 1)
-  } }
 
   test("NetLogoTokenMaker: empty") { new Helper {
     assert(tokens.getNextToken == null)
