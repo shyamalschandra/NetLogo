@@ -12,8 +12,6 @@ import org.fife.ui.rtextarea.{ RTextArea, RTextScrollPane }
 import org.fife.ui.rsyntaxtextarea.{ folding, AbstractTokenMakerFactory, RSyntaxTextArea, SyntaxConstants, Theme, TokenMakerFactory },
   folding.FoldParserManager
 
-import KeyBinding._
-
 class AdvancedEditorArea(val configuration: EditorConfiguration)
   extends RSyntaxTextArea(configuration.rows, configuration.columns) with AbstractEditorArea {
 

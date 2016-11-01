@@ -13,8 +13,6 @@ import org.nlogo.api.Refreshable
 import org.nlogo.core.I18N
 import org.nlogo.swing.UserAction //TODO: Depend won't like this...
 
-import KeyBinding._
-
 object Actions {
   /// default editor kit actions
   private val actionMap =

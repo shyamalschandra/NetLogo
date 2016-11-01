@@ -11,8 +11,8 @@ import org.nlogo.swing.UserAction
 trait EditorFactory {
   def colorizer: Colorizer
 
-  def defaultConfiguration(cols: Int, rows: Int): EditorConfiguration =
-    EditorConfiguration.default(cols, rows, colorizer)
+  def defaultConfiguration(rows: Int, cols: Int): EditorConfiguration =
+    EditorConfiguration.default(rows, cols, colorizer)
       .withMenuActions(Seq(
         TextMenuActions.CutAction,
         TextMenuActions.CopyAction,

@@ -19,7 +19,7 @@ import org.fife.ui.rsyntaxtextarea.folding.FoldParserManager
 import org.fife.ui.rtextarea.RTextScrollPane
 
 class EditorFactory(compiler: CompilerServices) extends DefaultEditorFactory(compiler) {
-  override def defaultConfiguration(cols: Int, rows: Int): EditorConfiguration = {
+  override def defaultConfiguration(rows: Int, cols: Int): EditorConfiguration = {
     val codeCompletionPopup = new CodeCompletionPopup
     val showUsageBox = new ShowUsageBox(colorizer)
     val shiftTabAction = new ShiftActions.LeftTab()
@@ -29,7 +29,7 @@ class EditorFactory(compiler: CompilerServices) extends DefaultEditorFactory(com
       new ShiftActions.Right(),
       new ShowUsageBoxAction(showUsageBox),
       new JumpToDeclarationAction())
-    super.defaultConfiguration(cols, rows)
+    super.defaultConfiguration(rows, cols)
       .withContextActions(actions)
       .addKeymap(
         KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.CTRL_DOWN_MASK),
