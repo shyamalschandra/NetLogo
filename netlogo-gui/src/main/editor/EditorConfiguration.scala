@@ -32,18 +32,13 @@ object EditorConfiguration {
   def defaultContextActions(colorizer: Colorizer): Seq[Action] =
     Seq(new MouseQuickHelpAction(colorizer))
 
-  def defaultMenuActions: Seq[Action] = Seq()
-
-  def defaultActions(colorizer: Colorizer): Map[KeyStroke, TextAction] =
-    Map(keystroke(KeyEvent.VK_F1) -> new KeyboardQuickHelpAction(colorizer))
-
   private val emptyMenu =
     new EditorMenu {
       def offerAction(action: Action): Unit = {}
     }
 
   def default(rows: Int, columns: Int, colorizer: Colorizer) =
-    EditorConfiguration(rows, columns, defaultFont, emptyListener, colorizer, defaultActions(colorizer), defaultContextActions(colorizer), defaultMenuActions, false, false, false, false, emptyMenu)
+    EditorConfiguration(rows, columns, defaultFont, emptyListener, colorizer, Map(), defaultContextActions(colorizer), Seq(), false, false, false, false, emptyMenu)
 }
 
 case class EditorConfiguration(

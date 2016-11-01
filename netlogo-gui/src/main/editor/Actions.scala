@@ -14,7 +14,6 @@ import org.nlogo.core.I18N
 import org.nlogo.swing.UserAction //TODO: Depend won't like this...
 
 import KeyBinding._
-import RichDocument._
 
 object Actions {
   /// default editor kit actions
@@ -28,20 +27,6 @@ object Actions {
   val SelectAllAction     = new NetLogoSelectAllAction()
 
   def getDefaultEditorKitAction(name:String) = actionMap(name)
-
-  abstract class DocumentAction(name: String) extends TextAction(name) {
-    override def actionPerformed(e: ActionEvent): Unit = {
-      Option(getTextComponent(e)).foreach { component =>
-        try {
-          perform(component, component.getDocument, e)
-        } catch {
-          case ex: BadLocationException => throw new IllegalStateException(ex)
-        }
-      }
-    }
-
-    def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit
-  }
 
   class NetLogoPasteAction extends PasteAction {
     putValue(NAME, I18N.gui.get("menu.edit.paste"))
@@ -72,46 +57,3 @@ object Actions {
   }
 }
 
-import Actions._
-
-trait QuickHelpAction {
-  def colorizer: Colorizer
-
-  def doHelp(document: Document, offset: Int, component: Component): Unit = {
-    if (offset != -1) {
-      val lineNumber = document.offsetToLine(offset)
-      for {
-        lineText    <- document.getLineText(document.offsetToLine(offset))
-        tokenString <- colorizer.getTokenAtPosition(lineText, offset - document.lineToStartOffset(lineNumber))
-      } {
-        colorizer.doHelp(component, tokenString)
-      }
-    }
-  }
-}
-
-class MouseQuickHelpAction(val colorizer: Colorizer)
-  extends AbstractAction(I18N.gui.get("tabs.code.rightclick.quickhelp"))
-  with EditorAwareAction
-  with QuickHelpAction {
-
-  putValue(UserAction.ActionCategoryKey, UserAction.HelpCategory)
-
-  override def actionPerformed(e: ActionEvent): Unit = {
-    doHelp(editor.getDocument, documentOffset, editor)
-  }
-}
-
-class KeyboardQuickHelpAction(val colorizer: Colorizer)
-  extends Actions.DocumentAction(I18N.gui.get("menu.help.lookUpInDictionary"))
-  with QuickHelpAction {
-
-  putValue(UserAction.ActionCategoryKey, UserAction.HelpCategory)
-  putValue(ACCELERATOR_KEY, keystroke(KeyEvent.VK_F1))
-  putValue(ACTION_COMMAND_KEY, "org.nlogo.editor.quickHelp")
-
-  override def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit = {
-    val targetOffset = component.getSelectionEnd
-    doHelp(component.getDocument, targetOffset, component)
-  }
-}

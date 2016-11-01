@@ -2,8 +2,11 @@
 
 package org.nlogo.window
 
+import java.awt.event.KeyEvent
 import javax.swing.JScrollPane
+
 import org.nlogo.editor.{ AbstractEditorArea, Colorizer, EditorConfiguration, EditorScrollPane }
+import org.nlogo.swing.UserAction
 
 trait EditorFactory {
   def colorizer: Colorizer
@@ -16,6 +19,7 @@ trait EditorFactory {
         TextMenuActions.PasteAction,
         TextMenuActions.DeleteAction,
         TextMenuActions.SelectAllAction))
+    .addKeymap(UserAction.KeyBindings.keystroke(KeyEvent.VK_F1), TextMenuActions.keyboardQuickHelp(colorizer))
 
   def newEditor(configuration: EditorConfiguration): AbstractEditorArea
 
