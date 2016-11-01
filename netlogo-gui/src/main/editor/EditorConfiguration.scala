@@ -29,8 +29,10 @@ object EditorConfiguration {
   private val emptyListener =
     new TextListener() { override def textValueChanged(e: TextEvent) { } }
 
-  def defaultMenuItems(colorizer: Colorizer): Seq[Action] =
+  def defaultContextActions(colorizer: Colorizer): Seq[Action] =
     Seq(new MouseQuickHelpAction(colorizer))
+
+  def defaultMenuActions: Seq[Action] = Seq()
 
   def defaultActions(colorizer: Colorizer): Map[KeyStroke, TextAction] =
     Map(keystroke(KeyEvent.VK_F1) -> new KeyboardQuickHelpAction(colorizer))
@@ -41,7 +43,7 @@ object EditorConfiguration {
     }
 
   def default(rows: Int, columns: Int, colorizer: Colorizer) =
-    EditorConfiguration(rows, columns, defaultFont, emptyListener, colorizer, defaultActions(colorizer), defaultMenuItems(colorizer), false, false, false, false, emptyMenu)
+    EditorConfiguration(rows, columns, defaultFont, emptyListener, colorizer, defaultActions(colorizer), defaultContextActions(colorizer), defaultMenuActions, false, false, false, false, emptyMenu)
 }
 
 case class EditorConfiguration(
@@ -50,8 +52,13 @@ case class EditorConfiguration(
   font:                 Font,
   listener:             TextListener,
   colorizer:            Colorizer,
+  /** additionalActions are added to the input map and added to
+   *  top-level menus if appropriate */
   additionalActions:    Map[KeyStroke, TextAction],
+  /** contextActions are presented in the right-click context menu */
   contextActions:       Seq[Action],
+  /** menuActions are made available to top-level menus, but not otherwise available */
+  menuActions:          Seq[Action],
   enableFocusTraversal: Boolean,
   highlightCurrentLine: Boolean,
   showLineNumbers:      Boolean,
@@ -70,6 +77,8 @@ case class EditorConfiguration(
       copy(showLineNumbers = show)
     def withContextActions(actions: Seq[Action]) =
       copy(contextActions = contextActions ++ actions)
+    def withMenuActions(actions: Seq[Action]) =
+      copy(menuActions = menuActions ++ actions)
     def forThreeDLanguage(is3D: Boolean) =
       copy(is3Dlanguage = is3D)
     def addKeymap(key: KeyStroke, action: TextAction) =
@@ -109,7 +118,7 @@ case class EditorConfiguration(
         case (k, v) => editor.getInputMap.put(k, v)
       }
 
-      contextActions.foreach {
+      (contextActions ++ menuActions).foreach {
         case e: InstallableAction => e.install(editor)
         case _ =>
       }
@@ -127,7 +136,7 @@ case class EditorConfiguration(
     val indenter = new DumbIndenter(editor)
     editor.setIndenter(indenter)
 
-    contextActions.foreach {
+    (contextActions ++ menuActions).foreach {
       case e: InstallableAction => e.install(editor)
       case _ =>
     }
@@ -140,12 +149,7 @@ case class EditorConfiguration(
     menu.offerAction(editor.redoAction)
   }
 
-  def permanentActions: Seq[Action] = additionalActions.values.toSeq ++
-    Seq(Actions.PasteAction,
-      Actions.CutAction,
-      Actions.CopyAction,
-      Actions.DeleteAction,
-      Actions.SelectAllAction)
+  def permanentActions: Seq[Action] = additionalActions.values.toSeq ++ menuActions
 
   def editorOnlyActions: Seq[Action] = Seq()
 }

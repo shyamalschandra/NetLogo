@@ -8,8 +8,12 @@ import javax.swing.{JComponent, JLayeredPane, JMenuItem, JPopupMenu}
 
 import scala.collection.JavaConverters._
 import org.nlogo.api.{Editable, Version}
-import org.nlogo.awt.{Fonts => NlogoFonts, Mouse => NlogoMouse}
-import org.nlogo.core.{I18N, Button => CoreButton, Chooser => CoreChooser, InputBox => CoreInputBox, Monitor => CoreMonitor, Plot => CorePlot, Slider => CoreSlider, Switch => CoreSwitch, TextBox => CoreTextBox, View => CoreView, Widget => CoreWidget}
+import org.nlogo.app.common.EditorFactory
+import org.nlogo.awt.{ Fonts => NlogoFonts, Mouse => NlogoMouse }
+import org.nlogo.core.{ I18N, Button => CoreButton, Chooser => CoreChooser,
+  InputBox => CoreInputBox, Monitor => CoreMonitor, Plot => CorePlot,
+  Slider => CoreSlider, Switch => CoreSwitch, TextBox => CoreTextBox,
+  View => CoreView, Widget => CoreWidget }
 import org.nlogo.core.model.WidgetReader
 import org.nlogo.editor.{ EditorArea, EditorConfiguration }
 import org.nlogo.fileformat
@@ -66,6 +70,8 @@ class WidgetPanel(val workspace: GUIWorkspace)
         }
       }
     }
+
+  protected val editorFactory: EditorFactory = new EditorFactory(workspace)
 
   setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR))
   setOpaque(true)
@@ -355,12 +361,12 @@ class WidgetPanel(val workspace: GUIWorkspace)
   }
 
   protected def textEditorConfiguration: EditorConfiguration =
-    EditorConfiguration.default(1, 20, new EditorColorizer(workspace))
+    editorFactory.defaultConfiguration(1, 20)
       .withFont(NlogoFonts.monospacedFont)
       .withFocusTraversalEnabled(true)
 
   protected def dialogEditorConfiguration: EditorConfiguration =
-    EditorConfiguration.default(5, 20, new EditorColorizer(workspace))
+    editorFactory.defaultConfiguration(5, 20)
       .withFont(NlogoFonts.monospacedFont)
 
   def mouseReleased(e: MouseEvent): Unit =

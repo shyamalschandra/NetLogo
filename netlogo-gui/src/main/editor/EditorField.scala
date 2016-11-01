@@ -5,7 +5,7 @@ package org.nlogo.editor
 import org.nlogo.core.TokenType
 
 import javax.swing._
-import javax.swing.text.TextAction
+import javax.swing.text.{ DefaultEditorKit, TextAction }
 
 class EditorField(
   columns: Int,
@@ -13,13 +13,13 @@ class EditorField(
   enableFocusTraversalKeys: Boolean,
   colorizer: Colorizer,
   actionMap: Map[KeyStroke, TextAction] = EditorArea.emptyMap,
-  menuItems: Seq[Action] = Seq[Action]())
+  contextActions: Seq[Action] = Seq())
   extends EditorArea(
     EditorConfiguration.default(1, columns, colorizer)
     .withFont(font)
     .withFocusTraversalEnabled(enableFocusTraversalKeys)
     .withKeymap(actionMap)
-    .withContextActions(menuItems)) {
+    .withContextActions(contextActions)) {
 
   // shut off the default actions for some keystrokes... let
   // someone add a KeyListener if they want - ST 7/30/03

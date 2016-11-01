@@ -43,45 +43,25 @@ object Actions {
     def perform(component: JTextComponent, document: Document, e: ActionEvent): Unit
   }
 
-  class NetLogoPasteAction extends PasteAction with Refreshable {
-    putValue(NAME,                         I18N.gui.get("menu.edit.paste"))
-    putValue(ACCELERATOR_KEY,              UserAction.KeyBindings.keystroke('V', withMenu = true))
-    putValue(UserAction.ActionGroupKey,    UserAction.EditClipboardGroup)
-    putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
-
-    def refresh(): Unit = {
-      setEnabled(java.awt.Toolkit.getDefaultToolkit().getSystemClipboard()
-        .isDataFlavorAvailable(java.awt.datatransfer.DataFlavor.stringFlavor))
-    }
+  class NetLogoPasteAction extends PasteAction {
+    putValue(NAME, I18N.gui.get("menu.edit.paste"))
   }
 
   class NetLogoCopyAction extends CopyAction {
-    putValue(NAME,                         I18N.gui.get("menu.edit.copy"))
-    putValue(ACCELERATOR_KEY,              UserAction.KeyBindings.keystroke('C', withMenu = true))
-    putValue(UserAction.ActionGroupKey,    UserAction.EditClipboardGroup)
-    putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
+    putValue(NAME, I18N.gui.get("menu.edit.copy"))
   }
 
   class NetLogoCutAction extends CutAction {
-    putValue(NAME,                         I18N.gui.get("menu.edit.cut"))
-    putValue(ACCELERATOR_KEY,              UserAction.KeyBindings.keystroke('X', withMenu = true))
-    putValue(UserAction.ActionGroupKey,    UserAction.EditClipboardGroup)
-    putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
+    putValue(NAME, I18N.gui.get("menu.edit.cut"))
   }
 
   class NetLogoDeleteAction extends InsertContentAction {
-    putValue(NAME,                         I18N.gui.get("menu.edit.delete"))
-    putValue(ACCELERATOR_KEY,              UserAction.KeyBindings.keystroke(java.awt.event.KeyEvent.VK_DELETE))
-    putValue(ACTION_COMMAND_KEY,           "")
-    putValue(UserAction.ActionGroupKey,    UserAction.EditClipboardGroup)
-    putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
+    putValue(NAME, I18N.gui.get("menu.edit.delete"))
+    putValue(ACTION_COMMAND_KEY, "")
   }
 
   class NetLogoSelectAllAction extends AbstractAction {
-    putValue(NAME,                         I18N.gui.get("menu.edit.selectAll"))
-    putValue(ACCELERATOR_KEY,              UserAction.KeyBindings.keystroke('A', withMenu = true))
-    putValue(UserAction.ActionGroupKey,    UserAction.EditSelectionGroup)
-    putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
+    putValue(NAME, I18N.gui.get("menu.edit.selectAll"))
 
     val defaultAction =
       getDefaultEditorKitAction(DefaultEditorKit.selectAllAction)

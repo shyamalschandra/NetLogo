@@ -5,8 +5,6 @@ package org.nlogo.swing
 import javax.swing.Action
 
 object UserAction {
-  /* Key denoting the I18n localization of a given action, from which the name can be looked up */
-  val I18nKey              = "org.nlogo.swing.I18nKey"
   /* Key denoting in which menu an action ought to be included */
   val ActionCategoryKey    = "org.nlogo.swing.ActionCategoryKey"
   /* Key for an action to denote what actions it should be grouped with. Allows like actions to be grouped together. */

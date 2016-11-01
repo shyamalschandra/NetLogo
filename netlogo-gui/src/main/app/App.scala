@@ -330,7 +330,8 @@ class App extends
     })
 
     val interfaceFactory = new InterfaceFactory() {
-      def widgetPanel(workspace: GUIWorkspace): AbstractWidgetPanel = new WidgetPanel(workspace)
+      def widgetPanel(workspace: GUIWorkspace): AbstractWidgetPanel =
+        new WidgetPanel(workspace)
       def toolbar(wp: AbstractWidgetPanel, workspace: GUIWorkspace, buttons: List[WidgetInfo], frame: Frame) = {
         new InterfaceToolBar(wp.asInstanceOf[WidgetPanel], workspace, buttons, frame,
           pico.getComponent(classOf[EditDialogFactoryInterface]))

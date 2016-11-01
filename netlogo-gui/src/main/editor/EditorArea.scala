@@ -8,31 +8,16 @@
 
 package org.nlogo.editor
 
-import org.nlogo.core.I18N
-
-import javax.swing.AbstractAction
-import javax.swing.Action
-import javax.swing.JMenuItem
-import javax.swing.JEditorPane
-import javax.swing.JPopupMenu
-import javax.swing.KeyStroke
-import javax.swing.JViewport
-import javax.swing.SwingUtilities
-import javax.swing.text.Document
-import javax.swing.text.DefaultEditorKit
-import javax.swing.text.TextAction
-import javax.swing.text.PlainDocument
-import javax.swing.text.BadLocationException
-import javax.swing.text.JTextComponent
-import javax.swing.text.Highlighter
-import java.awt.datatransfer.DataFlavor
-import java.awt.event.ActionEvent
-import java.awt.event.FocusListener
-import java.awt.event.InputEvent
-import java.awt.event.KeyEvent
-import java.awt.event.MouseEvent
 import java.awt._
-import javax.swing.event.{CaretEvent, CaretListener}
+import java.awt.datatransfer.DataFlavor
+import java.awt.event.{ ActionEvent, FocusListener, InputEvent, KeyEvent, MouseEvent }
+import javax.swing.{ AbstractAction, Action, JMenuItem, JEditorPane,
+  JPopupMenu, KeyStroke, JViewport, SwingUtilities }
+import javax.swing.event.{ CaretEvent, CaretListener }
+import javax.swing.text.{ Document, DefaultEditorKit, TextAction, PlainDocument,
+  BadLocationException, JTextComponent, Highlighter }
+
+import org.nlogo.core.I18N
 
 import KeyBinding._
 
@@ -56,6 +41,7 @@ class EditorArea(val configuration: EditorConfiguration)
 
   private var indenter: Option[Indenter] = None
   private var contextMenu: JPopupMenu = new EditorContextMenu(colorizer)
+  contextMenu.addPopupMenuListener(new SuspendCaretPopupListener(this))
   private val bracketMatcher = new BracketMatcher(colorizer)
   private val undoManager: UndoManager = new UndoManager()
 
@@ -202,7 +188,6 @@ class EditorArea(val configuration: EditorConfiguration)
   }
 
   private class EditorContextMenu(colorizer: Colorizer) extends JPopupMenu {
-
     val copyItem  = new JMenuItem(Actions.CopyAction)
     val cutItem   = new JMenuItem(Actions.CutAction)
     val pasteItem = new JMenuItem(Actions.PasteAction)
@@ -220,11 +205,11 @@ class EditorArea(val configuration: EditorConfiguration)
     override def show(invoker: Component, x: Int, y: Int): Unit = {
       val text = EditorArea.this.getSelectedText
       val isTextSelected = Option(text).exists(_.length > 0)
+      val point = new Point(invoker.getLocationOnScreen)
       copyItem.setEnabled(isTextSelected)
       cutItem.setEnabled(isTextSelected)
       pasteItem.setEnabled(
         Toolkit.getDefaultToolkit.getSystemClipboard.isDataFlavorAvailable(DataFlavor.stringFlavor))
-      val point = new Point(invoker.getLocationOnScreen)
       point.translate(x, y)
       configuration.contextActions.foreach {
         case e: EditorAwareAction => e.updateEditorInfo(EditorArea.this, point, mousePos)
