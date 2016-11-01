@@ -15,6 +15,7 @@ import org.nlogo.ide._
 import org.nlogo.editor.{ AbstractEditorArea, AdvancedEditorArea, EditorArea, EditorConfiguration, EditorScrollPane, LineNumberScrollPane }
 import org.nlogo.window.{ EditorColorizer, DefaultEditorFactory }
 
+import org.fife.ui.rsyntaxtextarea.folding.FoldParserManager
 import org.fife.ui.rtextarea.RTextScrollPane
 
 class EditorFactory(compiler: CompilerServices) extends DefaultEditorFactory(compiler) {
@@ -52,9 +53,11 @@ class EditorFactory(compiler: CompilerServices) extends DefaultEditorFactory(com
   override def newEditor(configuration: EditorConfiguration): AbstractEditorArea = {
     // This is a proxy for advanced editor fixtures required only by the main code tab
     // - RG 10/28/16
-    if (configuration.highlightCurrentLine)
+    if (configuration.highlightCurrentLine) {
+      FoldParserManager.get.addFoldParserMapping("netlogo", new NetLogoFoldParser())
+      FoldParserManager.get.addFoldParserMapping("netlogo3d", new NetLogoFoldParser())
       new AdvancedEditorArea(configuration)
-    else
+    } else
       super.newEditor(configuration)
   }
 

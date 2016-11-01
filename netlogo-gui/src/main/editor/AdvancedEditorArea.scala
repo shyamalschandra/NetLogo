@@ -12,7 +12,6 @@ import org.fife.ui.rtextarea.{ RTextArea, RTextScrollPane }
 import org.fife.ui.rsyntaxtextarea.{ folding, AbstractTokenMakerFactory, RSyntaxTextArea, SyntaxConstants, Theme, TokenMakerFactory },
   folding.FoldParserManager
 
-import org.nlogo.ide.NetLogoFoldParser
 import KeyBinding._
 
 class AdvancedEditorArea(val configuration: EditorConfiguration)
@@ -23,9 +22,6 @@ class AdvancedEditorArea(val configuration: EditorConfiguration)
   val tmf = TokenMakerFactory.getDefaultInstance.asInstanceOf[AbstractTokenMakerFactory]
   tmf.putMapping("netlogo",   "org.nlogo.ide.NetLogoTwoDTokenMaker")
   tmf.putMapping("netlogo3d", "org.nlogo.ide.NetLogoThreeDTokenMaker")
-
-  FoldParserManager.get.addFoldParserMapping("netlogo", new NetLogoFoldParser())
-  FoldParserManager.get.addFoldParserMapping("netlogo3d", new NetLogoFoldParser())
 
   setSyntaxEditingStyle(if (configuration.is3Dlanguage) "netlogo3d" else "netlogo")
   setCodeFoldingEnabled(true)
