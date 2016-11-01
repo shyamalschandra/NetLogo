@@ -125,13 +125,15 @@ public strictfp class UndoManager extends javax.swing.undo.UndoManager
   }
 
   public void focusGained(java.awt.event.FocusEvent event) {
-    UndoManager.setCurrentManager(this);
+    // UndoManager.setCurrentManager(this);
   }
 
   public void focusLost(java.awt.event.FocusEvent event) {
+    /*
     if (! event.isTemporary()) {
       UndoManager.setCurrentManager(null);
     }
+    */
   }
 
   @Override

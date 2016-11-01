@@ -37,7 +37,8 @@ class InterfaceTab(workspace: GUIWorkspace,
   val commandCenter = new CommandCenter(workspace, new CommandCenterLocationToggleAction)
   val iP = new InterfacePanel(workspace.viewWidget, workspace)
 
-  activeMenuActions = WorkspaceActions.interfaceActions(workspace) :+ new CommandCenterToggleAction()
+  activeMenuActions =
+    WorkspaceActions.interfaceActions(workspace) ++ Seq(iP.undoAction, iP.redoAction, new CommandCenterToggleAction())
 
   var lastFocusedComponent: JComponent = commandCenter
   setLayout(new BorderLayout)

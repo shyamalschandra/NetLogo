@@ -103,12 +103,11 @@ class CodeTab(val workspace: AbstractWorkspace) extends JPanel
   }
 
   override val permanentMenuActions =
-    Seq(new CodeToHtml.Action(workspace, this, () => getText), wrappedUndoAction, wrappedRedoAction) ++
-    editorConfiguration.permanentActions
+    Seq(new CodeToHtml.Action(workspace, this, () => getText)) ++ editorConfiguration.permanentActions
 
   activeMenuActions = editorConfiguration.contextActions.collect {
     case f: FocusedOnlyAction => f
-  }
+  } ++ Seq(wrappedUndoAction, wrappedRedoAction)
 
   private def needsCompile() {
     _needsCompile = true

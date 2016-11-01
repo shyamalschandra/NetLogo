@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage
 import java.awt.event.{ActionEvent, ActionListener, FocusEvent, KeyEvent, KeyListener, MouseEvent}
 import java.io.{ File, FileOutputStream, IOException }
 import java.util.{ArrayList, List => JList}
-import javax.swing.{JMenuItem, JOptionPane, JPopupMenu}
+import javax.swing.{ Action, JMenuItem, JOptionPane, JPopupMenu }
 
 import org.nlogo.window.{ButtonWidget, ChooserWidget, EditorColorizer, GUIWorkspace, InputBoxWidget, InterfaceGlobalWidget, JobWidget, MonitorWidget, OutputWidget, PlotWidget, SliderWidget, ViewWidget, ViewWidgetInterface, Widget, WidgetInfo, WidgetRegistry}
 import org.nlogo.api.{Editable, Exceptions, ModelSection, Version, VersionHistory}
@@ -16,8 +16,7 @@ import org.nlogo.awt.{Hierarchy, Images, UserCancelException}
 import org.nlogo.core.{AgentKind, I18N, Button => CoreButton, Chooser => CoreChooser, InputBox => CoreInputBox, Monitor => CoreMonitor, Output => CoreOutput, Plot => CorePlot, Slider => CoreSlider, Switch => CoreSwitch, TextBox => CoreTextBox, View => CoreView, Widget => CoreWidget}
 import org.nlogo.editor.{ EditorArea, UndoManager }
 import org.nlogo.log.Logger
-import org.nlogo.swing.{FileDialog => SwingFileDialog}
-import org.nlogo.swing.ModalProgressTask
+import org.nlogo.swing.{ FileDialog => SwingFileDialog, ModalProgressTask, UserAction, WrappedAction }
 import org.nlogo.window.ChooserWidget
 import org.nlogo.window.Events.{CompileAllEvent, CompileMoreSourceEvent, EditWidgetEvent, LoadWidgetsEvent, RemoveConstraintEvent, WidgetRemovedEvent}
 import org.nlogo.workspace.Evaluator
@@ -50,6 +49,20 @@ class InterfacePanel(val viewWidget: ViewWidgetInterface, workspace: GUIWorkspac
   override def focusLost(e: FocusEvent): Unit = {
     _hasFocus = false
     enableButtonKeys(false)
+  }
+
+  lazy val undoAction: Action = {
+    new WrappedAction(UndoManager.undoAction,
+      UserAction.EditCategory,
+      UserAction.EditUndoGroup,
+      UserAction.KeyBindings.keystroke('Z', withMenu = true))
+  }
+
+  lazy val redoAction: Action = {
+    new WrappedAction(UndoManager.redoAction,
+      UserAction.EditCategory,
+      UserAction.EditUndoGroup,
+      UserAction.KeyBindings.keystroke('Y', withMenu = true))
   }
 
   ///
