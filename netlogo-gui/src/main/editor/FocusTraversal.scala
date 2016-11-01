@@ -4,7 +4,7 @@ package org.nlogo.editor
 
 import java.awt.Component
 import java.awt.event.{ ActionEvent, FocusEvent, FocusListener, MouseEvent, MouseListener }
-import javax.swing.AbstractAction
+import javax.swing.{ AbstractAction, JPopupMenu }
 import javax.swing.text.JTextComponent
 
 trait FocusTraversable extends JTextComponent {
@@ -43,7 +43,9 @@ class FocusTraversalListener(textComponent: FocusTraversable)
     // visible.  I suppose we could make HighlightView smarter
     // about that, but instead let's just force the Mac-like
     // behavior and be done with it for now - ST 11/3/03
-    textComponent.select(0, 0)
+    if (!fe.isTemporary) {
+      textComponent.select(0, 0)
+    }
     mouseEvent = fe.isTemporary
   }
 

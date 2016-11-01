@@ -95,12 +95,8 @@ case class EditorConfiguration(
       if (highlightCurrentLine) {
         new LinePainter(editor)
       }
+
       editor.setFont(font)
-
-      additionalActions.foreach {
-        case (k, v) => editor.getInputMap.put(k, v)
-      }
-
       editor.setFocusTraversalKeysEnabled(enableFocusTraversal)
 
       if (enableFocusTraversal) {
