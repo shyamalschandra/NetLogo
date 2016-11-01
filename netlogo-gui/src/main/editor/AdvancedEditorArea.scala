@@ -71,21 +71,8 @@ class AdvancedEditorArea(val configuration: EditorConfiguration)
   // with this editor area
   def setSelection(s: Boolean): Unit = { }
 
-  import org.nlogo.swing.UserAction
-  def undoAction = {
-    val action = RTextArea.getAction(RTextArea.UNDO_ACTION)
-    action.putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
-    action.putValue(UserAction.ActionGroupKey, UserAction.EditUndoGroup)
-    action.putValue(Action.ACCELERATOR_KEY, UserAction.KeyBindings.keystroke('Z', withMenu = true))
-    action
-  }
-  def redoAction = {
-    val action = RTextArea.getAction(RTextArea.REDO_ACTION)
-    action.putValue(UserAction.ActionCategoryKey, UserAction.EditCategory)
-    action.putValue(UserAction.ActionGroupKey, UserAction.EditUndoGroup)
-    action.putValue(Action.ACCELERATOR_KEY, UserAction.KeyBindings.keystroke('Y', withMenu = true))
-    action
-  }
+  def undoAction = RTextArea.getAction(RTextArea.UNDO_ACTION)
+  def redoAction = RTextArea.getAction(RTextArea.REDO_ACTION)
 
   // These methods are used only by the input widget, which uses editor.EditorArea
   // exclusively at present. - RG 10/28/16

@@ -116,8 +116,6 @@ case class EditorConfiguration(
 
       val editorListener = new EditorListener(e => listener.textValueChanged(null))
       editorListener.install(editor)
-      menu.offerAction(editor.undoAction)
-      menu.offerAction(editor.redoAction)
     }
 
   def configureAdvancedEditorArea(editor: AbstractEditorArea) = {
@@ -135,9 +133,6 @@ case class EditorConfiguration(
     additionalActions.foreach {
       case (k, v) => editor.getInputMap.put(k, v)
     }
-
-    menu.offerAction(editor.undoAction)
-    menu.offerAction(editor.redoAction)
   }
 
   def permanentActions: Seq[Action] = additionalActions.values.toSeq ++ menuActions

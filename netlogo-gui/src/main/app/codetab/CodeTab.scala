@@ -14,7 +14,7 @@ import org.nlogo.app.common.{ CodeToHtml, EditorFactory, Events => AppEvents, Fi
 import org.nlogo.core.{ AgentKind, I18N }
 import org.nlogo.editor.{ DumbIndenter, LineNumbersBar }
 import org.nlogo.ide.FocusedOnlyAction
-import org.nlogo.swing.{ Printable => NlogoPrintable, PrinterManager, ToolBar, ToolBarActionButton }
+import org.nlogo.swing.{ Printable => NlogoPrintable, PrinterManager, ToolBar, ToolBarActionButton, UserAction, WrappedAction }
 import org.nlogo.window.{ EditorAreaErrorLabel, Events => WindowEvents, ProceduresInterface, Zoomable }
 import org.nlogo.workspace.AbstractWorkspace
 
@@ -88,8 +88,23 @@ class CodeTab(val workspace: AbstractWorkspace) extends JPanel
 
   def dirty() { new WindowEvents.DirtyEvent().raise(this) }
 
+  lazy val wrappedUndoAction: Action = {
+    new WrappedAction(text.undoAction,
+      UserAction.EditCategory,
+      UserAction.EditUndoGroup,
+      UserAction.KeyBindings.keystroke('Z', withMenu = true))
+  }
+
+  lazy val wrappedRedoAction: Action = {
+    new WrappedAction(text.redoAction,
+      UserAction.EditCategory,
+      UserAction.EditUndoGroup,
+      UserAction.KeyBindings.keystroke('Y', withMenu = true))
+  }
+
   override val permanentMenuActions =
-    Seq(new CodeToHtml.Action(workspace, this, () => getText)) ++ editorConfiguration.permanentActions
+    Seq(new CodeToHtml.Action(workspace, this, () => getText), wrappedUndoAction, wrappedRedoAction) ++
+    editorConfiguration.permanentActions
 
   activeMenuActions = editorConfiguration.contextActions.collect {
     case f: FocusedOnlyAction => f

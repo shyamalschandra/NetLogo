@@ -12,8 +12,9 @@ import javax.swing.text.DefaultEditorKit.{ CutAction, CopyAction, PasteAction, I
 import org.nlogo.api.Refreshable
 import org.nlogo.core.I18N
 import org.nlogo.editor.{ Actions, Colorizer, DocumentAction, QuickHelpAction }
-import org.nlogo.swing.UserAction.{ ActionGroupKey, ActionCategoryKey,
-  EditCategory, EditClipboardGroup, EditSelectionGroup, HelpCategory, KeyBindings },
+import org.nlogo.swing.{ WrappedAction, UserAction },
+  UserAction.{ ActionGroupKey, ActionCategoryKey, EditCategory, EditClipboardGroup,
+               EditSelectionGroup, HelpCategory, KeyBindings },
     KeyBindings.keystroke
 
 object TextMenuActions {
@@ -37,19 +38,6 @@ object TextMenuActions {
 
   def keyboardQuickHelp(colorizer: Colorizer) =
     new KeyboardQuickHelpAction(colorizer)
-
-
-  class WrappedAction(base: Action, menu: String, group: String, accelerator: KeyStroke)
-    extends AbstractAction(base.getValue(NAME).toString) {
-
-    putValue(ACCELERATOR_KEY,   accelerator)
-    putValue(ActionCategoryKey, menu)
-    putValue(ActionGroupKey,    group)
-
-    override def actionPerformed(e: ActionEvent): Unit = {
-      base.actionPerformed(e)
-    }
-  }
 
   class WrappedPasteAction(base: Action)
     extends WrappedAction(base, EditCategory, EditClipboardGroup, keystroke('V', withMenu = true))

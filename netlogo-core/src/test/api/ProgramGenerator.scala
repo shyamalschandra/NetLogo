@@ -1,9 +1,9 @@
 // (C) Uri Wilensky. https://github.com/NetLogo/NetLogo
 
-package org.nlogo.compile
+package org.nlogo.api
 
 import
-  org.nlogo.core.{ Token, TokenizerInterface, TokenType }
+  org.nlogo.core.{ Token, TokenType }
 
 import
   org.scalacheck.{ Arbitrary, Gen, Shrink }, Gen.{ listOf, oneOf }

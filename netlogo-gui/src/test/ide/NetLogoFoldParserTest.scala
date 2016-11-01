@@ -2,7 +2,7 @@
 
 package org.nlogo.ide
 
-import org.nlogo.compile.ProgramGenerator
+import org.nlogo.api.ProgramGenerator
 
 import org.scalatest.FunSuite
 
