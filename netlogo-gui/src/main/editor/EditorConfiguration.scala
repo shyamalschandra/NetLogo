@@ -47,12 +47,12 @@ case class EditorConfiguration(
   font:                 Font,
   listener:             TextListener,
   colorizer:            Colorizer,
-  /** additionalActions are added to the input map and added to
-   *  top-level menus if appropriate */
+  /* additionalActions are added to the input map and added to
+   * top-level menus if appropriate */
   additionalActions:    Map[KeyStroke, TextAction],
-  /** contextActions are presented in the right-click context menu */
+  /* contextActions are presented in the right-click context menu */
   contextActions:       Seq[Action],
-  /** menuActions are made available to top-level menus, but not otherwise available */
+  /* menuActions are made available to top-level menus, but not otherwise available */
   menuActions:          Seq[Action],
   enableFocusTraversal: Boolean,
   highlightCurrentLine: Boolean,
